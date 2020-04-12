@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:ts="http://www.thespheres.org/ui">
+
+    <p:accordionPanel onTabChange="PF('statusDialog').show()" 
+                      onTabShow="PF('statusDialog').hide()" 
+                      id="accPanel" 
+                      dynamic="true" 
+                      value="#{app.user.targetUnits.tabs}" 
+                      var="target" 
+                      rendered="#{app.user ne null}" 
+                      activeIndex="#{app.user.targetUnits.activeTabIndex}" > 
+        <p:tab title="#{target.displayTitle}">   
+
+            <h:form>
+                <p:dataTable id="datatable" 
+                             var="student" 
+                             value="#{target.students}" 
+                             editable="true"  
+                             emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
+                             editMode="cell" 
+                             rowExpandMode="single" 
+                             rowIndexVar="rowIndex" 
+                             rowStyleClass="#{empty rowIndex or rowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}">          
+                    <f:event type="preRenderComponent" listener="#{target.onPreRenderComponent}"/>
+                    <p:columnGroup type="header">   
+                        <p:row>  
+                            <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled()}" style="width:2%" />   
+                            <p:column rowspan="2" headerText="#{bundle['student.name']}" />   
+                            <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
+                            <p:column colspan="#{target.editableTermColumns.size()}" rendered="#{!target.editableTermColumns.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
+                        </p:row>  
+                        <p:row>   
+                            <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%" width="10%"/>  
+                            <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%" />  
+                            <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%" />     
+                            <c:forEach items="#{app.targetTypes}" var="targetType">
+                                <p:column headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%" />  
+                            </c:forEach>
+                        </p:row>  
+                    </p:columnGroup> 
+                    
+                    <p:column rendered="#{target.isCrossMarksEnabled()}">  
+                        <p:rowToggler />
+                    </p:column>   
+                    <p:column>  
+                        <h:outputText value="#{student.directoryName}"/>  
+                    </p:column>   
+
+                    <p:columns value="#{target.termColumns}" var="term" columnIndexVar="ci" style="text-align: center;"  >
+                        <!--                    <f:facet name="header">
+                                                <h:outputText value="#{term.displayName}" />
+                                            </f:facet>  -->
+                        #{target.getGradeValueAt(student, term).shortLabel} 
+                    </p:columns>  
+
+                    <!--Ohne styleClass="ui-editable-column" schaltet der Editor nicht ein!--> 
+    <!--                <p:column styleClass="ui-editable-column" style="text-align: center;"   rendered="#{target.editableTermColumns.get('zeugnisnoten') ne null}">  
+                        <p:cellEditor rendered="${target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).editable}">  
+                            <f:facet name="output">
+                                <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).shortLabel}" 
+                                              style="#{target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).style}" />
+                            </f:facet>  
+                            <f:facet name="input">    
+                                <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).id}"
+                                                 converter="#{target.editableTermColumns.get('zeugnisnoten')}" 
+                                                 editable="true"
+                                                 style="width: 96%" >  
+                                    <f:selectItem itemLabel="#{bundle['zeugnisnoten.noSelectionLabel']}" noSelectionOption="true" />
+                                    <f:selectItems value="#{target.editableTermColumns.get('zeugnisnoten').grades}" 
+                                                   var="grade" 
+                                                   itemLabel="#{grade.shortLabel}" 
+                                                   itemValue="#{grade.id}" />  
+                                    <p:ajax global="false"/>
+                                </p:selectOneMenu>   
+                            </f:facet>       
+                        </p:cellEditor> 
+                        <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).shortLabel}" 
+                                      style="#{target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).style}" 
+                                      rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get('zeugnisnoten')).editable}"/>
+                    </p:column>  -->
+
+<!--                <p:column styleClass="ui-editable-column" style="text-align: center;" rendered="#{target.editableTermColumns.get('arbeitsverhalten') ne null}">  
+                    <p:cellEditor rendered="${target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).editable}">  
+                        <f:facet name="output" >
+                            <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).shortLabel}" 
+                                          style="#{target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).style}" />
+                        </f:facet>  
+                        <f:facet name="input">    
+                            <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).id}" 
+                                             style="width:96%">  
+                                <f:selectItem itemLabel="#{bundle['arbeitsverhalten.noSelectionLabel']}" noSelectionOption="true" />
+                                <f:selectItems value="#{target.editableTermColumns.get('arbeitsverhalten').grades}" 
+                                               var="grade" 
+                                               itemLabel="#{target.resolveShortLabel(student, target.editableTermColumns.get('arbeitsverhalten'), grade)}" 
+                                               itemValue="#{grade.id}" />  
+                            </p:selectOneMenu>   
+                        </f:facet>       
+                    </p:cellEditor> 
+                    <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).shortLabel}" 
+                                  style="#{target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).style}" 
+                                  rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get('arbeitsverhalten')).editable}"/>
+                </p:column>  -->
+
+<!--                <p:column styleClass="ui-editable-column" style="text-align: center;" rendered="#{target.editableTermColumns.get('sozialverhalten') ne null}">  
+                    <p:cellEditor rendered="${target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).editable}">  
+                        <f:facet name="output" >
+                            <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).shortLabel}" 
+                                          style="#{target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).style}" />
+                        </f:facet>  
+                        <f:facet name="input">    
+                            <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).id}" 
+                                             style="width:96%">  
+                                <f:selectItem itemLabel="#{bundle['sozialverhalten.noSelectionLabel']}" noSelectionOption="true" />
+                                <f:selectItems value="#{target.editableTermColumns.get('sozialverhalten').grades}" 
+                                               var="grade" 
+                                               itemLabel="#{target.resolveShortLabel(student, target.editableTermColumns.get('sozialverhalten'), grade)}" 
+                                               itemValue="#{grade.id}" />  
+                            </p:selectOneMenu>   
+                        </f:facet>       
+                    </p:cellEditor> 
+                    <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).shortLabel}" 
+                                  style="#{target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).style}" 
+                                  rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get('sozialverhalten')).editable}"/>
+
+                </p:column> -->
+
+                <!--<p:repeat value="#{target.editableTermColumnNames}" var="targetType">-->
+                    <c:forEach items="#{app.targetTypes}" var="targetType">
+
+                        <p:column styleClass="ui-editable-column" style="text-align: center;" rendered="#{target.editableTermColumns.get(targetType) ne null}">  
+                            <p:cellEditor rendered="${target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
+                                <f:facet name="output" >
+                                    <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
+                                                  style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" />
+                                </f:facet>  
+                                <f:facet name="input">    
+                                    <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).id}" 
+                                                     style="width: 96% !important">  
+                                        <f:selectItem itemLabel="#{bundle[targetType += '.noSelectionLabel']}" noSelectionOption="true" />
+                                        <f:selectItems value="#{target.editableTermColumns.get(targetType).grades}" 
+                                                       var="grade" 
+                                                       itemLabel="#{target.resolveShortLabel(student, target.editableTermColumns.get(targetType), grade)}" 
+                                                       itemValue="#{grade.id}" />  
+                                        <!--<p:ajax event="itemSelect" process="@this"/>-->
+                                    </p:selectOneMenu>   
+                                </f:facet>       
+                            </p:cellEditor> 
+                            <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
+                                          style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" 
+                                          rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}"/>
+
+                        </p:column> 
+                    </c:forEach>
+                    <!--</p:repeat>-->
+
+                    <p:rowExpansion rendered="#{target.isCrossMarksEnabled()}">  <!--ui-widget-content grid -->
+                        <p:dataTable id="crossMarks" 
+                                     var="crossMarkSubject" 
+                                     value="#{target.crossMarkSubjects}" 
+                                     editable="true"  
+                                     emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
+                                     editMode="cell"                              
+                                     rowIndexVar="crossMarksRowIndex" 
+                                     rowStyleClass="#{empty crossMarksRowIndex or crossMarksRowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}"
+                                     style="box-shadow: 10px 10px 5px;">           
+
+                                <!--<f:event type="preRenderComponent" listener="#{target.onPreRenderComponent}"/>-->
+                            <p:columnGroup type="header">   
+                                <p:row>  
+                                    <p:column rowspan="2" headerText="#{bundle['crossMarks.skill']}" />   
+                                    <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
+                                    <p:column colspan="1" headerText="#{target.editTerm.displayName}" style="width: 15%" /> 
+                                </p:row>  
+                                <p:row>   
+                                    <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%" width="10%"/>  
+                                    <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%" />  
+                                    <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%" />     
+                                </p:row>  
+                            </p:columnGroup> 
+
+                            <p:column>  
+                                <h:outputText value="#{crossMarkSubject.displayName}" />  
+                            </p:column>   
+
+                            <p:columns value="#{target.termColumns}" var="term" columnIndexVar="ci" style="text-align: center;"  >
+                                #{target.getCrossMarkGradeValueAt(student, crossMarkSubject).shortLabel} 
+                            </p:columns>  
+
+                            <p:column styleClass="ui-editable-column" style="text-align: center;" rendered="true">  
+                                <p:cellEditor rendered="${target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}">  
+                                    <f:facet name="output" >
+                                        <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
+                                                      style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" />
+                                    </f:facet>  
+                                    <f:facet name="input">    
+                                        <p:selectOneMenu value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).id}" 
+                                                         style="width: 96% !important">  
+                                            <f:selectItem itemLabel="#{bundle['zeugnisnoten.noSelectionLabel']}" noSelectionOption="true" />
+                                            <f:selectItems value="#{app.crossMarkGrades}" 
+                                                           var="grade" 
+                                                           itemLabel="#{target.resolveCrossMarkGradeLabel(grade)}" 
+                                                           itemValue="#{grade.id}" />  
+                                            <!--<p:ajax event="itemSelect" process="@this"/>-->
+                                        </p:selectOneMenu>   
+                                    </f:facet>       
+                                </p:cellEditor> 
+                                <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
+                                              style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" 
+                                              rendered="${!target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}"/>
+                            </p:column> 
+
+                        </p:dataTable>                        
+                    </p:rowExpansion>
+
+                </p:dataTable>  
+            </h:form>
+
+            <p:separator />
+
+            <h:form>
+                <h:outputLabel value="#{bundle['availableTarget.downloadOption.label']}" />
+                <p:spacer width="18" />
+                <p:button value="#{bundle['availableTarget.downloadOption.pdf']}" disabled="#{target.pdfUrl == null}" id="downloadPdfButton" href="#{target.pdfUrl}" target="_blank" />
+                <p:spacer width="12" />
+                <p:button value="#{bundle['availableTarget.downloadOption.csv']}" disabled="#{target.csvUrl == null}" id="downloadCsvButton" href="#{target.csvUrl}" target="_blank" />
+                <p:spacer width="1" />
+                <p:selectOneMenu value="#{target.csvEncoding}" disabled="#{target.csvUrl == null}" style="vertical-align: top">  
+                    <f:selectItem itemLabel="#{bundle['availableTarget.downloadOption.csvEncoding']}" noSelectionOption="false" />
+                    <f:selectItem itemLabel="#{bundle['availableTarget.downloadOption.csvEncoding.utf8']}" itemValue="utf-8" />
+                    <f:selectItem itemLabel="#{bundle['availableTarget.downloadOption.csvEncoding.cp1252']}" itemValue="windows-1252" />
+                    <p:ajax process="@this" update="downloadCsvButton"/>
+                </p:selectOneMenu>   
+                <p:spacer width="12" />
+                <p:selectBooleanCheckbox rendered="#{target.hasJoinedTargets()}" itemLabel="#{bundle['availableTarget.downloadOption.joinedTargets']}" value="#{target.joinTargets}">
+                    <p:ajax update="downloadPdfButton,downloadCsvButton" />
+                </p:selectBooleanCheckbox>
+            </h:form>
+        </p:tab>
+    </p:accordionPanel>
+</html>
+

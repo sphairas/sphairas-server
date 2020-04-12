@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nds:NdsZeugnisSchulvorlage xmlns:nds="http://www.thespheres.org/xsd/niedersachsen/zeugnisse.xsd" xmlns:b="http://www.thespheres.org/xsd/betula/betula.xsd">
+<!--    <Liste Name="primary-unit-head-teachers-documentid">
+        <Listen-ID id="klassenlehrer" authority="insert-authority" version="latest"/>
+    </Liste>-->
+    <Schulname>${Schulname}</Schulname>
+    <Schulort>${Schulort}</Schulort>
+    <Listen />
+</nds:NdsZeugnisSchulvorlage>

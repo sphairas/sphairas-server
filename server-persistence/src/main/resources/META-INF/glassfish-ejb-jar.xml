@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE glassfish-ejb-jar PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 EJB 3.1//EN" "http://glassfish.org/dtds/glassfish-ejb-jar_3_1-1.dtd">
+<glassfish-ejb-jar>
+  <security-role-mapping>
+    <role-name>remoteadmin</role-name>
+    <group-name>remoteadmins</group-name>
+  </security-role-mapping>
+  <security-role-mapping>
+    <role-name>signee</role-name>
+    <group-name>signees</group-name>
+  </security-role-mapping>
+  <security-role-mapping>
+    <role-name>unitadmin</role-name>
+    <group-name>unitadmins</group-name>
+  </security-role-mapping>
+  <security-role-mapping>
+    <role-name>timer</role-name>
+    <principal-name>timer-principal</principal-name>
+  </security-role-mapping>
+  <enterprise-beans>
+    <ejb>
+      <ejb-name>BetulaService</ejb-name>
+      <webservice-endpoint>
+        <port-component-name>BetulaService</port-component-name>
+        <endpoint-address-uri>service/betulaws</endpoint-address-uri>
+        <login-config>
+          <auth-method>BASIC</auth-method>
+          <realm>${web.module.authentication.realm}</realm>
+        </login-config>
+      </webservice-endpoint>
+      <webservice-endpoint>
+        <port-component-name>BetulaAdminService</port-component-name>
+        <endpoint-address-uri>service/betulaws-admin</endpoint-address-uri>
+        <login-config>
+          <auth-method>CLIENT-CERT</auth-method>
+          <realm>certificate</realm>
+        </login-config>
+        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        <!--                <login-config>
+                    <auth-method>BASIC</auth-method>
+                    <realm>iserv</realm>
+                </login-config>-->
+      </webservice-endpoint>
+    </ejb>
+    <ejb>
+      <ejb-name>DbAdminService</ejb-name>
+      <webservice-endpoint>
+        <port-component-name>DbAdminService</port-component-name>
+        <endpoint-address-uri>service/dbadmin</endpoint-address-uri>
+        <login-config>
+          <auth-method>CLIENT-CERT</auth-method>
+          <realm>certificate</realm>
+        </login-config>
+        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        <!--                <login-config>
+                    <auth-method>BASIC</auth-method>
+                    <realm>iserv</realm>
+                </login-config>-->
+      </webservice-endpoint>
+    </ejb>
+    <ejb>
+      <ejb-name>IservLoginImpl</ejb-name>
+      <transport-config>
+            </transport-config>
+      <sas-context>
+        <caller-propagation>NONE</caller-propagation>
+      </sas-context>
+    </ejb>
+  </enterprise-beans>
+  <!-- Muss eingeschaltet sein, sonst kann ein remote interface nicht zweimal gebunden werden -->
+  <disable-nonportable-jndi-names>true</disable-nonportable-jndi-names>
+</glassfish-ejb-jar>

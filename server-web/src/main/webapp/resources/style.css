@@ -1,0 +1,43 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 03.04.2014, 15:31:56
+    Author     : boris
+*/
+.noBorders tr, .noBorders td {
+    background: none !important;
+    border: none !important;
+}
+
+.ui-widget, .ui-widget .ui-widget {
+    font-size: 100%;
+}
+
+.ui-datatable table {
+    table-layout: auto !important;
+}
+
+.ui-datatable .ui-datatable-data .even-row td{
+    background-color:#EDF1F4;
+}
+
+.ui-datatable .ui-datatable-data .odd-row td{
+}
+
+.ui-selectonemenu-list,
+.ui-selectonemenu-panel
+{
+    /*Was: 50% */
+    max-height: 82% !important;
+
+}
+/* was .ui-selectonemenu-items-wrapper */
+.ui-selectonemenu-panel .ui-selectonemenu-items-wrapper
+{
+    /*Was: no overflow */
+    height:100% !important;
+    overflow: scroll;
+}

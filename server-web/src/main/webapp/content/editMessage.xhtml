@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:outputStylesheet name="style.css" />
+    <h:head>
+        <title>#{bundle['edit.message.dialog.title']}</title>
+        <meta name="viewport" content="width=device-width"/>
+    </h:head>
+    <h:body>
+        <h:form >
+            <h:panelGrid id="edit-message-dialog" style="margin-bottom:10px; width: 600px" cellpadding="5">                
+                <p:row> 
+                    <p:column colspan="2">
+                        <p:selectOneMenu id="select-channel" value="#{messageEdit.editChannel}" style="width:96%">  
+                            <f:selectItem itemLabel="#{bundle['edit.message.dialog.noSelectionLabel']}" noSelectionOption="true" />
+                            <f:selectItems value="#{messageEdit.channels}" var="channel" itemLabel="#{messageEdit.getChannelDisplayName(channel)}" itemValue="#{channel}" />  
+                        </p:selectOneMenu>   
+                        <h:outputText value="#{messageEdit.selectOneMenuErrorMessage}" rendered="#{messageEdit.selectOneMenuErrorMessage ne null}" style="color: red"/> 
+                    </p:column>
+                </p:row>
+                <p:row> 
+                    <p:column colspan="2">
+                        <p:inputTextarea  id="message-text" rows="9" widgetVar="inputText" value="#{messageEdit.editMessageText}" counter="counter" maxlength="1024" counterTemplate="#{bundle['edit.message.dialog.remaining.characters']}" autoResize="true" style="width:96%" />        
+                        <h:outputText id="counter" />     
+
+                        <h:outputText value="#{messageEdit.inputTextareaErrorMessage}" rendered="#{messageEdit.inputTextareaErrorMessage ne null}" style="color: red"/> 
+                    </p:column>           
+                </p:row>
+                <p:row> 
+                    <p:selectBooleanCheckbox id="send-email-checkbox" value="#{messageEdit.sendEmail}" >
+                        <p:ajax update="edit-message-dialog-ok" />
+                    </p:selectBooleanCheckbox>
+                    <p:outputLabel for="send-email-checkbox" value="#{bundle['edit.message.dialog.send.email.label']}" />
+                </p:row>
+                <p:row> 
+                    <p:selectBooleanCheckbox disabled="true" id="confidential-checkbox" value="#{messageEdit.confidential}" />   
+                    <p:outputLabel for="confidential-checkbox" value="#{bundle['edit.message.dialog.confidential.label']}" />       
+                </p:row>
+                <p:column colspan="2">
+                    <p:commandButton value="#{bundle['edit.message.dialog.button.ok']}" 
+                                     id="edit-message-dialog-ok"
+                                     actionListener="#{messageEdit.editOK}" 
+                                     update="edit-message-dialog" 
+                                     partialSubmit="true" 
+                                     icon="ui-icon-disk" 
+                                     style="float: right" />
+                </p:column>   
+            </h:panelGrid>
+        </h:form>
+    </h:body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Zeugnis-Bemerkungen</title>
+    </h:head>
+
+    <h:body>
+
+        <h:form>
+            <h:panelGrid columns="2" style="margin-bottom:10px; width: 600px" cellpadding="5">
+                <ui:repeat value="#{configRepNotes.elements}" var="element" varStatus="repeatStatus" >
+                    <p:outputLabel for="checkbox" rendered="#{element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
+                    <p:selectManyCheckbox id="checkbox" rendered="#{element.multiple}" value="#{element.selected}" layout="pageDirection" >
+                        <f:selectItems value="#{element.markers}" var="marker" 
+                                       itemLabel="#{configRepNotes.formatMarkerLabel(marker)}" 
+                                       itemValue="#{marker.id}"/>
+                        <p:ajax  />
+                    </p:selectManyCheckbox>
+                    <p:outputLabel rendered="#{!element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
+                    <p:selectOneRadio rendered="#{!element.multiple}" value="#{element.selectedItem}" layout="pageDirection" >
+                        <f:selectItems value="#{element.markers}" var="marker"
+                                       itemLabel="#{configRepNotes.formatMarkerLabel(marker)}" 
+                                       itemValue="#{marker.id}"/>
+                        <p:ajax listener="#{configRepNotes.selectRadioItem}" />
+                    </p:selectOneRadio>
+                    <p:separator rendered="#{!repeatStatus.last}" />
+                </ui:repeat>
+            </h:panelGrid>
+        </h:form>
+
+    </h:body>
+    
+</html>

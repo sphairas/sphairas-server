@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:ts="http://www.thespheres.org/ui">
+
+    <f:view contentType="text/html">
+
+        <h:outputStylesheet name="style.css" />
+        <h:head>
+            <link rel="shortcut icon" type="image/x-icon" href="#{request.contextPath}/resources/favicon.ico" />
+            <f:facet name="first">
+                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
+                <title>Listen</title>
+            </f:facet>
+        </h:head> 
+
+        <h:body>  
+
+            <p:messages escape="false" />
+
+            <p:growl widgetVar="growl" showDetail="true" />
+
+            <p:idleMonitor timeout="120000" onidle="PF('notifier').disconnect()">
+                <p:ajax event="idle" listener="#{app.processTimeout}"/>
+            </p:idleMonitor>
+
+            <!--<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />-->
+
+            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <p:graphicImage value="resources/ajax-loading-bar-blue.gif" />
+            </p:dialog>
+
+            <p:layout  fullPage="true" stateful="true">
+                <p:layoutUnit position="north" size="180" resizable="true" closable="false" collapsible="false">                        
+                    <!--                        <h:graphicImage value="resources/logo.jpg" width="170" style="margin-left: auto; margin-right: auto; display: block"/>-->
+                    <p:graphicImage value="#{app.image}" width="170" style="margin-left: auto; margin-right: auto; display: block"/>
+                    <h:outputText value="#{app.username}" style="vertical-align: bottom"/> 
+                </p:layoutUnit>
+
+                <p:layoutUnit id="west" position="west" collapsible="true" resizable="true">
+
+                    <h:form>
+                        <!--- Ohne ajax false funktioniert es nicht && zwischen menu und menuitem dürfen keine kommentare --> 
+                        <p:menu id="menu" style="width:120px"> 
+                            <p:menuitem value="#{bundle['main.menu.messages']}" action="#{app.setCurrentPage('messages')}" style="#{app.getMenuStyle('messages')}" update="center" ajax="false"/> 
+                            <p:menuitem value="#{bundle['main.menu.terms']}" actionListener="#{app.setCurrentPage('terms')}" rendered="#{app.user.renderMenu('terms')}" style="#{app.getMenuStyle('terms')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" /> 
+                            <p:menuitem value="#{app.user.primaryUnit.displayTitle}" actionListener="#{app.setCurrentPage('primaryUnits')}" rendered="#{app.user.renderMenu('primaryUnits')}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
+                            <p:separator/> 
+                            <p:menuitem value="#{bundle['main.menu.help']}" url="https://sphairas.de/dokuwiki/doku.php" target="_blank" /> 
+                            <p:menuitem value="#{bundle['main.menu.exit']}" actionListener="#{app.doLogout}" global="false" ajax="true" partialSubmit="true" process="@this"/>
+                        </p:menu>
+                    </h:form>  
+
+                    <p:dashboard id="dashboard" model="#{app.user.dashboard}"/>
+                </p:layoutUnit> 
+
+                <p:layoutUnit   id="center" position="center"> 
+                    <p:panel id="content" style="border: none; padding: 0; background: none">
+                        <ui:include  src="content/#{app.currentPage}.xhtml"/>
+                    </p:panel>
+                </p:layoutUnit>
+
+                <p:layoutUnit id="south" position="south"> 
+                    <!--<p:lifecycle/>-->
+                </p:layoutUnit>
+
+            </p:layout>
+
+            <!--        transport="long-polling"    onClose="callLogout()"-->
+            <p:socket  onMessage="handleMessage" channel="/notify-grade-update/#{app.user.signee.id}" autoConnect="true" widgetVar="notifier" >
+            </p:socket>
+
+            <script type="text/javascript">
+                function handleMessage(message) {
+                    PrimeFaces.ajax.Request.handle(message);
+                    //                    PrimeFaces.ajax.Request.handle({formId: 'main', source: 'main:center:datatable', update: 'main:center:datatable'});
+                    if (message.summary)
+                        PF('growl').show([message]);
+                    //                    if (message.logout)
+                    //                        callLogout();
+                    //                    if (notifier.connection.response.status === 200) {
+                    //                        notifier.connection.response.request.requestCount--;
+                    //                    }
+                }
+            </script>
+        </h:body>
+    </f:view>
+</html>
+

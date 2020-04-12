@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <h:form>
+        <p:menubar styleClass="ui-menubar ui-active">  
+            <p:submenu label="#{bundle['primaryUnits.menu.download']}" icon="ui-icon-document">  
+                <p:menuitem value="#{bundle['primaryUnits.menu.download.allelisten']}" url="#{app.user.primaryUnit.listenDownload}" target="_blank" >
+                </p:menuitem> 
+                <p:menuitem rendered="#{app.user.primaryUnit.enableDetails}" value="#{bundle['primaryUnits.menu.download.detailListen']}" url="#{app.user.primaryUnit.detailsDownload}" target="_blank" >
+                </p:menuitem> 
+                <p:menuitem value="#{bundle['primaryUnits.menu.download.allezgn']}" url="#{app.user.primaryUnit.zgnDownload}" target="_blank" >
+                </p:menuitem> 
+            </p:submenu>  
+            <f:facet name="options">  
+                <h:selectOneMenu value="#{app.user.primaryUnit.editingDocType}" required="true" style="margin-right:10px" > 
+                    <f:selectItems value="#{app.user.primaryUnit.editingDocTypes}" var="type" itemLabel="#{app.user.primaryUnit.getDocTypeDisplayName(type)}" />  
+                    <p:ajax update="targettable" />
+                </h:selectOneMenu>  
+            </f:facet>  
+        </p:menubar>  
+    </h:form>
+
+    <p:dataTable  id="targettable" 
+                  var="student" 
+                  value="#{app.user.primaryUnit.students}" 
+                  rowExpandMode="single" 
+                  style="font-size: 80%" 
+                  rowIndexVar="rowIndex" 
+                  rowStyleClass="#{empty rowIndex or rowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}">
+
+        <f:event type="preRenderComponent" listener="#{app.user.primaryUnit.onPreRenderComponent}"/>
+        <p:ajax event="rowToggle" listener="#{app.user.primaryUnit.onRowToggle}" />
+
+        <p:column style="width:2%">  
+            <p:rowToggler />  
+        </p:column>  
+
+        <p:column  width="100" headerText="Name">  
+            <h:outputText value="#{student.directoryName}" />  
+        </p:column> 
+
+        <p:columns value="#{app.user.primaryUnit.subjects}" var="subject" columnIndexVar="ci" style="text-align: center;"  >
+            <f:facet name="header">
+                <h:outputText id="subject" value="#{util.label(subject)}" />
+                <p:tooltip for="subject" value="#{util.tooltip(subject)}" showEffect="fade" hideEffect="fade" /> 
+            </f:facet>  
+            <h:outputText value="#{app.user.primaryUnit.getGradeValueAt(student, subject).shortLabel}" 
+                          style="#{app.user.primaryUnit.getGradeValueAt(student, subject).style}"/>
+        </p:columns>  
+
+        <p:rowExpansion rendered="#{student.isReportConfigurationEnabled()}">  <!--ui-widget-content grid -->
+            <h:form style="max-width: 1020px;">
+                <div class="ui-g">                    
+                    <div id="leftSideExpansion" class="ui-g-12 ui-md-7">
+
+                        <div class="ui-g">
+                            <div class="ui-g-6 ui-md-3">
+                                <p:outputLabel for="fehltage" value="#{bundle['primunit.fehltage']}" />
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:inputText  id="fehltage" value="#{student.fehltage}" style="max-width: 100%;#{student.fehltageStyle}">
+                                    <p:ajax update="@this"/>
+                                </p:inputText>
+                            </div>  
+                            <div class="ui-g-6 ui-md-3">
+                                <p:outputLabel for="unentschuldigt" value="#{bundle['primunit.unentschuldigt']}" />
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:inputText id="unentschuldigt" value="#{student.unentschuldigt}" style="max-width: 100%;#{student.unentschuldigtStyle}">
+                                     <p:ajax update="@this"/>
+                                </p:inputText>
+                            </div>  
+                            <div class="ui-g-6 ui-md-3">
+                                <p:outputLabel for="avinput" value="#{bundle['column.header.arbeitsverhalten']}" />
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:selectOneMenu id="avinput"  value="#{student.arbeitsverhalten.id}">  
+                                    <f:selectItem itemLabel="" itemValue=""/>
+                                    <f:selectItems value="#{student.getAVSVGrades()}" var="grade" itemLabel="#{grade.shortLabel}" itemValue="#{grade.id}" /> 
+                                    <p:ajax  update="@this avreason"/>
+                                </p:selectOneMenu>   
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:outputLabel for="avreason" value="#{bundle['column.header.arbeitsverhalten.reason']}" />
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:inputTextarea id="avreason" rows="2" value="#{student.avReason}" disabled="#{!student.avReasonEnabled}" style="max-width: 100%;">
+                                    <p:ajax event="blur" update="@this" />
+                                </p:inputTextarea>
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:outputLabel for="svinput" value="#{bundle['column.header.sozialverhalten']}" />
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:selectOneMenu id="svinput"  value="#{student.sozialverhalten.id}">  
+                                    <f:selectItem itemLabel="" itemValue=""/>
+                                    <f:selectItems value="#{student.getAVSVGrades()}" var="grade" itemLabel="#{grade.shortLabel}" itemValue="#{grade.id}" />  
+                                    <p:ajax  update="@this svreason"/>
+                                </p:selectOneMenu>   
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:outputLabel for="svreason" value="#{bundle['column.header.sozialverhalten.reason']}" />
+                            </div>
+                            <div class="ui-g-6 ui-md-3">
+                                <p:inputTextarea id="svreason" rows="2" value="#{student.svReason}" disabled="#{!student.svReasonEnabled}" style="max-width: 100%;">
+                                    <p:ajax event="blur" update="@this" />
+                                </p:inputTextarea>
+                            </div>
+                        </div>
+
+                        <div class="ui-g">
+                            <div class="ui-g-12 ui-md-3">
+                                <p:outputLabel for="notes" value="#{bundle['primaryUnits.notes.label']}" />
+                            </div>
+                            <div class="ui-g-12 ui-md-9">
+                                <p:inputTextarea id="notes" rows="3" value="#{student.notes}" disabled="#{!student.notesEnabled}" autoResize="true" style="min-width: 100%;">
+                                    <p:ajax event="blur" update="@this" />
+                                </p:inputTextarea>
+                            </div>
+
+                            <ui:repeat value="#{student.reportTextFieldIds}" id="textfields" var="textid" varStatus="repeatStatus" >
+
+                                <div class="ui-g-12 ui-md-3">
+                                    <p:outputLabel for="textfield" value="#{student.getPrimaryUnitTextFieldLabel(textid)}" />
+                                </div>
+                                <div class="ui-g-12 ui-md-9">
+                                    <p:inputTextarea id="textfield" rows="3" value="#{student.textFieldValues[textid].value}" autoResize="true" style="min-width: 100%;">
+                                        <p:ajax event="blur" update="@this" />
+                                    </p:inputTextarea>
+                                </div>
+
+                            </ui:repeat>
+                        </div>
+
+                    </div>
+
+                    <div class="ui-g-12 ui-md-5">
+
+                        <div class="ui-g">
+                            <div class="ui-g-12">   
+                                <p:scrollPanel id="reportNotesScrollPanel" mode="native" style="width: auto; max-height: 350px; border: none;">
+                                    <ui:repeat value="#{reportNotes2.elements}" var="element" varStatus="repeatStatus" >
+                                        <p:outputLabel for="checkbox" rendered="#{element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
+                                        <p:selectManyCheckbox id="checkbox" rendered="#{element.multiple}" value="#{element.selected}" layout="pageDirection" >
+                                            <f:selectItems value="#{element.markers}" var="marker" 
+                                                           itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
+                                                           itemValue="#{marker.id}"/>
+                                            <p:ajax  />
+                                        </p:selectManyCheckbox>
+                                        <p:outputLabel for="radio" rendered="#{!element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
+                                        <p:selectOneRadio  id="radio"  rendered="#{!element.multiple}" value="#{element.selectedItem}" layout="pageDirection">
+                                            <f:selectItems value="#{element.markers}" var="marker"
+                                                           itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
+                                                           itemValue="#{marker.id}"/>
+                                            <p:ajax />
+                                        </p:selectOneRadio>
+                                        <p:separator rendered="#{!repeatStatus.last}" />
+                                    </ui:repeat>
+                                </p:scrollPanel>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </h:form>
+        </p:rowExpansion>
+
+    </p:dataTable> 
+</html>
+

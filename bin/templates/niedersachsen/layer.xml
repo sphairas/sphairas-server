@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="ProviderServices">
+        <folder name="NamingResolver">
+            <file name="${PROVIDER}-NdsNamingResolverProvider.instance">
+                <attr name="instanceCreate" methodvalue="org.thespheres.betula.niedersachsen.NdsNamingResolverProvider.create"/>
+                <attr name="provider" stringvalue="${PROVIDER}"/>
+                <attr name="base-level" intvalue="5"/>
+                <attr name="base-level-abitur" intvalue="11"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Provider">
+        <file name="${PROVIDER}.instance">
+            <attr
+                methodvalue="org.thespheres.betula.services.impl.XmlProviderInfoEntry.create" name="instanceCreate"/>
+            <attr name="url" stringvalue="${PROVIDER}"/>
+            <attr name="display-name" stringvalue="${PROVIDER_NAME}"/>
+            <attr name="description" stringvalue=""/>
+        </file>
+    </folder>
+    <folder name="Convention">
+        <folder name="Marker">
+            <file name="${PROVIDER}-zeugnis-bemerkungen.instance">
+                <attr name="instanceCreate" methodvalue="org.thespheres.betula.services.util.AbstractReloadableMarkerConvention.create"/>
+                <attr name="instanceOf" stringvalue="org.thespheres.betula.document.MarkerConvention"/>
+                <!--Eigene-->
+                <attr name="name" stringvalue="${PROVIDER}.zeugnis.bemerkungen" />
+                <attr name="provider" stringvalue="${PROVIDER}" />
+                <attr name="resource" stringvalue="signee/custom-report-notes.properties" />
+                <attr name="display-name" stringvalue="Zeugnisbemerkungen von ${PROVIDER_NAME}"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

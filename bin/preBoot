@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+echo 'Executing preBoot script.'
+#
+if [ -z "$SPHAIRAS_PROVIDER" ]; then
+    echo "Environment variable SPHAIRAS_PROVIDER not set."
+    exit 1
+fi
+echo "Using sphairas provider name \"$SPHAIRAS_PROVIDER\"."
+
+if [ -f $APP_RESOURCES/host.conf ]; then
+    echo 'Found source $APP_RESOURCES/host.conf.'
+    source $APP_RESOURCES/host.conf
+fi
+
+set +x
+#if test "$AS_ADMIN_MASTERPASSWORD"x = x -a -f "$PASSWORD_FILE"
+#  then
+#    source "$PASSWORD_FILE"
+#
+if [ -f "/opt/pwdfile" ]; then
+    source /opt/pwdfile
+fi
+if test "$AS_ADMIN_MASTERPASSWORD"x = x
+  then
+    AS_ADMIN_MASTERPASSWORD=changeit
+fi
+
+SERVER_KEY=${SSL}/server.key
+#SERVER_KEY_PASSWORD='changeit'
+SERVER_PKCS12_FILE=${PAYARA_PATH}/server.p12
+SERVER_CERT=${SSL}/server.crt
+
+#
+mkdir -p ${APP_RESOURCES}/public
+mkdir -p ${APP_RESOURCES}/signee
+#
+ALIAS=$SPHAIRAS_PROVIDER
+if [ ! -f $SERVER_KEY ] || [ ! -f $SERVER_CERT ]; then
+    echo "Create a new RSA key pair."
+    openssl req -x509 -newkey rsa:4096 -keyout $SERVER_KEY -passout pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_CERT -days 365  -subj "/CN=$SPHAIRAS_HOSTNAME/C=$SPHAIRAS_COUNTRY/ST=$SPHAIRAS_STATE/L=$SPHAIRAS_LOCATION/O=$SPHAIRAS_SCHOOLNAME" 
+fi
+cp $SERVER_CERT ${APP_RESOURCES}/public/server.crt
+openssl pkcs12 -export -in $SERVER_CERT -inkey $SERVER_KEY -passin pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_PKCS12_FILE -passout pass:${AS_ADMIN_MASTERPASSWORD} -name $ALIAS
+
+#Import keys
+#keytool -delete -alias ${CERT_ALIAS} -storepass changeit -keystore ${DOMAIN_DIR}/config/keystore.jks
+#keytool -importkeystore -srckeystore ${SERVER_PKCS12_FILE} -srcstoretype PKCS12 -srcalias ${ALIAS} -destalias ${CERT_ALIAS} -srcstorepass ${SERVER_KEY_PASSWORD} -deststorepass changeit -destkeystore ${DOMAIN_DIR}/config/keystore.jks
+if [ -f ${SSL}/cacerts.jks ]; then
+    rm ${SSL}/keystore.jks
+fi
+keytool -importkeystore -srckeystore ${SERVER_PKCS12_FILE} -srcstoretype PKCS12 -srcalias ${ALIAS} -destalias ${CERT_ALIAS} -srcstorepass ${AS_ADMIN_MASTERPASSWORD} -deststorepass ${AS_ADMIN_MASTERPASSWORD} -destkeystore ${SSL}/keystore.jks -deststoretype jks
+#cp ${DOMAIN_DIR}/config/keystore.jks ${SSL}/keystore.jks
+
+#Remove the default truststore with lots of trusted certs.
+#rm ${DOMAIN_DIR}/config/cacerts.jks
+#keytool -import -file ${SERVER_CERT} -trustcacerts -noprompt -alias ${ALIAS} -storepass changeit -keystore ${DOMAIN_DIR}/config/cacerts.jks 
+if [ -f ${SSL}/cacerts.jks ]; then
+    rm ${SSL}/cacerts.jks
+fi
+keytool -import -file ${SERVER_CERT} -trustcacerts -noprompt -alias ${ALIAS} -storepass ${AS_ADMIN_MASTERPASSWORD} -keystore ${SSL}/cacerts.jks -storetype jks
+
+#cp ${DOMAIN_DIR}/config/cacerts.jks ${SSL}/cacerts.jks
+
+echo "imq.keystore.password=${AS_ADMIN_MASTERPASSWORD}" > /opt/imqpwdfile
+
+if [ $SPHAIRAS_STATE='Niedersachsen' ]; then
+    /bin/bash /templates/niedersachsen/preBootNiedersachsen
+elif [ $SPHAIRAS_STATE='Bremen' ]; then
+    echo "No template for $SPHAIRAS_STATE."
+    exit 1
+fi
+
+#Update AS_ENV
+echo "#Payara environment" > ${PAYARAENV}
+#echo "export SPHAIRAS_PROVIDER=$SPHAIRAS_PROVIDER" >> ${PAYARAENV}
+#echo "export default.signee.suffix=$LOGINSUFFIX" >> ${PAYARAENV}
+#
+if [ ! -f $APP_RESOURCES/instance.properties ]; then 
+    echo "#instance.properties" >> $APP_RESOURCES/instance.properties
+fi
+
+
+#${PAYARA_PATH_DIR}/bin/asadmin --user=${ADMIN_USER} --passwordfile=${PASSWORD_FILE} start-domain ${DOMAIN_NAME} && \
+#    ${PAYARA_DIR}/bin/asadmin --user=${ADMIN_USER} --passwordfile=${PASSWORD_FILE} set-jvm-options $MEMORY_JVM_OPTION  && \
+#    ${PAYARA_DIR}/bin/asadmin --user=${ADMIN_USER} --passwordfile=${PASSWORD_FILE} stop-domain ${DOMAIN_NAME}

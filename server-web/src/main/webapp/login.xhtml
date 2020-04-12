@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <f:view contentType="text/html">
+        <h:outputStylesheet name="style.css" />
+        <h:head>
+            <link rel="shortcut icon" type="image/x-icon" href="#{request.contextPath}/resources/favicon.ico" />
+            <title>Login</title>
+        </h:head>
+
+        <h:body>
+            <div style="width: 450px; margin-left: auto; margin-right: auto; margin-top: 8em; display: block">
+                <h:form id="login">
+
+                    <p:remoteCommand name="callLogout" actionListener="#{app.doLogout}"  />
+
+                    <p:panel id="login-panel" header="#{login.headerLabel}">  
+                        <h:panelGrid columns="2">  
+                            <h:outputText value="#{bundle['login.username']}" style="margin-right: 1em"/>  
+                            <p:inputText id="login-username" value="#{login.username}" required="true" />
+                            <h:outputText value="#{bundle['login.password']}" />  
+                            <p:password id="login-password" value="#{login.password}"  required="true" />
+                            <p:spacer />
+                            <p:commandButton value="${bundle['login.submit']}" 
+                                             actionListener="#{login.doLogin2}" 
+                                             update="login-panel" 
+                                             partialSubmit="true" />
+                        </h:panelGrid>  
+                        <h:outputText value="#{login.errorMessage}" rendered="#{login.errorMessage ne null}" style="color: red"/> 
+                    </p:panel>  
+                    <!--<p:lifecycle/>-->
+
+                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException" 
+                                                                onexception="viewExpiredException.xhtml" />-->
+                    <!--                             <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException" 
+                                                                onexception="callLogout()" />-->
+
+                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException" 
+                                            onexception="document.location.href = document.location.href;" />
+
+                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException"  
+                                                                onexception="document.location.href = document.location.href;" />-->
+
+                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException"
+                                                                update="exceptionDialog"
+                                                                onexception="PF('exceptionDialog').show();" />-->
+                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException"
+                                                                onexception="reloadPage" />-->
+
+                    <p:dialog id="exceptionDialog" header="#{pfExceptionHandler.type}" widgetVar="exceptionDialog" height="100px">
+                        <p>  Wegen eines zwischenzeitlichen Neustarts ist die Login-Seite im Browser-Cache 
+                            ungültig und muss noch einmal geladen werden.
+                        </p>
+                          <!--Message: #{pfExceptionHandler.message} <br/>-->
+  <!--                        StackTrace: <h:outputText value="#{pfExceptionHandler.formattedStackTrace}" escape="false" /> <br />-->
+
+                        <p:button onclick="document.location.href = document.location.href;"
+                                  value="Login-Seite neu laden!"
+                                  rendered="#{pfExceptionHandler.type == 'javax.faces.application.ViewExpiredException'}" />
+                    </p:dialog>
+                </h:form>
+            </div>
+
+            <!--            <script type="text/javascript">
+                            function reloadPage() {
+                                location.reload(true);
+                            }
+                        </script>-->
+        </h:body>
+    </f:view>
+</html>
+
