@@ -1,11 +1,11 @@
 #start-database --dbhome ${PAYARA_PATH}/databases/ funktioniert nicht
 
-set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=${CERT_ALIAS}
+set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=${ENV=CERT_ALIAS}
 #protocol http-listener-2: key-store="ssl/keystore.jks" trust-store="ssl/cacerts.jks"
 
-set configs.config.server-config.iiop-service.iiop-listener.SSL_MUTUALAUTH.ssl.cert-nickname=${CERT_ALIAS}
+set configs.config.server-config.iiop-service.iiop-listener.SECRETS_MUTUALAUTH.ssl.cert-nickname=${ENV=CERT_ALIAS}
 
-create-jdbc-connection-pool --datasourceclassname com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype javax.sql.XADataSource --property port=${DB_PORT}:password=${DB_PASSWORD}:user=${DB_USER}:serverName=${DB_HOST}:databaseName=${DB_NAME} mysql_pool
+create-jdbc-connection-pool --datasourceclassname com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype javax.sql.XADataSource --property port=${ENV=DB_PORT}:password=${ENV=DB_PASSWORD}:user=${ENV=DB_USER}:serverName=${ENV=DB_HOST}:databaseName=${ENV=DB_NAME} mysql_pool
 
 create-jdbc-resource --connectionpoolid mysql_pool jdbc/betuladb
 create-jdbc-resource --connectionpoolid mysql_pool jdbc/studdb
@@ -28,7 +28,7 @@ create-jdbc-resource --connectionpoolid mysql_pool jdbc/messages
 #Use this if env prop cannot be set
 #create-system-properties providerURL=${SPHAIRAS_PROVIDER}
 
-create-system-properties web.module.authentication.realm=${WEB_MODULE_AUTHENTICATION}
+create-system-properties web.module.authentication.realm=${ENV=WEB_MODULE_AUTHENTICATION}
 create-system-properties web.module.context.root=/web
 #
 #-Duser.language=de   ==> not a system variable
@@ -37,9 +37,9 @@ create-system-properties user.language=de
 create-system-properties assess.entries.replace.equal.timestamp=true
 create-system-properties betula.web.ui.enable.details-list=true
 #
-create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ISERV_IMAP_HOST}:iserv.imap.port=${ISERV_IMAP_PORT} iserv
+create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ENV=ISERV_IMAP_HOST}:iserv.imap.port=${ENV=ISERV_IMAP_PORT} iserv
 #
-create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property jaas-context=certRealm certificate
+#create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property jaas-context=certRealm certificate
 #
 create-jms-resource --restype javax.jms.TopicConnectionFactory jms/app-resources-topic-factory
 create-jms-resource --restype javax.jms.Topic --enabled=true --property Name=appResourcesTopic jms/app-resources-topic

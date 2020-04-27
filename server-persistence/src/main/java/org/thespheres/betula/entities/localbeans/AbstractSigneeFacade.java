@@ -58,7 +58,7 @@ public class AbstractSigneeFacade {
         return new Signee(prefix, suffix, true);
     }
 
-    public String getSigneeCommonName(@NotNull Signee signee) {
+    public String getSigneeCommonName(final Signee signee) {
         final SigneeEntity se = em.find(SigneeEntity.class, signee);
         return se != null ? se.getCommonName() : null;
     }

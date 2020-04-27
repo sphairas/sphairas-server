@@ -59,7 +59,7 @@ import org.thespheres.betula.util.CollectionUtil;
 @ApplicationScoped
 public class ConfigImpl implements Serializable {
 
-    private static final String SSL_SERVERCRT_PATH = "/ssl/server.crt";
+    private static final String SERVER_CRT_FILE = "server.crt";
     private JAXBContext notesTemplateJAXB;
     private JAXBContext vorlageJAXB;
     private JAXBContext webUIJAXB;
@@ -123,7 +123,7 @@ public class ConfigImpl implements Serializable {
     }
 
     X509Certificate findServerCertificate() {
-        final Path file = Paths.get(SSL_SERVERCRT_PATH);
+        final Path file = Paths.get(System.getenv("SECRETS"), SERVER_CRT_FILE);
         final Certificate[] certs;
         try (final InputStream is = Files.newInputStream(file)) {
             final CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -131,7 +131,7 @@ public class ConfigImpl implements Serializable {
                     .toArray(Certificate[]::new);
         } catch (IOException | CertificateException ex) {
             Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-            final ConfigurationException th = new ConfigurationException(SSL_SERVERCRT_PATH, "certificate");
+            final ConfigurationException th = new ConfigurationException(SERVER_CRT_FILE, "certificate");
             th.initCause(ex);
             throw th;
         }
@@ -139,7 +139,7 @@ public class ConfigImpl implements Serializable {
             final X509Certificate cert = (X509Certificate) certs[0];
             return cert;
         }
-        throw new MissingConfigurationResourceException(SSL_SERVERCRT_PATH);
+        throw new MissingConfigurationResourceException(SERVER_CRT_FILE);
     }
 
     @Produces
@@ -184,7 +184,7 @@ public class ConfigImpl implements Serializable {
             m = new LdapName(subject).getRdns().stream()
                     .collect(Collectors.toMap(Rdn::getType, Rdn::getValue));
         } catch (final InvalidNameException ex) {
-            final ConfigurationException th = new ConfigurationException(SSL_SERVERCRT_PATH, "subject");
+            final ConfigurationException th = new ConfigurationException(SERVER_CRT_FILE, "subject");
             th.initCause(ex);
             throw th;
         }

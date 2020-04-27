@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+set -e
+
+#SECRETS=$1
+
+set +x
+if test "$AS_ADMIN_MASTERPASSWORD"x = x -a -f "$PASSWORD_FILE"; then
+    source "$PASSWORD_FILE"
+fi
+if test "$AS_ADMIN_MASTERPASSWORD"x = x; then
+    AS_ADMIN_MASTERPASSWORD=changeit
+fi
+
+SERVER_KEY=${SECRETS}/server.key
+SERVER_CERT=${SECRETS}/server.crt
+
+read -p "Please enter your name: " NAME
+while true; do
+    read -s -p "Password: " PASSWORD
+    echo
+    read -s -p "Password (again): " PASSWORD2
+    echo
+    [ "$PASSWORD" = "$PASSWORD2" ] && break
+    echo "Please try again"
+done
+
+echo "Create a new signed admin key for $SPHAIRAS_PROVIDER."
+if [ -z "$NAME" ]; then
+    echo "No name supplied."
+    CNAME="$SPHAIRAS_PROVIDER Admin"
+else
+    CNAME="$NAME"
+fi
+
+source ${SUBJECT}
+
+openssl req -newkey rsa:4096 -keyout ${HOME_DIR}/admin.key -nodes -out ${HOME_DIR}/admin.csr -days 365 -subj "/CN=${CNAME}/C=${C}/ST=${ST}/L=${L}/O=${O}" 
+#Sign the key
+openssl x509 -req -CA $SERVER_CERT -CAkey $SERVER_KEY -in ${HOME_DIR}/admin.csr -passin pass:$AS_ADMIN_MASTERPASSWORD -out ${HOME_DIR}/admin.cer -days 365 -CAcreateserial
+#Create PKCS12
+#openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${SECRETS}/admin.p12 -passout pass:'changeit' -chain -CAfile $SERVER_CERT -name $SPHAIRAS_PROVIDER
+openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${HOME_DIR}/admin.p12 -passout pass:$PASSWORD -chain -CAfile $SERVER_CERT -name ${SPHAIRAS_PROVIDER}
+rm ${HOME_DIR}/admin.key
+rm ${HOME_DIR}/admin.csr
+rm ${HOME_DIR}/admin.cer
+
+echo "To copy your private key to your current console use \"docker cp $(hostname):${HOME_DIR}/admin.p12 .\""

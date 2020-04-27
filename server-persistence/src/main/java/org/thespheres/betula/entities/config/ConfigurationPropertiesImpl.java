@@ -174,19 +174,37 @@ public class ConfigurationPropertiesImpl {
     public CommonDocuments commonDocuments() {
         final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
-        final Resource res;
-        try {
-            res = (Resource) dc.lookup(file);
-        } catch (NamingException ex) {
-            Logger.getLogger(ConfigurationPropertiesImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-            throw new MissingConfigurationResourceException(file);
-        }
-        try (final InputStream is = res.streamContent()) {
-            return (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
-        } catch (IOException | JAXBException ex) {
-            final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
-            th.initCause(ex);
-            throw th;
+//        final Resource res;
+//        try {
+//            res = (Resource) dc.lookup(file);
+//        } catch (NamingException ex) {
+//            Logger.getLogger(ConfigurationPropertiesImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+//            throw new MissingConfigurationResourceException(file);
+//        }
+//        try (final InputStream is = res.streamContent()) {
+//            return (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
+//        } catch (IOException | JAXBException ex) {
+//            final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
+//            th.initCause(ex);
+//            throw th;
+//        }        
+        if (hasResource(dc, NdsReportBuilderFactory.SCHULVORLAGE_FILE)) {
+            final Resource res;
+            try {
+                res = (Resource) dc.lookup(file);
+            } catch (NamingException ex) {
+                Logger.getLogger(ConfigurationPropertiesImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+                throw new MissingConfigurationResourceException(file);
+            }
+            try (final InputStream is = res.streamContent()) {
+                return (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
+            } catch (IOException | JAXBException ex) {
+                final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
+                th.initCause(ex);
+                throw th;
+            }
+        } else {
+            return new NdsZeugnisSchulvorlage(CommonAppProperties.provider());
         }
     }
 
