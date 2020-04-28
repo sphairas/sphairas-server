@@ -34,8 +34,10 @@ COPY --chown=payara:payara target/lib/* ${DOMAIN_DIR}/lib/
 RUN rm ${DOMAIN_DIR}/lib/mysql-connector-java-*.jar && \
     ln -s /app-resources/ $APP_RESOURCES && \
     mkdir -p ${SECRETS_DIR} && \
-    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.jks -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.jks"#' ${DOMAIN_DIR}/config/domain.xml
-
+    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.jks -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.jks"#' ${DOMAIN_DIR}/config/domain.xml && \
+    printf "iservRealm { \n\
+	org.thespheres.betula.security.iservlogin.IservLoginModule required; \n\
+    };" >> ${DOMAIN_DIR}/config/login.conf
 
 #Remove
 COPY private/password /
