@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<tsd:target-processor-hints-settings xmlns:ts="http://www.thespheres.org/xsd/betula/target-import-settings.xsd" 
+                                     xmlns:tsd="http://www.thespheres.org/xsd/betula/target-settings-defaults.xsd" 
+                                     xmlns:b="http://www.thespheres.org/xsd/betula/betula.xsd">
+    <hints>
+        <hint key="process-bulk" value="true"/>
+        <hint key="update-pu-links" value="true" target-selector="nicht-ag"/>
+    </hints>
+    <target-selectors>
+        <tsd:marker-target-selector type="ABSENCE" name="nicht-ag">
+            <marker convention="niedersachsen.unterricht.art" id="ag"/>
+        </tsd:marker-target-selector>
+    </target-selectors>
+</tsd:target-processor-hints-settings>

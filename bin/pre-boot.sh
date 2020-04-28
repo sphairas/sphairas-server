@@ -67,10 +67,10 @@ fi
 cp $SERVER_CERT ${APP_RESOURCES}/public/server.crt
 
 #Configure instance
-if [ $SPHAIRAS_STATE='Niedersachsen' ]; then
-    /bin/bash /templates/niedersachsen/preBootNiedersachsen
-elif [ $SPHAIRAS_STATE='Bremen' ]; then
-    echo "No template for $SPHAIRAS_STATE."
+if [ ${ST}='Niedersachsen' ]; then
+    /bin/bash /templates/niedersachsen/configure.sh
+elif [ ${ST}='Bremen' ]; then
+    echo "No template for ${ST}."
     exit 1
 fi
 

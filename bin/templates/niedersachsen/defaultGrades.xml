@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ts:target-import-settings xmlns:ts="http://www.thespheres.org/xsd/betula/target-import-settings.xsd" 
+                           xmlns:b="http://www.thespheres.org/xsd/betula/betula.xsd" 
+                           xmlns:ta="http://www.thespheres.org/xsd/betula/target-assessment.xsd" 
+                           xmlns:tsext="http://www.thespheres.org/xsd/betula/target-settings-defaults.xsd">
+    <default convention="niedersachsen.ersatzeintrag" grade-id="pending"/>
+    <default-no-signee convention="niedersachsen.ersatzeintrag" grade-id="ne"/>
+    <target-defaults>
+        <target target-type="zeugnisnoten">
+            <preferred-convention>
+                de.notensystem
+            </preferred-convention>
+        </target>
+        <target target-type="arbeitsverhalten" target-selector="nicht-ag">
+            <default convention="niedersachsen.arbeitsverhalten" grade-id="c"/>
+            <preferred-convention>
+                niedersachsen.arbeitsverhalten
+            </preferred-convention>
+        </target>
+        <target target-type="sozialverhalten" target-selector="nicht-ag">
+            <default convention="niedersachsen.sozialverhalten" grade-id="c"/>
+            <preferred-convention>
+                niedersachsen.sozialverhalten
+            </preferred-convention>
+        </target>
+        <target target-type="quartalsnoten" target-selector="seki go" />
+    </target-defaults>
+    <target-selectors>
+        <tsext:marker-target-selector type="ABSENCE" name="nicht-ag">
+            <marker convention="niedersachsen.unterricht.art" id="ag"/>
+        </tsext:marker-target-selector>
+        <tsext:stufe-target-selector name="go" stufe="11 12 13" />
+        <tsext:stufe-target-selector name="seki" stufe="5 6 7 8 9 10" />
+        <tsext:stufe-target-selector name="primar" stufe="1 2 3 4" />
+    </target-selectors>
+</ts:target-import-settings>
