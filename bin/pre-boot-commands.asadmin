@@ -10,6 +10,8 @@ set configs.config.server-config.jms-service.type=LOCAL
 delete-auth-realm certificate
 create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property assign-groups=unitadmins certificate
 
+
+set configs.config.server-config.network-config.protocols.protocol.http-listener-1.http.comet-support-enabled=true
 #
 #set configs.config.server-config.network-config.protocols.protocol.http-listener-2.http.encoded-slash-enabled=true
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.client-auth-enabled=true
