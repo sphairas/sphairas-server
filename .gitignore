@@ -5,6 +5,7 @@
 /server-persistence/target/
 /server-calendar/target/
 /server-ear/target/
+/server-application-clients-module/target/
 /target/
 docker.env
 .env
