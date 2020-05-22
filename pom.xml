@@ -15,6 +15,7 @@
         <module>server-messenger</module>
         <module>server-web</module>
         <module>sphairas-server-libs</module>
+        <module>server-application-clients-module</module>
     </modules>
     
     <properties>
