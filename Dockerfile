@@ -32,6 +32,7 @@ COPY --chown=payara:payara target/lib/mysql-connector-java-*.jar ${PAYARA_DIR}/g
 
 COPY --chown=payara:payara server-admin-authentication/target/server-admin-authentication-0.9-SNAPSHOT.war $DEPLOY_DIR/AdminAuthentication.war
 COPY --chown=payara:payara server-ear/target/server-ear-0.9-SNAPSHOT.ear $DEPLOY_DIR/Betula_Server.ear
+COPY --chown=payara:payara server-application-clients-module/target/server-application-clients-module-0.9-SNAPSHOT.war $DEPLOY_DIR/ApplicationClients.war
 
 COPY --chown=payara:payara target/lib/* ${DOMAIN_DIR}/lib/
 
