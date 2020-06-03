@@ -17,7 +17,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import org.thespheres.betula.RecordId;
@@ -37,10 +36,7 @@ public class RecordTargetAssessmentEntity extends GradeTargetAssessmentEntity<Re
     private static final long serialVersionUID = 1L;
     @ElementCollection()
     @Embedded
-    @CollectionTable(name = "RECORD_TARGETASSESSMENT_DOCUMENT_ENTRIES", //TODO: uniqueConstraints record, student, grade
-            indexes = {
-                @Index(columnList = "RECORD_AUTHORITY, RECORD_ID"),
-                @Index(columnList = "STUDENT_AUTHORITY, STUDENT_ID")},
+    @CollectionTable(name = "RECORD_TARGETASSESSMENT_DOCUMENT_ENTRIES",
             joinColumns = {
                 @JoinColumn(name = "RECORD_TARGETASSESSMENT_DOCUMENT_ID", referencedColumnName = "DOCUMENT_ID", updatable = false, insertable = false),
                 @JoinColumn(name = "RECORD_TARGETASSESSMENT_DOCUMENT_AUTHORITY", referencedColumnName = "DOCUMENT_AUTHORITY", updatable = false, insertable = false),
