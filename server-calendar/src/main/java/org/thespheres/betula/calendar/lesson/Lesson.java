@@ -38,7 +38,6 @@ import javax.persistence.QueryHint;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.services.scheme.spi.LessonId;
@@ -55,10 +54,7 @@ import org.thespheres.betula.services.scheme.spi.LessonId;
     @NamedQuery(name = "findLessonForLessonId", query = "SELECT l FROM Lesson l "
             + "WHERE l.lesson=:lesson")})
 @Entity
-@Table(name = "LESSON", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {
-        "LESSON_AUTHORITY", "LESSON_ID"})
-})
+@Table(name = "LESSON")
 @Access(AccessType.FIELD)
 public class Lesson implements Serializable {
 
