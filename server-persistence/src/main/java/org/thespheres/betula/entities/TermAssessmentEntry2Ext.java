@@ -32,9 +32,9 @@ import org.thespheres.betula.document.Marker;
         "TERMGRADE_TARGETASSESSMENT_DOCUMENT_ID", "TERMGRADE_TARGETASSESSMENT_DOCUMENT_AUTHORITY", "TERMGRADE_TARGETASSESSMENT_DOCUMENT_VERSION"})
         },
         indexes = {
-            @Index(columnList = "TERM_AUTHORITY, TERM_ID"),
-            @Index(columnList = "STUDENT_AUTHORITY, STUDENT_ID"),
-            @Index(columnList = "MARKER_CONVENTION, MARKER_SUBSET, MARKER_ID")})
+            @Index(columnList = "TERM_AUTHORITY, TERM_ID", name = "INDEX_TERMGRADEEXT_TARGETASSESSMENT_DOCUMENT_ENTRIES2_TERM"),
+            @Index(columnList = "STUDENT_AUTHORITY, STUDENT_ID", name = "INDEX_TERMGRADEEXT_TARGETASSESSMENT_DOCUMENT_ENTRIES2_STUDENT"),
+            @Index(columnList = "MARKER_CONVENTION, MARKER_SUBSET, MARKER_ID", name = "INDEX_TERMGRADEEXT_TARGETASSESSMENT_DOCUMENT_ENTRIES2_MARKER")})
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Access(AccessType.FIELD)
 public class TermAssessmentEntry2Ext extends TermAssessmentEntry2 implements Serializable {

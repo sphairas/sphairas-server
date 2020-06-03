@@ -38,8 +38,8 @@ import org.thespheres.betula.document.DocumentId;
         //            @UniqueConstraint(columnNames = {"RECORD_AUTHORITY", "RECORD_ID", "STUDENT_AUTHORITY", "STUDENT_ID", "RECORD_TARGETASSESSMENT_DOCUMENT_ID", "RECORD_TARGETASSESSMENT_DOCUMENT_AUTHORITY", "RECORD_TARGETASSESSMENT_DOCUMENT_VERSION"})
         //        },
         indexes = {
-            @Index(name = "INDEX_RCRDTRGTASSMNTDCMNT_NTRS2_RCRDATHRTY_RCRDID", columnList = "RECORD_AUTHORITY, RECORD_ID"),
-            @Index(columnList = "STUDENT_AUTHORITY, STUDENT_ID")})
+            @Index(columnList = "RECORD_AUTHORITY, RECORD_ID", name = "INDEX_RECORD_TARGETASSESSMENT_DOCUMENT_ENTRIES2_RECORD"),
+            @Index(columnList = "STUDENT_AUTHORITY, STUDENT_ID", name = "INDEX_RECORD_TARGETASSESSMENT_DOCUMENT_ENTRIES2_STUDENT")})
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Access(AccessType.FIELD)
 public class RecordAssessmentEntry2 extends BaseAssessmentEntry<RecordId> implements Serializable {
