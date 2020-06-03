@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+  app:
+    build: .
+    image: "sphairas/server:dev"
+    ports:
+      - "8080:8080"
+      - "7781:7781"
+      - "8181:8181"
+      - "9009:9009"
+      - "4848:4848"
+    volumes:
+      - "app-resources:/app-resources/"
+      - "secrets:/run/secrets/"
+    depends_on:
+      - db
+    environment:
+      - "DB_HOST=db"
+      - "DB_PORT=3306"
+      - "DB_NAME=sphairas"
+      - "DB_USER=sphairas"
+      - "DB_PASSWORD=${DB_PASSWORD}"
+    env_file:
+      - "docker.env"
+  db:
+    image: "mysql:5.7.30"
+    volumes:
+      - "mysql-data:/var/lib/mysql"
+    environment:
+      - "MYSQL_RANDOM_ROOT_PASSWORD=yes"
+      - "MYSQL_DATABASE=sphairas"
+      - "MYSQL_USER=sphairas"
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+volumes:
+  app-resources:
+  secrets:
+  mysql-data:

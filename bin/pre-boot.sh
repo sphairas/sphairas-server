@@ -67,12 +67,33 @@ fi
 cp $SERVER_CERT ${APP_RESOURCES}/public/server.crt
 
 #Configure instance
-if [ ${ST}='Niedersachsen' ]; then
-    /bin/bash /templates/niedersachsen/configure.sh
-elif [ ${ST}='Bremen' ]; then
+if [ ${ST} == 'Niedersachsen' ]; then
+    /bin/bash ${HOME_DIR}/templates/niedersachsen/configure.sh
+elif [ ${ST} == 'Bremen' ]; then
     echo "No template for ${ST}."
     exit 1
 fi
+
+expandAsadminConditions(){
+    FILE=$1
+    echo "Evaluating conditions in $FILE"
+    i=1
+    while IFS= read -r LINE; do 
+        COND=`echo $LINE | sed -n "s/^###\(.*\)###.*/\1/p"`
+        if [ ! -z "$COND" ]; then
+            if eval $COND; then
+                echo $COND" evaluates to true."
+                sed -i "${i}s/^\(###.*###\)//" $FILE
+            else
+                sed -i "${i}s/^\(###.*###\)/#/" $FILE
+            fi
+        fi
+        ((i++))
+    done < $FILE
+}
+
+expandAsadminConditions ${CONFIG_DIR}/post-boot-commands.asadmin
+expandAsadminConditions ${CONFIG_DIR}/pre-boot-commands.asadmin
 
 #Update AS_ENV
 #echo "#Payara environment" > ${PAYARAENV}

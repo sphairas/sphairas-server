@@ -8,10 +8,14 @@ RUN apt-get update && \
     apt-get -y install openssl
 
 COPY bin/generate-admin-key /usr/local/bin
-RUN chmod +x /usr/local/bin/generate-admin-key  
-#/usr/local/bin/
 
-VOLUME ["/app-resources/" "/run/secrets"]
+VOLUME ["/app-resources" "/run/secrets"]
+
+RUN chmod +x /usr/local/bin/generate-admin-key && \
+    mkdir /app-resources && \
+    mkdir -p /run/secrets && \
+    chown -R payara:payara /run/secrets && \
+    chown -R payara:payara /app-resources
 
 USER payara 
 
@@ -39,12 +43,9 @@ RUN rm ${DOMAIN_DIR}/lib/mysql-connector-java-*.jar && \
 	org.thespheres.betula.security.iservlogin.IservLoginModule required; \n\
     };" >> ${DOMAIN_DIR}/config/login.conf
 
-#Remove
-COPY private/password /
-
 COPY --chown=payara:payara bin/pre-boot-commands.asadmin bin/post-boot-commands.asadmin ${CONFIG_DIR}/
 
-COPY --chown=payara:payara bin/templates /templates
+COPY --chown=payara:payara bin/templates ${HOME_DIR}/templates
 
 #Nur für den Demo-Server !!!!!!
 COPY --chown=payara:payara bin/keyfile ${DOMAIN_DIR}/config/
@@ -55,4 +56,4 @@ COPY bin/pre-boot.sh ${SCRIPT_DIR}/init_0_pre-boot.sh
 #RUN ${PAYARA_PATH}/mq/bin/imqusermgr encode -src /passfile -target ${DOMAIN_DIR}/passfile
 #RUN rm $PAYARA_PATH/passfile
 
-EXPOSE 8080 4848 8181 7681 7781
+EXPOSE 8080 4848 8181 7781
