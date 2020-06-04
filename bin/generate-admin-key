@@ -45,5 +45,5 @@ rm ${HOME_DIR}/admin.key
 rm ${HOME_DIR}/admin.csr
 rm ${HOME_DIR}/admin.cer
 
-echo "To copy your private key to your current console use \"docker cp $(hostname):${HOME_DIR}/admin.p12\". \
+echo "To copy your private key to your current console use \"docker cp $(hostname):${HOME_DIR}/admin.p12\ .". \
 Don't forget to delete the key file inside this container when you're done. Use \"docker exec -it $(hostname) rm ${HOME_DIR}/admin.p12\" to remove the key file."
