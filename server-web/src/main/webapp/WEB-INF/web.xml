@@ -28,7 +28,7 @@
             <!--https://github.com/Atmosphere/atmosphere/issues/2111-->
             <param-name>org.atmosphere.websocket.suppressJSR356</param-name>
             <param-value>true</param-value>
-        </init-param>        
+        </init-param>
         <init-param>
             <param-name>org.atmosphere.useNative</param-name>
             <param-value>true</param-value>
@@ -58,7 +58,7 @@
     </servlet>
     <servlet>
         <servlet-name>webdav</servlet-name>
-        <servlet-class>org.thespheres.betula.web.docsrv.AppResourcesServlet</servlet-class>
+        <servlet-class>org.thespheres.betula.web.config.AppResourcesServlet</servlet-class>
         <init-param>
             <param-name>debug</param-name>
             <param-value>0</param-value>

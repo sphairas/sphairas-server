@@ -1,9 +1,11 @@
+package org.thespheres.betula.web.config;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.web.docsrv;
+
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,7 +20,8 @@ import org.apache.naming.resources.ProxyDirContext;
  *
  * @author boris.heithecker
  */
-public class AppResourcesServlet extends WebdavServlet {
+//https://github.com/payara/Payara/issues/4695
+public class AppResourcesServlet extends FixedWebdavServlet { //extends org.apache.catalina.servlets.WebdavServlet (once the issue is fixed
 
     @Override
     public void init() throws ServletException {
