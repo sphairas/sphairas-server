@@ -37,7 +37,7 @@ create-system-properties user.language=de
 create-system-properties assess.entries.replace.equal.timestamp=true
 create-system-properties betula.web.ui.enable.details-list=true
 #
-###[ ${WEB_MODULE_AUTHENTICATION} == 'iserv' ]###create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ENV=ISERV_IMAP_HOST}:iserv.imap.port=${ENV=ISERV_IMAP_PORT} iserv
+###[ ${WEB_MODULE_AUTHENTICATION} == 'iserv' ]###create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ENV=ISERV_IMAP_HOST}:iserv.imap.port=${ENV=ISERV_IMAP_PORT}:iserv.imap.signee-suffix=${ENV=LOGINDOMAIN} iserv
 #
 #create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property jaas-context=certRealm certificate
 #
