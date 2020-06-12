@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<zeugnis-bemerkungs-vorlage xmlns:ns2="http://www.thespheres.org/xsd/betula/betula.xsd">
+    <element multiple="false" default="0" nillable="true" hidden="true">
+        <element-anzeigename>Berechtigungen</element-anzeigename>
+        <marker hidden="true" convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.erweiterterseki"/>
+        <marker hidden="true" convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.berechtigung.gleichsteillung.hauptschulabschluss"/>
+    </element>
+    <element multiple="false" default="0" nillable="true">
+        <element-anzeigename>Nachteilsausgleich</element-anzeigename>
+        <marker convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.nachteil.deutsch"/>
+        <marker convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.nachteil.englisch"/>
+        <marker convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.nachteil.deutschenglisch"/>
+    </element>
+    <element multiple="true" default="0" nillable="false">
+        <element-anzeigename>Schuleigene Bemerkungen</element-anzeigename>
+    </element>
+    <element multiple="false" default="0" nillable="true">
+        <element-anzeigename>Versetzung</element-anzeigename>
+        <marker hidden="true" convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.abschluss.gefaerdung">
+            <display-value convention="de.stufen" id="10"/>
+            <display-value convention="de.halbjahre" id="halbjahr"/>
+        </marker>
+        <marker hidden="true" convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.versetzung.gefaerdung">
+            <display-value convention="de.halbjahre" id="halbjahr"/>
+        </marker>
+        <marker convention="niedersachsen.zeugnis.bemerkungen" id="bemerkung.versetzung.nicht">
+            <display-value convention="de.halbjahre" id="schuljahr"/>
+        </marker>
+        <display-value convention="org.thespheres.betula.niedersachsen.zeugnis.bemerkungen" id="schluss"/>
+    </element>
+</zeugnis-bemerkungs-vorlage>

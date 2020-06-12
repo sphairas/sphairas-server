@@ -28,8 +28,12 @@ fi
 if [ ! -f $APP_RESOURCES/layer-references ]; then 
     echo "#layer-references" >> $APP_RESOURCES/layer-references
 fi
+#Zeungnisbemerkungen
 if [ ! -f $APP_RESOURCES/signee/custom-report-notes.properties ]; then 
     echo "#Zeugnis Bemerkungen von ${SPHAIRAS_PROVIDER}" >> $APP_RESOURCES/signee/custom-report-notes.properties
+fi
+if [ ! -f $APP_RESOURCES/signee/bemerkungen.xml ]; then 
+    cp bemerkungen.xml $APP_RESOURCES/signee/bemerkungen.xml
 fi
 #Imports
 if [ ! -f $APP_RESOURCES/common-import.properties ]; then
