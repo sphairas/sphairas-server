@@ -4,5 +4,14 @@
         <Liste Name="primary-unit-head-teachers-documentid">
             <Listen-ID id="klassenlehrer" authority="${AUTHORITY}" version="latest"/>
         </Liste>
+        <Liste Name="student-bildungsgang-documentid">
+            <Listen-ID id="students-bildungsgang" authority="${AUTHORITY}" version="latest"/>
+        </Liste>
+        <Liste Name="common-names-documentid">
+            <Listen-ID id="arbeitsgemeinschaften" authority="${AUTHORITY}" version="latest"/>
+        </Liste>
+        <Liste Name="subject-names-documentid">
+            <Listen-ID id="base-target-assessment-entity-subjects" authority="${AUTHORITY}" version="latest"/>
+        </Liste>
     </Listen>
 </nds:NdsZeugnisSchulvorlage>
