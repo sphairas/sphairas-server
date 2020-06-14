@@ -35,10 +35,14 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
@@ -89,6 +93,7 @@ import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.niedersachsen.kgs.SGL;
 import org.thespheres.betula.niedersachsen.NdsZeugnisFormular;
 import org.thespheres.betula.niedersachsen.NdsZeugnisFormular.ZeugnisMappe;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.DetailsListXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.StudentDetailsXml;
@@ -106,14 +111,15 @@ import org.thespheres.betula.services.ws.CommonDocuments;
 @Startup
 @LocalBean //(name = "java:global/Betula_Web/FOPFormatter!org.thespheres.betula.web.docsrv.NdsFormatter", beanInterface = NdsFormatter.class)
 @Singleton
+//Annotation required to ensure that context.isCallerInRole works as espected
+@RolesAllowed({"unitadmin", "signee"})
 public class NdsFormatter {
 
+    public static final String BACKGROUND_URL = "url(resource:org/thespheres/betula/web/docsrv/Probedruck.png)";
     @EJB
     private FormatListBean formatListBean;
     @EJB
     private NdsFormatDetailsBean formatDetailsBean;
-//    @EJB
-//    private FormatReportsBean formatReportsBean;
     @EJB
     private NdsFormatReportsBean formatReportsBean2;
     @EJB(beanName = "StudentVCardsImpl")
@@ -123,37 +129,43 @@ public class NdsFormatter {
     @EJB
     private StudentsListsLocalBean sllb;
     @Inject
+//    @SessionScoped
     private CommonTargetProperties targetProps;
     @Default
     @Inject
+//    @SessionScoped
     private TermSchedule termSchedule;
     @Current
     @Inject
+//    @SessionScoped
     private Term currentTerm;
     @Default
     @Inject
+//    @SessionScoped
     private NamingResolver namingResolver;
     @Inject
+//    @SessionScoped
     private WebUIConfiguration webConfig;
     @Inject
 //    @SessionScoped
-    private NdsReportBuilderFactory builderFactory;
+    private NdsReportBuilderFactory builderFactory; //TODO make this sessionscoped
     @Inject
+//    @SessionScoped
     private LocalProperties properties;
     private JAXBContext jaxb;
     private Templates template;
     private FopFactory fopFactory;
-//    private FOUserAgent foUserAgent;
     private TransformerFactory factory;
     private JAXBContext listJaxb;
     private JAXBContext detailsJaxb;
     private Templates listTemplate;
-//    private DocumentId studentSGLMarkerDocId;
     private String sglConvention;
     private final NumberFormat dFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
     private final Collator collator = Collator.getInstance(Locale.GERMANY);
     private String defaultEditingTargetType;
     private Templates detailsTemplate;
+    @Resource
+    protected EJBContext context;
 
     public NdsFormatter() {
     }
@@ -244,6 +256,10 @@ public class NdsFormatter {
             rMap = Collections.EMPTY_MAP;
         }
 
+        final boolean setBackground = !builderFactory.getSchulvorlage().getProperty(NdsZeugnisSchulvorlage.PROP_SIGNEES_NO_BACKGROUND)
+                .map(p -> Boolean.parseBoolean(p.getValue()))
+                .orElse(false) && !context.isCallerInRole("unitadmin");
+
         final boolean toXml = "text/xml".equals(mime);
 
         for (final DocumentId d : reportDoc) {
@@ -297,24 +313,29 @@ public class NdsFormatter {
 
             try {
                 // Construct fop with desired output formatReports
-                Fop fop = fopFactory.newFop(mime, foUserAgent, out);
+                final Fop fop = fopFactory.newFop(mime, foUserAgent, out);
 
+                // Transform document to xsl-fo document
                 // Setup XSLT
-                Transformer transformer = template.newTransformer();
+                final Transformer transformer = template.newTransformer();
                 // Set the value of a <param> in the stylesheet
                 transformer.setParameter("versionParam", "2.0");
+                if (setBackground) {
+                    transformer.setParameter("background-image", BACKGROUND_URL);
+                }
                 // Setup input for XSLT transformation
-                Source src = new DOMSource(result.getNode());
+                final Source src = new DOMSource(result.getNode());
                 // Resulting SAX events (the generated FO) must be piped through to FOP
-                DOMResult res = new DOMResult();
+                final DOMResult res = new DOMResult();
                 // Start XSLT transformation and FOP processing
                 transformer.transform(src, res);
 
-                transformer = factory.newTransformer();
-                src = new DOMSource(res.getNode());
-                SAXResult finalres = new SAXResult(fop.getDefaultHandler());
-                transformer.transform(src, finalres);
-            } catch (Exception ex) {
+                //Create fop output
+                final Transformer fopTransformer = factory.newTransformer();
+                final Source forSource = new DOMSource(res.getNode());
+                final SAXResult fopResult = new SAXResult(fop.getDefaultHandler());
+                fopTransformer.transform(forSource, fopResult);
+            } catch (final Exception ex) {
                 throw new IOException(ex);
             } finally {
                 try {
@@ -344,7 +365,7 @@ public class NdsFormatter {
             formatListBean.oneListe(true, tgtae, pu, before, "zeugnisnoten", docMap, resolver, fttd, before, collection);
         }
 
-        DOMResult result = new DOMResult();
+        final DOMResult result = new DOMResult();
         try {
             listJaxb.createMarshaller().marshal(collection, result);
         } catch (JAXBException ex) {
@@ -746,6 +767,7 @@ public class NdsFormatter {
                 Logger.getLogger(NdsFormatter.class.getCanonicalName()).log(Level.WARNING, ex.getMessage());
             }
         }
+        foUserAgent.setURIResolver(new ResourceResolverAdapter());
         return foUserAgent;
     }
 

@@ -4,6 +4,8 @@
                 xmlns:fo="http://www.w3.org/1999/XSL/Format" 
                 xmlns:svg="http://www.w3.org/2000/svg">
     
+    <xsl:param name="background-image" />
+    
     <xsl:template match="/">
         <fo:root>
             <fo:layout-master-set>
@@ -14,7 +16,13 @@
                                        margin-bottom="1.5cm" 
                                        margin-left="2.0cm" 
                                        margin-right="2.0cm">
-                    <fo:region-body region-name="body" />
+                    <fo:region-body region-name="body" background-position-horizontal="center" background-position-vertical="center" >
+                        <xsl:if test="$background-image" >
+                            <xsl:attribute name="background-image">
+                                <xsl:value-of select="$background-image" />
+                            </xsl:attribute>                            
+                        </xsl:if>
+                    </fo:region-body>
                 </fo:simple-page-master>
                 <fo:simple-page-master master-name="page" page-width="21.0cm" page-height="29.7cm" margin-top="1.5cm" margin-bottom="1.5cm" margin-left="2.0cm" margin-right="2.0cm">
                     <fo:region-body region-name="body" /> 
