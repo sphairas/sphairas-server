@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -27,6 +28,7 @@ import org.openide.util.NbBundle;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
+import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
@@ -38,10 +40,12 @@ import org.thespheres.betula.niedersachsen.Uebertrag;
 import org.thespheres.betula.niedersachsen.kgs.SGL;
 import org.thespheres.betula.niedersachsen.vorschlag.AVSVVorschlag;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListe;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeCsv;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeXml;
+import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeXml.ColumnXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListenCollectionXml;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
@@ -258,6 +262,7 @@ public class FormatListBean {
                         }
                         val.setFootnote(vorschlagfn);
                     }
+                    colorGrade(tgtae, d, g, val);
                 }
             }
 //
@@ -291,5 +296,42 @@ public class FormatListBean {
     private Marker getStudentSGL(final StudentId student, final Date asOf) {
         final DocumentId d = builderFactory.forName(CommonDocuments.STUDENT_CAREERS_DOCID);
         return d != null ? sllb.getMarkerEntry(student, d, asOf) : null;
+    }
+
+    private void colorGrade(final FastTargetDocuments2 tgtae, final DocumentId dd, final Grade g, final ZensurenListe.Column val) {
+        if (dd == null || g == null) {
+            return;
+        }
+        if (!(val instanceof ColumnXml)) {
+            return;
+        }
+        final ColumnXml valXml = (ColumnXml) val;
+        builderFactory.getSchulvorlage().getProperty("Listen.Zensurenfarben")
+                .map(NdsZeugnisSchulvorlage.Property::getValue)
+                .ifPresent(v -> {
+                    loop:
+                    for (final String cv : v.split(";")) {
+                        final int i = cv.indexOf(':');
+                        if (i != -1) {
+                            final String color = cv.substring(0, i);
+                            for (final String gi : cv.substring(i + 1).split(",")) {
+                                final Grade cg;
+                                final int ci = gi.indexOf('#');
+                                if (ci == -1) {
+                                    final String pc = tgtae.getFastTermTargetDocument(dd).getPreferredConvention();
+                                    cg = GradeFactory.find(pc, gi);
+                                } else {
+                                    final String pc = gi.substring(0, ci);
+                                    final String cgid = gi.substring(ci + 1);
+                                    cg = GradeFactory.find(pc, cgid);
+                                }
+                                if (Objects.equals(g, cg)) {
+                                    valXml.setColor(color);
+                                    break loop;
+                                }
+                            }
+                        }
+                    }
+                });
     }
 }
