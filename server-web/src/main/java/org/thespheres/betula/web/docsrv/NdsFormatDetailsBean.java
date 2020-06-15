@@ -416,6 +416,8 @@ public class NdsFormatDetailsBean {
                     }
                     val.setLabelRight(vorschlagfn.getIndex());
                 }
+                final String color = factory.getSchulvorlage().getColoring(g);
+                val.setColor(color);
             }
         }
         return ret;
