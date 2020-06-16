@@ -25,7 +25,7 @@ import org.thespheres.betula.util.Ordered;
 public interface ReportsBean {
 
     public static final String TYPE_FEHLTAGE = "fehltage";
-    public static final String TYPE_UENTSCHULDIGT = "unentschuldigt";
+    public static final String TYPE_UNENTSCHULDIGT = "unentschuldigt";
 
     public DocumentId[] findTermReports(StudentId student, TermId term, boolean create);
 

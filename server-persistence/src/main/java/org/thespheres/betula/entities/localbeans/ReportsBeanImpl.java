@@ -173,7 +173,7 @@ public class ReportsBeanImpl implements ReportsBean {
             switch (type) {
                 case ReportsBean.TYPE_FEHLTAGE:
                     return e.getFehltage();
-                case ReportsBean.TYPE_UENTSCHULDIGT:
+                case ReportsBean.TYPE_UNENTSCHULDIGT:
                     return e.getUnentschuldigt();
             }
         }
@@ -189,7 +189,7 @@ public class ReportsBeanImpl implements ReportsBean {
                     case ReportsBean.TYPE_FEHLTAGE:
                         e.setFehltage(value);
                         break;
-                    case ReportsBean.TYPE_UENTSCHULDIGT:
+                    case ReportsBean.TYPE_UNENTSCHULDIGT:
                         e.setUnentschuldigt(value);
                         break;
                     default:

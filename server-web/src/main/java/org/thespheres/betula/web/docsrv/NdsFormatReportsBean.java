@@ -203,7 +203,7 @@ public class NdsFormatReportsBean {
         final String placeOfBirth = card.getAnyPropertyValue(VCard.BIRTHPLACE).orElse("UNBEKANNT");
         //use NdsZeugnisAngaben
         final Integer fehltage = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_FEHLTAGE);
-        final Integer unentschuldigt = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_UENTSCHULDIGT);
+        final Integer unentschuldigt = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_UNENTSCHULDIGT);
         final Grade av = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.AV_NAME);
         final String avBegruendung = fac.requireAVSVReason(av) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME) : null;
         final Grade sv = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.SV_NAME);
