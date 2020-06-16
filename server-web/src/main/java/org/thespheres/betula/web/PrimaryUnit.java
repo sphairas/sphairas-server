@@ -571,13 +571,13 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
         public String getUnentschuldigt() {
             if (invalidatedUnentschuldigt) {
-                final Integer val = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_UENTSCHULDIGT);
+                final Integer val = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT);
                 if (val != null) {
                     unentschuldigtPreceding = false;
                     unentschuldigt = Integer.toString(val);
                 } else {
                     final Optional<String> pf = Optional.ofNullable(getZeugnisIdPrecedingTerm())
-                            .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_UENTSCHULDIGT))
+                            .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_UNENTSCHULDIGT))
                             .map(v -> Integer.toString(v));
                     unentschuldigtPreceding = pf.isPresent();
                     unentschuldigt = pf
@@ -609,7 +609,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                             return;
                         }
                     }
-                    boolean result = zeugnisBean.setIntegerValue(getZeugnisId(), ReportsBean.TYPE_UENTSCHULDIGT, val);
+                    boolean result = zeugnisBean.setIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT, val);
                     if (result) {
                         this.unentschuldigt = val == null ? "" : Integer.toString(val);
                         unentschuldigtPreceding = false;
