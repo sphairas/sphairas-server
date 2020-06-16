@@ -50,7 +50,6 @@ import org.thespheres.betula.niedersachsen.NdsTerms;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
 import org.thespheres.betula.services.scheme.spi.Term;
-import org.thespheres.betula.services.web.WebUIConfiguration;
 import org.thespheres.betula.web.AvailableTarget.AvailableTermColumn;
 import org.thespheres.betula.web.config.ExtraAnnotation;
 
@@ -284,9 +283,8 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             gradeColumns = new ArrayList<>();
             docs.stream().forEach(d -> {
                 application.getFastDocument(d).getTerms().stream()
-                        .filter(t -> (addToRenderedTerms(t, d))).forEach(t -> {
-                    gradeColumns.add(new AvailableTermColumn(d, t, null, false, application.getWebUIConfiguration().getDefaultCommitTargetType()));
-                }); //application.getTerms(d)) {
+                        .filter(t -> addToRenderedTerms(t, d))
+                        .forEach(t -> gradeColumns.add(new AvailableTermColumn(d, t, null, false, application.getWebUIConfiguration().getDefaultCommitTargetType())));
             });
             Collections.sort(gradeColumns);
             if (gradeColumns.size() > 3) {//nicht mehr als 3 !!!, siehe terms.xhtml
@@ -316,26 +314,10 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         return editableGradeColumns;
     }
 
-//    public String[] getEditableTermColumnNames() {
-//        String[] sort = new String[]{"quartalsnoten", "zeugnisnoten", "arbeitsverhalten", "sozialverhalten"};
-//        List<String> l = Arrays.asList(sort);
-//        class Comp implements Comparator<String> {
-//
-//            @Override
-//            public int compare(String o1, String o2) {
-//                int p1 = l.contains(o1) ? l.indexOf(o1) : Integer.MAX_VALUE;
-//                int p2 = l.contains(o2) ? l.indexOf(o2) : Integer.MAX_VALUE;
-//                return p1 - p2;
-//            }
-//
-//        }
-//        final Comp cmp = new Comp();
-//        return getEditableTermColumns().keySet().stream()
-//                .sorted(cmp)
-//                .toArray(String[]::new);
-//    }
-    boolean addToRenderedTerms(TermId t, DocumentId d) {
-        return !t.equals(getEditTerm().getScheduledItemId()) && d.getId().endsWith(application.getWebUIConfiguration().getDefaultCommitTargetType());
+    boolean addToRenderedTerms(final TermId t, final DocumentId d) {
+        return !t.equals(getEditTerm().getScheduledItemId())
+                && d.getId().endsWith(application.getWebUIConfiguration().getDefaultCommitTargetType())
+                && getEditTerm().getScheduledItemId().getId() - t.getId() > 0; //only preceding terms
     }
 
     boolean addToEditableTerms(TermId t, DocumentId d) {
