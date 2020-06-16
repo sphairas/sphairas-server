@@ -50,7 +50,7 @@
                             <p:menuitem value="#{bundle['main.menu.terms']}" actionListener="#{app.setCurrentPage('terms')}" rendered="#{app.user.renderMenu('terms')}" style="#{app.getMenuStyle('terms')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" /> 
                             <p:menuitem value="#{app.user.primaryUnit.displayTitle}" actionListener="#{app.setCurrentPage('primaryUnits')}" rendered="#{app.user.renderMenu('primaryUnits')}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
                             <p:separator/> 
-                            <p:menuitem value="#{bundle['main.menu.help']}" url="https://sphairas.de/dokuwiki/doku.php" target="_blank" /> 
+                            <p:menuitem value="#{bundle['main.menu.help']}" url="https://www.sphairas.de/faq" target="_blank" /> 
                             <p:menuitem value="#{bundle['main.menu.exit']}" actionListener="#{app.doLogout}" global="false" ajax="true" partialSubmit="true" process="@this"/>
                         </p:menu>
                     </h:form>  
