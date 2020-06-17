@@ -169,7 +169,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
                 nv = added.getGrade();
                 nt = added.getTimestamp();
                 changed = true;
-            } else if(ae != null) {
+            } else if (ae != null) {
                 old = ae.getGrade();
                 if (grade != null) {
                     changed = ae.setGrade(grade, timestamp); //ts);
@@ -496,7 +496,6 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
 ////        String message = NbBundle.getMessage(GradeTargetDocumentFacadeImpl.class, "GradeTargetDocumentFacadeImpl.findJoinedUnits.UnitDocumentEntityNotFound", unit.getId());
 ////        throw new IllegalArgumentException(message);
 //    }
-
     @RolesAllowed("unitadmin")
     @Override
     public boolean remove(DocumentId id) {
@@ -506,14 +505,13 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
         }
         final Set<UnitDocumentEntity> ud = t.getUnitDocs();
         final MultiTargetAssessmentEvent<TermId> event = new MultiTargetAssessmentEvent<>(id, DocumentEventType.REMOVE, null);
-        try {
-            em.remove(em.merge(t));
-            //TODO: test....
-            ud.stream()
-                    .forEach(unit -> em.refresh(unit, LockModeType.OPTIMISTIC_FORCE_INCREMENT));
-        } catch (Exception e) {
-            return false;
-        }
+        //Cascade.REMOVE not working properly with MySql?
+//        t.getEntries()
+//                .forEach(em::remove);
+        em.remove(em.merge(t));
+        //TODO: test....
+        ud.stream()
+                .forEach(unit -> em.refresh(unit, LockModeType.OPTIMISTIC_FORCE_INCREMENT));
         documentsNotificator.notityConsumers(event);
         return true;
     }
