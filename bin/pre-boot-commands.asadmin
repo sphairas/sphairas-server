@@ -1,15 +1,7 @@
-#
-#<jms-service default-jms-host="default_JMS_host" start-args="-Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${com.sun.aas.instanceRoot}/config -Dimq.keystore.file.name=keystore.jks -passfile ${com.sun.aas.instanceRoot}/passfile -Djavax.net.ssl.trustStore=${com.sun.aas.instanceRoot}/config/cacerts.jks -vmargs -d64" type="LOCAL">
-#  <jms-host name="default_JMS_host" host="localhost"></jms-host>
-#</jms-service>
 set configs.config.server-config.jms-service.type=LOCAL
-#set configs.config.server-config.jms-service.start-args=-Dimq.service.activelist=jms,admin,wssjms,wsjms\ -Dimq.wssjms.wss.port=7781\ -Dimq.wsjms.ws.port=7681
-#-vmargs -d64
-#imq.<wss-service-name>.wss.requireClientAuth - Set to true to require (default not) SSL client authentication for the 'wss' service
 
 delete-auth-realm certificate
 create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property assign-groups=unitadmins certificate
-
 
 set configs.config.server-config.network-config.protocols.protocol.http-listener-1.http.comet-support-enabled=true
 #
@@ -20,15 +12,5 @@ set configs.config.server-config.network-config.protocols.protocol.http-listener
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.key-store=${ENV=SECRETS_DIR}/keystore.jks
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.trust-store=${ENV=SECRETS_DIR}/cacerts.jks
 
-
-#key-store="/ssl/keystore.jks" trust-store="/ssl/cacerts.jks"></ssl>
-
 #create-jvm-options '-Dcom.sun.enterprise.security.httpsOutboundKeyAlias=s1as
 create-system-properties com.sun.enterprise.security.httpsOutboundKeyAlias=s1as
-
-
-#create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property assign-groups=unitadmins  admin-certificate
-#set configs.config.server-config.security-service.auth-realm.certificate.property.common-name-as-principal-name=true
-#set configs.config.server-config.security-service.auth-realm.certificate.property.dn-parts-used-for-groups=EMAILADDRESS,DC,OU
-#set configs.config.server-config.security-service.auth-realm.admin-certificate.property.assign-groups=unitadmins
-

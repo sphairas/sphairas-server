@@ -24,23 +24,19 @@ create-jdbc-resource --connectionpoolid mysql_pool jdbc/messages
 #
 #funktioniert nicht -> domain.xml
 #set configs.config.server-config.jms-service.start-args=-Dimq.service.activelist=jms,admin,wsjms -Dimq.wsjms.ws.port=7681 -vmargs -d64
-#
-#Use this if env prop cannot be set
-#create-system-properties providerURL=${SPHAIRAS_PROVIDER}
 
 create-system-properties web.module.authentication.realm=${ENV=WEB_MODULE_AUTHENTICATION}
 create-system-properties web.module.context.root=/web
 #
-#-Duser.language=de   ==> not a system variable
-#<jvm-options>-Duser.language=de</jvm-options>
 create-system-properties user.language=de
 create-system-properties assess.entries.replace.equal.timestamp=true
 create-system-properties betula.web.ui.enable.details-list=true
-#
+
+#Conditionally create realms
 ###[ ${WEB_MODULE_AUTHENTICATION} == 'iserv' ]###create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ENV=ISERV_IMAP_HOST}:iserv.imap.port=${ENV=ISERV_IMAP_PORT}:iserv.imap.signee-suffix=${ENV=LOGINDOMAIN} iserv
 #
-#create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property jaas-context=certRealm certificate
-#
+###[ ${WEB_MODULE_AUTHENTICATION} == 'ldap' ]###create-auth-realm --classname com.sun.enterprise.security.auth.realm.ldap.LDAPRealm --property jaas-context=ldapRealm:base-dn="${ENV=LDAP_BASE_DN}":directory="${ENV=LDAP_URL}":group-search-filter="member=%d":search-bind-dn="${ENV=LDAP_BIND_USER}":search-bind-password="${ENV=LDAP_PASSWORD}" ldap
+
 create-jms-resource --restype javax.jms.TopicConnectionFactory jms/app-resources-topic-factory
 create-jms-resource --restype javax.jms.Topic --enabled=true --property Name=appResourcesTopic jms/app-resources-topic
 
@@ -58,8 +54,6 @@ create-jms-resource --restype javax.jms.Topic --enabled=true --property=Name=stu
 
 set configs.config.server-config.ejb-container.ejb-timer-service.timer-datasource=jdbc/calendar
 
-#create-javamail-resource --mailhost xxxxxxxxxxx.xxxxxxxxxxxxx --mailuser xxxxxxxxxxxxxxxxxx --fromaddress xxxxxxxxxxxxx\@xxxxxxxxxxxxxxxxt\.de mail/iservMessaging
-
 #create-system-properties betula.web.ui.current-term=2018/1
 create-system-properties untis.schoolyear.id=20142015
 create-system-properties betula.security.x500login.authenticate.unknown.principals=true
@@ -70,8 +64,6 @@ create-system-properties untis.updates.create.orphan.updates=true
 create-system-properties secure.signee.types=entitled.signee,trusted.signee
 #?
 create-system-properties com.sun.ejb.timer.ReadDBBeforeTimeout=true
-#?
-create-system-properties com.sun.enterprise.security.httpsOutboundKeyAlias=s1as
 
 #create-system-properties push.document.events=false
 

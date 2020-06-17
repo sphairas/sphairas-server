@@ -47,9 +47,6 @@ COPY --chown=payara:payara bin/pre-boot-commands.asadmin bin/post-boot-commands.
 
 COPY --chown=payara:payara bin/templates ${HOME_DIR}/templates
 
-#Nur für den Demo-Server !!!!!!
-COPY --chown=payara:payara bin/keyfile ${DOMAIN_DIR}/config/
-
 COPY bin/pre-boot.sh ${SCRIPT_DIR}/init_0_pre-boot.sh
 
 #RUN echo "imq.keystore.password=changeit" > $PAYARA_PATH/passfile
