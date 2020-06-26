@@ -147,10 +147,10 @@ public class NdsFormatter {
 //    @SessionScoped
     private WebUIConfiguration webConfig;
     @Inject
-//    @SessionScoped
-    private NdsReportBuilderFactory builderFactory; //TODO make this sessionscoped
+    @SessionScoped
+    private NdsReportBuilderFactory builderFactory;
     @Inject
-//    @SessionScoped
+    @SessionScoped
     private LocalProperties properties;
     private JAXBContext jaxb;
     private Templates template;
