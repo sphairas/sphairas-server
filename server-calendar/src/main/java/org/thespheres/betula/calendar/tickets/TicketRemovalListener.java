@@ -35,13 +35,13 @@ public class TicketRemovalListener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        TicketEvent event;
+        final TicketEvent event;
         try {
             event = message.getBody(TicketEvent.class);
         } catch (JMSException | ClassCastException ex) {
             return;
         }
-        if (event.getSource() != null && event.getType().equals(TicketEvent.TicketEventType.REMOVE)) {
+        if (event != null && event.getSource() != null && event.getType().equals(TicketEvent.TicketEventType.REMOVE)) {
             Ticket t = event.getSource();
             concurrentTicketsBean.removeTicket(t);
         }
