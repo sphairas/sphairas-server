@@ -240,7 +240,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
                 nv = added.getGrade();
                 ov = null;
                 newTime = added.getTimestamp();
-                changed = true;
+                res = true;
             } else {
                 ov = ae.getGrade();
                 if (grade != null) {
