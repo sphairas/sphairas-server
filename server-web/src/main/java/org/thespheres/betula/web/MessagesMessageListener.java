@@ -30,8 +30,8 @@ public class MessagesMessageListener implements MessageListener {
     public void onMessage(Message msg) {
         try {
             if (msg.isBodyAssignableTo(MessageEvent.class)) {
-                MessageEvent event = msg.getBody(MessageEvent.class);
-                if (event.getSource() != null) {
+                final MessageEvent event = msg.getBody(MessageEvent.class);
+                if (event != null && event.getSource() != null) {
                     eventDispatch.onMessageEvent(event);
                 }
             }

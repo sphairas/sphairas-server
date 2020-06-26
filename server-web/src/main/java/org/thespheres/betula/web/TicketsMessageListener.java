@@ -33,8 +33,8 @@ public class TicketsMessageListener implements MessageListener {
     public void onMessage(Message msg) {
         try {
             if (msg.isBodyAssignableTo(TicketEvent.class)) {
-                TicketEvent event = msg.getBody(TicketEvent.class);
-                if (event.getSource() != null) {
+                final TicketEvent event = msg.getBody(TicketEvent.class);
+                if (event != null && event.getSource() != null) {
                     multiTargetAssessmentEventService.onTicketEvent(event);
                 }
             }

@@ -39,8 +39,8 @@ public class DocumentsMessagesListener implements MessageListener {
     public void onMessage(Message msg) {
         try {
             if (msg.isBodyAssignableTo(MultiTargetAssessmentEvent.class)) {
-                MultiTargetAssessmentEvent<TermId> event = msg.getBody(MultiTargetAssessmentEvent.class);
-                if (event.getSource() != null && event.getUpdates() != null) {
+                final MultiTargetAssessmentEvent<TermId> event = msg.getBody(MultiTargetAssessmentEvent.class);
+                if (event != null && event.getSource() != null && event.getUpdates() != null) {
                     multiTargetAssessmentEventService.onDocumentEvent(event);
                 }
             }
