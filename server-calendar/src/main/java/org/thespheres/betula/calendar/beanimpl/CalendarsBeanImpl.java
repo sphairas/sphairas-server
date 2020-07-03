@@ -89,18 +89,18 @@ public class CalendarsBeanImpl implements CalendarsBean {
         return null;
     }
 
-    private static boolean matchCategories(final ZeugniskonferenzEntity e, final String[] cat) {
+    private static boolean matchCategories(final ZeugniskonferenzEntity e, final String[] moreCategories) {
         final Set<String> cc = e.getProperties().stream()
                 .filter(p -> p.getName().equals(CalendarComponentProperty.CATEGORIES))
                 .map(EmbeddableComponentProperty::getValue)
                 .flatMap(p -> Arrays.stream(p.split(",")))
                 .map(String::trim)
                 .collect(Collectors.toSet());
-        return cat == null ? cc.isEmpty() : Arrays.stream(cat)
+        return Arrays.stream(moreCategories)
                 .allMatch(cc::contains);
     }
 
-    private ZeugniskonferenzEntity find(final String category, final UnitId unit, final TermId termId, final DocumentId report, final String[] cat) throws AmbiguousDateException {
+    private ZeugniskonferenzEntity find(final String category, final UnitId unit, final TermId termId, final DocumentId report, final String[] moreCategories) throws AmbiguousDateException {
         final List<ZeugniskonferenzEntity> r = zkFacade.findZeugnisEvents(unit, termId, category);
         final List<ZeugniskonferenzEntity> l1 = r.stream()
                 .filter(e -> e.getRelatedReports().stream().anyMatch(rr -> rr.getDocumentId().equals(report)))
@@ -117,7 +117,7 @@ public class CalendarsBeanImpl implements CalendarsBean {
         }
         final List<ZeugniskonferenzEntity> l2 = r.stream()
                 .filter(e -> e.getRelatedReports().isEmpty())
-                .filter(e -> matchCategories(e, cat))
+                .filter(e -> moreCategories == null || matchCategories(e, moreCategories))
                 .collect(Collectors.toList());
         switch (l2.size()) {
             case 0:
