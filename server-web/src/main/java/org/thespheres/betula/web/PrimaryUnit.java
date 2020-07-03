@@ -29,7 +29,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.ToggleEvent;
 import org.primefaces.model.Visibility;
 import org.primefaces.push.EventBus;
@@ -706,18 +705,18 @@ public class PrimaryUnit extends AbstractData<Subject> {
             return this.textFieldValues;
         }
 
-        public void showReportNotesDialog() {
-            final Map<String, List<String>> params = new HashMap<>();
-            final List<String> zgnId = Arrays.asList(getZeugnisId().getAuthority(), getZeugnisId().getId(), getZeugnisId().getVersion().getVersion());
-            params.put(ConfigureReportNotes.PARAMETER_ZEUGNIS_ID, zgnId);
-            final List<String> unitId = Arrays.asList(unit.getAuthority(), unit.getId());
-            params.put(ConfigureReportNotes.PARAMETER_UNIT_ID, unitId);
-            final Map<String, Object> options = new HashMap<>();
-            options.put("modal", true);
-            options.put("contentHeight", 320);
-            options.put("contentWidth", 640); ////hint: available options are modal, draggable, resizable, width, height, contentWidth and contentHeight
-            RequestContext.getCurrentInstance().openDialog("content/reportNotesConfig", options, params);
-        }
+//        public void showReportNotesDialog() {
+//            final Map<String, List<String>> params = new HashMap<>();
+//            final List<String> zgnId = Arrays.asList(getZeugnisId().getAuthority(), getZeugnisId().getId(), getZeugnisId().getVersion().getVersion());
+//            params.put(ConfigureReportNotes.PARAMETER_ZEUGNIS_ID, zgnId);
+//            final List<String> unitId = Arrays.asList(unit.getAuthority(), unit.getId());
+//            params.put(ConfigureReportNotes.PARAMETER_UNIT_ID, unitId);
+//            final Map<String, Object> options = new HashMap<>();
+//            options.put("modal", true);
+//            options.put("contentHeight", 320);
+//            options.put("contentWidth", 640); ////hint: available options are modal, draggable, resizable, width, height, contentWidth and contentHeight
+//            RequestContext.getCurrentInstance().openDialog("content/reportNotesConfig", options, params);
+//        }
 
         public List<Grade> getAVSVGrades() {
             if (grades == null) {

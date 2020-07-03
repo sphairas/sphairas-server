@@ -162,7 +162,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
     }
 
     //rendered="#{configRepNotes.renderElement(element)}"
-    public boolean renderElement(final TermReportNoteSetTemplate.Element el) {
+    public boolean renderElement(final CurrentStudentsNotesSelection.ElementSelection el) {
         if (el != null) {
             final List<Tag> h = el.getDisplayHints();
             if (el.isHidden()) {

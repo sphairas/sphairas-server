@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.thespheres.betula.StudentId;
+import org.thespheres.betula.Tag;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
@@ -118,6 +119,10 @@ class CurrentStudentsNotesSelection {
             } catch (PropertyVetoException ex) {
                 selectedMultiple = old;
             }
+        }
+
+        public List<Tag> getDisplayHints() {
+            return el.getDisplayHints();
         }
 
         void addVetoableChangeListener(VetoableChangeListener l) {

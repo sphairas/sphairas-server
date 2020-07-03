@@ -71,7 +71,7 @@
                             </div>
                             <div class="ui-g-6 ui-md-3">
                                 <p:inputText id="unentschuldigt" value="#{student.unentschuldigt}" style="max-width: 100%;#{student.unentschuldigtStyle}">
-                                     <p:ajax update="@this"/>
+                                    <p:ajax update="@this"/>
                                 </p:inputText>
                             </div>  
                             <div class="ui-g-6 ui-md-3">
@@ -144,21 +144,23 @@
                             <div class="ui-g-12">   
                                 <p:scrollPanel id="reportNotesScrollPanel" mode="native" style="width: auto; max-height: 350px; border: none;">
                                     <ui:repeat value="#{reportNotes2.elements}" var="element" varStatus="repeatStatus" >
-                                        <p:outputLabel for="checkbox" rendered="#{element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
-                                        <p:selectManyCheckbox id="checkbox" rendered="#{element.multiple}" value="#{element.selected}" layout="pageDirection" >
-                                            <f:selectItems value="#{element.markers}" var="marker" 
-                                                           itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
-                                                           itemValue="#{marker.id}"/>
-                                            <p:ajax  />
-                                        </p:selectManyCheckbox>
-                                        <p:outputLabel for="radio" rendered="#{!element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
-                                        <p:selectOneRadio  id="radio"  rendered="#{!element.multiple}" value="#{element.selectedItem}" layout="pageDirection">
-                                            <f:selectItems value="#{element.markers}" var="marker"
-                                                           itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
-                                                           itemValue="#{marker.id}"/>
-                                            <p:ajax />
-                                        </p:selectOneRadio>
-                                        <p:separator rendered="#{!repeatStatus.last}" />
+                                        <ui:fragment rendered="#{reportNotes2.renderElement(element)}" >
+                                            <p:outputLabel for="checkbox" rendered="#{element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
+                                            <p:selectManyCheckbox id="checkbox" rendered="#{element.multiple}" value="#{element.selected}" layout="pageDirection" >
+                                                <f:selectItems value="#{element.markers}" var="marker" itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
+                                                               itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
+                                                               itemValue="#{marker.id}"/>
+                                                <p:ajax  />
+                                            </p:selectManyCheckbox>
+                                            <p:outputLabel for="radio" rendered="#{!element.multiple}" value="#{element.elementDisplayName}" style="font-weight: bold;" />
+                                            <p:selectOneRadio  id="radio"  rendered="#{!element.multiple}" value="#{element.selectedItem}" layout="pageDirection">
+                                                <f:selectItems value="#{element.markers}" var="marker" itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
+                                                               itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
+                                                               itemValue="#{marker.id}"/>
+                                                <p:ajax />
+                                            </p:selectOneRadio>
+                                            <p:separator rendered="#{!repeatStatus.last}" />
+                                        </ui:fragment>
                                     </ui:repeat>
                                 </p:scrollPanel>
                             </div>
