@@ -19,7 +19,8 @@ import org.apache.naming.resources.ProxyDirContext;
 public class CommonAppProperties {
 
     private static final String SYSTEM_PROP_PROVIDER = "providerURL";
-
+    public static final String PROP_SIGNEES_EXTRA_CONVENTIONS_PERMITTED = "signees.extra.conventions.permitted";
+    
     private CommonAppProperties() {
     }
 

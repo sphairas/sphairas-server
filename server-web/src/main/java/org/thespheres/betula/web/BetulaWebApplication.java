@@ -17,8 +17,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
@@ -54,7 +58,6 @@ import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.server.beans.FastMessages;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
-import org.thespheres.betula.server.beans.JoinedUnitsEntry;
 import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
@@ -69,6 +72,7 @@ import org.thespheres.betula.web.config.Extra;
 import org.thespheres.betula.web.docsrv.DocumentMapper;
 import org.thespheres.ical.VCard;
 import org.thespheres.betula.assess.AssessmentConvention;
+import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 
 /**
@@ -231,6 +235,29 @@ public class BetulaWebApplication implements Serializable {
         return properties;
     }
 
+    public List<Grade> getExtraGrades() {
+        final String extra = webConfig.getProperty("extra.grades.permitted");
+        return Optional.ofNullable(extra)
+                .map(p -> p.split(","))
+                .map(Arrays::stream)
+                .orElse(Stream.empty())
+                .map(BetulaWebApplication::find)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    static Grade find(final String representation) {
+        if (representation != null && !representation.isEmpty()) {
+            final int i = representation.indexOf('#');
+            if (i != -1) {
+                final String cnv = representation.substring(0, i);
+                final String id = representation.substring(i + 1);
+                return GradeFactory.find(cnv, id);
+            }
+        }
+        return null;
+    }
+
     public List<String> getCrossMarkSubjectConventions() {
         return Arrays.asList(crossmarks.conventions());
     }
@@ -338,7 +365,6 @@ public class BetulaWebApplication implements Serializable {
 //    JoinedUnitsEntry getJoinedUnits(DocumentId base) {
 //        return bean.getJoinedUnits(base);
 //    }
-
     VorschlagDecoration getAssessmentDecoration(Extra extra) {
 //        for(VorschlagDecoration v : extraAssessment) {
 //            Logger.getLogger(getClass().getName()).log(Level.INFO, v.getClass().getName());

@@ -346,7 +346,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         GradeValue ret = gr.get(term);
         if (ret == null) {
             final Entry initial = application.getFastDocument(term.docId).selectEntry(stud.getId(), term.termId);
-            ret = new GradeValue(application, term.docId, term.termId, stud.getId(), term.getPreferredConvention(), initial, null, term.mayEdit, term.targetType, null);
+            ret = new GradeValue(application, term.docId, term.termId, stud.getId(), term.getPreferredConventions(), initial, null, term.mayEdit, term.targetType, null);
             gr.put(term, ret);
         }
         return ret;
@@ -508,15 +508,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             return termId;
         }
 
-        public List<Grade> getAdditionalGrades() {
-//            final WebUIConfiguration config = AvailableTarget.this.application.getWebUIConfiguration();
-//            final Grade[] arr = config.getAdditionalGrades(this.docId, this.termId); //Stufe? targetType? Selector?
-//            return Arrays.asList(arr);
-            final Grade g = GradeFactory.find("niedersachsen.ersatzeintrag", "ne");
-            return Collections.singletonList(g);
-        }
-
-        public synchronized AssessmentConvention[] getPreferredConvention() {
+        public synchronized AssessmentConvention[] getPreferredConventions() {
             if (currentConvention == null) {
                 final List<AssessmentConvention> l = new ArrayList<>();
                 final String con = application.getFastDocument(docId).getPreferredConvention();
@@ -540,10 +532,10 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
         public synchronized List<Grade> getGrades() {
             if (grades == null) {
-                final List<Grade> l = Arrays.stream(getPreferredConvention())
+                final List<Grade> l = Arrays.stream(getPreferredConventions())
                         .flatMap(c -> Arrays.stream(c.getAllGradesReverseOrder()))
                         .collect(Collectors.toList());
-                getAdditionalGrades().forEach(l::add);
+                application.getExtraGrades().forEach(l::add);
                 grades = l;
             }
             return grades;
@@ -558,7 +550,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         @Override
         public Object getAsObject(FacesContext context, UIComponent component, String value) {
             try {
-                Grade g = getPreferredConvention()[0].parseGrade(value);
+                Grade g = getPreferredConventions()[0].parseGrade(value);
                 return g != null ? g.getId() : "";
             } catch (GradeParsingException ex) {
             }
@@ -568,7 +560,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         @Override
         public String getAsString(FacesContext context, UIComponent component, Object value) {
             if (value instanceof String) {
-                final AssessmentConvention[] c = getPreferredConvention();
+                final AssessmentConvention[] c = getPreferredConventions();
                 Grade g = c[0].find((String) value);
                 if (g != null) {
                     return g.getShortLabel();

@@ -27,8 +27,6 @@ public class AppProperties {
 //    @Deprecated
 //    public static final String DEFAULT_SIGNEE_SUFFIX = "betula.system.signee.suffix";
     public static final String COMPRESS_BACKUP_7Z_ADD_SWITCHES = "compress.backup.7z.add.switches";
-    @Deprecated
-    public static final String PERMIT_CONVENTIONS = "permit.conventions";
     static final String LOGGER = "org.thespheres.betula.entities";
     public static final String INSTANCE_PROPERTIES_FILE = "instance.properties";
     public static final String COMPRESS_TERMGRADE_ENTRIES = "compress.term.grade.target.entries";
@@ -48,15 +46,6 @@ public class AppProperties {
             return Arrays.stream(secSignees.split(",")).map(String::trim).distinct().collect(Collectors.toList());
         } else {
             return Collections.singletonList("entitled.signee");
-        }
-    }
-
-    public static List<String> permittedConventions() {
-        final String cv = System.getProperty(PERMIT_CONVENTIONS);
-        if (cv != null) {
-            return Arrays.stream(cv.split(",")).map(String::trim).distinct().collect(Collectors.toList());
-        } else {
-            return Collections.singletonList("niedersachsen.avsvvorschlag");
         }
     }
 

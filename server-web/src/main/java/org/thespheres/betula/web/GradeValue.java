@@ -105,15 +105,20 @@ public class GradeValue extends AbstractGradeWrapper {
     @Override
     protected Grade resolveExtraId(final String gradeId) {
         final ExtraAnnotation extra = new ExtraAnnotation(targetType);
-        VorschlagDecoration deco = application.getAssessmentDecoration(extra);
+        final VorschlagDecoration deco = application.getAssessmentDecoration(extra);
         if (deco != null) {
-            List<AssessmentConvention> l = deco.getDecoration(doc, (TargetDocument) application.getFastDocument(doc));
-            return l.stream()
+            final List<AssessmentConvention> l = deco.getDecoration(doc, (TargetDocument) application.getFastDocument(doc));
+            final Grade v = l.stream()
                     .map(ac -> ac.find(gradeId))
                     .filter(Objects::nonNull)
                     .collect(CollectionUtil.singleOrNull());
+            if (v != null) {
+                return v;
+            }
         }
-        return null;
+        return application.getExtraGrades().stream()
+                .filter(g -> g.getId().equals(gradeId))
+                .collect(CollectionUtil.singleOrNull());
     }
 
     @Override
