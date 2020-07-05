@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -262,18 +262,19 @@ public class BetulaWebApplication implements Serializable {
         return Arrays.asList(crossmarks.conventions());
     }
 
-    public synchronized AssessmentConvention getCrossMarkAssessmentConvention() {
-//        if (crossMarksAssessmentConvention == null) {
-//            crossMarksAssessmentConvention = crossmarks.isUnsatisfied() ? Optional.empty() : Optional.of(crossmarks.get().getAssessmentConvention());
-//        }
-//        return crossMarksAssessmentConvention.orElse(null);
+    public AssessmentConvention getCrossMarkAssessmentConvention() {
         return crossmarks.getAssessmentConvention();
     }
 
-    public synchronized List<Grade> getCrossMarkGrades() {
+    public List<Grade> getCrossMarkGrades() {
         if (crossMarkGrade == null) {
+            final List<Grade> l = new CopyOnWriteArrayList<>();
             final AssessmentConvention ac = getCrossMarkAssessmentConvention();
-            crossMarkGrade = ac != null ? Arrays.asList(ac.getAllGradesReverseOrder()) : Collections.emptyList();
+            if (ac != null) {
+                l.addAll(Arrays.asList(ac.getAllGradesReverseOrder()));
+            }
+            l.addAll(getExtraGrades());
+            crossMarkGrade = l;
         }
         return crossMarkGrade;
     }
@@ -353,7 +354,6 @@ public class BetulaWebApplication implements Serializable {
         return bean.selectSingle(docId, studId, termId);// bean.select(docId, studId, termId);
     }
 
-//    synchronized 
     boolean submitGrade(DocumentId docId, TermId termId, StudentId studId, Grade grade) throws IOException {
         return bean.submitSingle(docId, studId, termId, grade); //submit(docId, studId, termId, grade, new Timestamp());
     }
