@@ -56,7 +56,6 @@ import org.thespheres.betula.niedersachsen.NdsZeugnisFormular;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilder.GradeEntry;
 import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
-import org.thespheres.betula.niedersachsen.zeugnis.ZeugnisBuilder;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
@@ -484,7 +483,7 @@ public class NdsFormatReportsBean {
             final NamingResolver.Result result = namingResolver.resolveDisplayNameResult(pu);
             builder.setHalbjahresdatenUndKlasse(term, result);
         } catch (IllegalAuthorityException ex) {
-            Logger.getLogger(ZeugnisBuilder.class.getName()).log(Level.WARNING, ex.getMessage());
+            Logger.getLogger(NdsFormatReportsBean.class.getName()).log(Level.WARNING, ex.getMessage());
             builder.addException(ex);
         }
         builder.setVornameNachname(fN)
