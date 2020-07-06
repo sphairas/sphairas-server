@@ -19,7 +19,7 @@ import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.niedersachsen.NdsTerms;
 import org.thespheres.betula.niedersachsen.zeugnis.Constants;
-import org.thespheres.betula.niedersachsen.zeugnis.ZeugnisBuilder;
+import org.thespheres.betula.niedersachsen.zeugnis.NdsReportConstants;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.betula.server.beans.CalendarsBean;
 import org.thespheres.betula.server.beans.ReportsBean;
@@ -71,9 +71,9 @@ public class ZeugnisArguments {
                 final String given = n.split(";")[1].replace(",", " ");
                 final String g = card.getAnyPropertyValue(VCard.GENDER).get();
                 final Long gender = "F".equals(g) ? 1l : 0l;
-                final String gen = ZeugnisBuilder.getGenitiv(given);
-                final String possesiv = ZeugnisBuilder.getPossessivPronomen(g);
-                final String possesivGen = ZeugnisBuilder.getPossessivPronomenGenitiv(g);
+                final String gen = NdsReportConstants.getGenitiv(given);
+                final String possesiv = NdsReportConstants.getPossessivPronomen(g);
+                final String possesivGen = NdsReportConstants.getPossessivPronomenGenitiv(g);
                 Date zkDate;
                 try {
                     zkDate = calendars.getDate(Constants.CATEGORY_ZEUGNISKONFERENZ, unit, termId, null, null);
@@ -88,7 +88,7 @@ public class ZeugnisArguments {
 
     //TODO LocalDateTime
     public Date getZeugnisAusgabe(final TermId termId, final UnitId pu, final DocumentId zgn, final boolean isAbschluss) throws AmbiguousDateException {
-        final Date ret = calendars.getDate(Constants.CATEGORY_ZEUGNISAUSGABE, pu, termId, zgn, isAbschluss ? new String[]{Constants.ABSCHLUSSZEUGNISSE} : null);
+        final Date ret = calendars.getDate(Constants.CATEGORY_ZEUGNISAUSGABE, pu, termId, zgn, isAbschluss ? new String[]{Constants.ABSCHLUSSZEUGNISSE} : new String[0]);
         return ret != null ? ret : new Date();
     }
 

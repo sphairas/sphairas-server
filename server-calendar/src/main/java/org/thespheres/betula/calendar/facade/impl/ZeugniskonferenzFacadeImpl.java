@@ -16,6 +16,7 @@ import javax.ejb.Stateless;
 import javax.persistence.LockModeType;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
+import org.thespheres.betula.calendar.UniqueCalendarComponentEntity;
 import org.thespheres.ical.builder.ICalendarBuilder.CalendarComponentBuilder;
 import org.thespheres.betula.calendar.facade.ZeugniskonferenzFacade;
 import org.thespheres.betula.calendar.reports.EmbeddableStringDocumentIdMapValue;
@@ -109,7 +110,7 @@ public class ZeugniskonferenzFacadeImpl extends FixedCalendarFacade<TicketsCalen
     }
 
     @Override
-    public ZeugniskonferenzEntity create(final UnitId unit, final TermId term, final List<DocumentId> reports, final CalendarComponent comp, final Set<String> category) {
+    public ZeugniskonferenzEntity create(final UnitId unit, final TermId term, final List<DocumentId> reports, final CalendarComponent comp, final Set<String> categories) {
         final ZeugniskonferenzEntity ze;
         try {
             ze = ZeugniskonferenzEntity.create(getCalendar(), term, unit);
@@ -117,13 +118,10 @@ public class ZeugniskonferenzFacadeImpl extends FixedCalendarFacade<TicketsCalen
         } catch (IOException ex) {
             throw new RuntimeException("Could not automatically create new UID for component.", ex);
         }
-//        if (!Objects.equals("zeugniskonferenz", category)) {
-//            ze.setCategory(category);
-//        }
-        if (category.contains(Constants.CATEGORY_ZEUGNISAUSGABE)) {
+        if (categories.contains(Constants.CATEGORY_ZEUGNISAUSGABE)) {
             ze.setCategory(Constants.CATEGORY_ZEUGNISAUSGABE);
         }
-        updateComponentProperties(comp, ze, category);
+        updateComponentProperties(comp, ze, categories);
 
 //        ze.setDateOfIssuance(ze);//TODO
         reports.stream()
@@ -142,6 +140,11 @@ public class ZeugniskonferenzFacadeImpl extends FixedCalendarFacade<TicketsCalen
         if (!cat.isEmpty()) {
             ze.addProperty(CalendarComponentProperty.CATEGORIES, cat);
         }
+    }
+    
+    //Prevent updating non-standard categories
+    @Override
+    protected void updateNonStandardComponentProperty(final String name, final String value, final List<Parameter> l, final UniqueCalendarComponentEntity te) {
     }
 
     @Override

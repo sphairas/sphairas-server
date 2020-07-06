@@ -94,9 +94,8 @@ public class TicketsFacadeImpl extends FixedCalendarFacade<TicketsCalendar, Tick
         final UID uid = cc.getUID();
         final TicketEntity te;
         if ((te = find(uid, LockModeType.OPTIMISTIC_FORCE_INCREMENT)) != null) {
-            if (updateComponentProperties(cc, te)) {
-                edit(te);
-            }
+            updateComponentProperties(cc, te);
+            edit(te);
         } else {
             throw new IllegalArgumentException(cc.getUID() + " does not exist, cannot be updated.");
         }

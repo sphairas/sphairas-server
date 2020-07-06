@@ -27,6 +27,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import org.thespheres.ical.Parameter;
 import org.thespheres.ical.UID;
 
 /**
@@ -93,8 +94,15 @@ public class UniqueCalendarComponentEntity<C extends BaseCalendarEntity> extends
         return cmpr;
     }
 
-    public void addProperty(String name, String value) {
-        cmpr.add(new EmbeddableComponentProperty(name, value));
+    public void addProperty(final String name, final String value, final List<Parameter> params) {
+        final EmbeddableComponentProperty prop = new EmbeddableComponentProperty(name, value);
+        if (params != null) {
+            params.forEach(prop::addParameter);
+        }
+        cmpr.add(prop);
     }
 
+    public void addProperty(final String name, final String value) {
+        addProperty(name, value, null);
+    }
 }

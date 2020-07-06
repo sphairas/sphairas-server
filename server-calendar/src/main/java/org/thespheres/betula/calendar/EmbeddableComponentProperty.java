@@ -57,6 +57,14 @@ public class EmbeddableComponentProperty implements Serializable {
         return propParameters.getList();
     }
 
+    public void addParameter(final Parameter p) {
+        this.propParameters.add(p);
+    }
+
+    public void removeParameter(final String p) {
+        this.propParameters.remove(p);
+    }
+
     public void toString(StringBuilder sb) {
         propertyToString(sb, getName(), getValue(), propParameters);
     }

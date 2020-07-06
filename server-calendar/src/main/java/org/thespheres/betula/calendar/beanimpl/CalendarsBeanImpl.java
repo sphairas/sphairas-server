@@ -96,8 +96,7 @@ public class CalendarsBeanImpl implements CalendarsBean {
                 .flatMap(p -> Arrays.stream(p.split(",")))
                 .map(String::trim)
                 .collect(Collectors.toSet());
-        return Arrays.stream(moreCategories)
-                .allMatch(cc::contains);
+        return moreCategories.length == cc.size() && Arrays.stream(moreCategories).allMatch(cc::contains);
     }
 
     private ZeugniskonferenzEntity find(final String category, final UnitId unit, final TermId termId, final DocumentId report, final String[] moreCategories) throws AmbiguousDateException {

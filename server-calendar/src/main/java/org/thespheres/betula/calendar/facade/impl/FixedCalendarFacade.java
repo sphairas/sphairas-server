@@ -128,10 +128,11 @@ public abstract class FixedCalendarFacade<T extends BaseCalendarEntity<? extends
         }
     }
 
-    protected boolean updateComponentProperties(CalendarComponent cc, UniqueCalendarComponentEntity te) throws RuntimeException {
-        for (CalendarComponentProperty ccp : cc.getProperties()) {
-            String name = ccp.getName();
-            String value = ccp.getValue();
+    protected void updateComponentProperties(final CalendarComponent cc, final UniqueCalendarComponentEntity te) throws RuntimeException {
+        for (final CalendarComponentProperty ccp : cc.getProperties()) {
+            final String name = ccp.getName();
+           final String value = ccp.getValue();
+           final List<Parameter> params = ccp.getParameters();
             if (null != name) {
                 switch (name) {
                     case CalendarComponentProperty.DTSTART:
@@ -167,10 +168,13 @@ public abstract class FixedCalendarFacade<T extends BaseCalendarEntity<? extends
                         }
                         break;
                     default:
-                        te.addProperty(name, value);
+                        updateNonStandardComponentProperty(name, value, params, te);
                 }
             }
         }
-        return true;
+    }
+
+    protected void updateNonStandardComponentProperty(final String name, final String value, final List<Parameter> l, final UniqueCalendarComponentEntity te) {
+        te.addProperty(name, value, l);
     }
 }
