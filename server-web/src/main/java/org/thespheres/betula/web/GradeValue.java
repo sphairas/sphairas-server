@@ -54,8 +54,6 @@ public class GradeValue extends AbstractGradeWrapper {
         this.studId = studId;
         this.baseEditableProperty = editable;
         this.grade = initial != null ? initial.grade : null;
-//        this.invalidated = this.grade == null;
-//        this.invalidated = true;
         this.timestamp = initial != null ? initial.timestamp : null;
         this.targetType = target;
         this.subject = subject;
@@ -153,18 +151,20 @@ public class GradeValue extends AbstractGradeWrapper {
     public boolean isEditable() {
         final Grade g = getGrade();
         final Ticket[] t = getTickets();
-//        return g != null && t.length > 0 && (isPending() || g.getConvention().equals(getConvention().getName()));
-        return g != null && t.length > 0 && (isPending() || isEditableConvention(g));
+        return g != null 
+                && t.length > 0 
+                && (isPending() || isEditableGrade(g));
     }
 
-    private boolean isEditableConvention(final Grade g) {
+    private boolean isEditableGrade(final Grade g) {
         return Arrays.stream(getConventions())
                 .map(AssessmentConvention::getName)
-                .anyMatch(g.getConvention()::equals);
+                .anyMatch(g.getConvention()::equals)
+                || application.getExtraGrades().contains(g);
     }
 
     @Override
-    protected synchronized void setGrade(Grade g) {
+    protected void setGrade(Grade g) {
         if (g != null && !Objects.equals(g, this.grade)) { // && !Objects.equals(g, gradeToUpdate[0])) {
             gradeSubmitting.set(g);
             boolean result = false;
@@ -175,7 +175,6 @@ public class GradeValue extends AbstractGradeWrapper {
             if (result) {
                 this.grade = gradeSubmitting.getAndSet(null);
             } else {//message = "FEHLER"
-//                invalidateGrade();
                 gradeSubmitting.lazySet(null);
             }
         }
@@ -188,8 +187,7 @@ public class GradeValue extends AbstractGradeWrapper {
                 timestamp = time;
             }
             if (!(Objects.equals(newValue, getGrade()))) {
-                Grade submitting = gradeSubmitting.getAndSet(newValue);
-//                Grade submitting = gradeSubmitting.accumulateAndGet(newValue, (current, update) -> current == null ? null : newValue);
+                final Grade submitting = gradeSubmitting.getAndSet(newValue);
                 if (submitting != null && submitting.equals(newValue)) {
                     return false;
                 } else {
