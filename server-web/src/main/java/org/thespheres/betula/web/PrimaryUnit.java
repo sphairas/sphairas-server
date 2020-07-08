@@ -501,14 +501,12 @@ public class PrimaryUnit extends AbstractData<Subject> {
         private AVSVWrapper avGrade;
         private AVSVWrapper svGrade;
         private DocumentId[] zeugnisId;
-        private String fehltage;
-        private boolean fehltagePreceding;
         private boolean invalidatedFehltage = true;
+        private String fehltage;
         private String unentschuldigt;
-        private boolean unentschuldigtPreceding;
-        private boolean invalidatedUnentschuldigt = true;
+        private String fehltagePrecedingTerm;
         private Map<String, TextFieldHolder> textFieldValues;
-        public static final String PRECEDING_STYLE = "display: block; background-color: #D3D3D3; font-style: italic;";
+        private Boolean displayPrecedingFehltage;
 
         public AvailableStudentExt(StudentId sid, String dirName, Marker sgl) {
             super(sid, dirName, sgl);
@@ -518,105 +516,107 @@ public class PrimaryUnit extends AbstractData<Subject> {
             return PrimaryUnit.this;
         }
 
-        public String getFehltage() {
+        private void updateFehltage() {
             if (invalidatedFehltage) {
-                final Integer val = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE);
-                if (val != null) {
-                    fehltagePreceding = false;
-                    fehltage = Integer.toString(val);
-                } else {
-                    final Optional<String> pf = Optional.ofNullable(getZeugnisIdPrecedingTerm())
+                final Integer vf = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE);
+                final Integer vu = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE);
+                fehltage = Optional.ofNullable(vf)
+                        .map(i -> Integer.toString(i))
+                        .orElse(null);
+                unentschuldigt = Optional.ofNullable(vu)
+                        .map(i -> Integer.toString(i))
+                        .orElse(null);
+                displayPrecedingFehltage = Optional.ofNullable(termBefore.getParameter("halbjahr"))
+                        .filter(Integer.class::isInstance)
+                        .map(hj -> ((int) hj) == 1)
+                        .orElse(false);
+                if (displayPrecedingFehltage) {
+                    final DocumentId zeugnisIdPrecedingTerm = getZeugnisIdPrecedingTerm();
+                    final Integer vfp = Optional.ofNullable(zeugnisIdPrecedingTerm)
                             .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_FEHLTAGE))
-                            .map(v -> Integer.toString(v));
-                    fehltagePreceding = pf.isPresent();
-                    fehltage = pf
-                            .map(this::formatPreceding)
-                            .orElse("---");
+                            .orElse(null);
+                    final Integer vup = Optional.ofNullable(zeugnisIdPrecedingTerm)
+                            .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_UNENTSCHULDIGT))
+                            .orElse(null);
+                    final String termDn = Optional.ofNullable(termBefore.getParameter("schuljahr"))
+                            .map(Object::toString)
+                            .orElse(termBefore.getDisplayName());
+                    if (vfp == null) {
+                        fehltagePrecedingTerm = NbBundle.getMessage(BetulaWebApplication.class, "primunit.fehltagePrecedingTerm.null", termDn);
+                    } else if (vup == null) {
+                        fehltagePrecedingTerm = NbBundle.getMessage(BetulaWebApplication.class, "primunit.fehltagePrecedingTerm.noUnentschuldigt", termDn, vfp);
+                    } else {
+                        fehltagePrecedingTerm = NbBundle.getMessage(BetulaWebApplication.class, "primunit.fehltagePrecedingTerm", termDn, vfp, vup);
+                    }
+                } else {
+                    fehltagePrecedingTerm = null;
                 }
                 invalidatedFehltage = false;
             }
+        }
+
+        public boolean isDisplayPrecedingFehltage() {
+            return displayPrecedingFehltage;
+        }
+
+        public String getFehltagePrecedingTerm() {
+            updateFehltage();
+            return fehltagePrecedingTerm;
+        }
+
+        public String getFehltage() {
+            updateFehltage();
             return fehltage;
         }
 
-        public String getFehltageStyle() {
-            getFehltage();
-            return fehltagePreceding ? PRECEDING_STYLE : "";
-        }
-
         public void setFehltage(String value) {
-            if (fehltagePreceding || !Objects.equals(value, this.fehltage)) {
+            if (!Objects.equals(value, this.fehltage)) {
                 Integer val = null;
                 try {
                     if (value != null && !value.trim().isEmpty()) {
                         try {
                             val = Integer.parseInt(value);
-                        } catch (NumberFormatException nfex) {
+                        } catch (final NumberFormatException nfex) {
                             return;
                         }
                     }
                     boolean result = zeugnisBean.setIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE, val);
                     if (result) {
                         this.fehltage = val == null ? "" : Integer.toString(val);
-                        fehltagePreceding = false;
                         if (val == null) {
                             invalidatedFehltage = true;
                         }
                     }
-                } catch (TermReportDataException ex) {
+                } catch (final TermReportDataException ex) {
                     Logger.getLogger(PrimaryUnit.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
                 }
             }
         }
 
         public String getUnentschuldigt() {
-            if (invalidatedUnentschuldigt) {
-                final Integer val = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT);
-                if (val != null) {
-                    unentschuldigtPreceding = false;
-                    unentschuldigt = Integer.toString(val);
-                } else {
-                    final Optional<String> pf = Optional.ofNullable(getZeugnisIdPrecedingTerm())
-                            .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_UNENTSCHULDIGT))
-                            .map(v -> Integer.toString(v));
-                    unentschuldigtPreceding = pf.isPresent();
-                    unentschuldigt = pf
-                            .map(this::formatPreceding)
-                            .orElse("---");
-                }
-                invalidatedUnentschuldigt = false;
-            }
+            updateFehltage();
             return unentschuldigt;
         }
 
-        private String formatPreceding(final String num) {
-            return num + " (" + termBefore.getDisplayName() + ")";
-        }
-
-        public String getUnentschuldigtStyle() {
-            getUnentschuldigt();
-            return unentschuldigtPreceding ? PRECEDING_STYLE : "";
-        }
-
         public void setUnentschuldigt(String value) {
-            if (unentschuldigtPreceding || !Objects.equals(value, this.unentschuldigt)) {
+            if (!Objects.equals(value, this.unentschuldigt)) {
                 Integer val = null;
                 try {
                     if (value != null && !value.trim().isEmpty()) {
                         try {
                             val = Integer.parseInt(value);
-                        } catch (NumberFormatException nfex) {
+                        } catch (final NumberFormatException nfex) {
                             return;
                         }
                     }
                     boolean result = zeugnisBean.setIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT, val);
                     if (result) {
                         this.unentschuldigt = val == null ? "" : Integer.toString(val);
-                        unentschuldigtPreceding = false;
                         if (val == null) {
-                            invalidatedUnentschuldigt = true;
+                            invalidatedFehltage = true;
                         }
                     }
-                } catch (TermReportDataException ex) {
+                } catch (final TermReportDataException ex) {
                     Logger.getLogger(PrimaryUnit.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
                 }
             }
@@ -717,7 +717,6 @@ public class PrimaryUnit extends AbstractData<Subject> {
 //            options.put("contentWidth", 640); ////hint: available options are modal, draggable, resizable, width, height, contentWidth and contentHeight
 //            RequestContext.getCurrentInstance().openDialog("content/reportNotesConfig", options, params);
 //        }
-
         public List<Grade> getAVSVGrades() {
             if (grades == null) {
                 final AssessmentConvention con = GradeFactory.findConvention(ASVAssessmentConvention.AV_NAME);

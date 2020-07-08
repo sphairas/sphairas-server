@@ -62,7 +62,7 @@
                                 <p:outputLabel for="fehltage" value="#{bundle['primunit.fehltage']}" />
                             </div>
                             <div class="ui-g-6 ui-md-3">
-                                <p:inputText  id="fehltage" value="#{student.fehltage}" style="max-width: 100%;#{student.fehltageStyle}">
+                                <p:inputText id="fehltage" value="#{student.fehltage}" placeholder="---" style="max-width: 100%;">
                                     <p:ajax update="@this"/>
                                 </p:inputText>
                             </div>  
@@ -70,10 +70,13 @@
                                 <p:outputLabel for="unentschuldigt" value="#{bundle['primunit.unentschuldigt']}" />
                             </div>
                             <div class="ui-g-6 ui-md-3">
-                                <p:inputText id="unentschuldigt" value="#{student.unentschuldigt}" style="max-width: 100%;#{student.unentschuldigtStyle}">
+                                <p:inputText id="unentschuldigt" value="#{student.unentschuldigt}" placeholder="---" style="max-width: 100%;">
                                     <p:ajax update="@this"/>
                                 </p:inputText>
                             </div>  
+                            <div class="ui-g-12 ui-md-12" style="margin-bottom: 1.7em;">
+                                <p:outputLabel value="#{student.fehltagePrecedingTerm}" rendered="#{student.displayPrecedingFehltage}" style="max-width: 100%;"/>
+                            </div>
                             <div class="ui-g-6 ui-md-3">
                                 <p:outputLabel for="avinput" value="#{bundle['column.header.arbeitsverhalten']}" />
                             </div>
