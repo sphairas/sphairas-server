@@ -211,11 +211,14 @@ public class AdminReportsProcessor extends AbstractAdminContainerProcessor {
                         final Grade avnote = tre.getAvnote() != null ? tre.getAvnote().findGrade() : null;
                         final Grade svnote = tre.getSvnote() != null ? tre.getSvnote().findGrade() : null;
                         final Marker[] markers = tre.markers();
+                        final NdsZeugnisAngaben.Text[] text = tre.getNotes().entrySet().stream()
+                                .map(me -> new NdsZeugnisAngaben.Text(me.getKey(), me.getValue(), null))
+                                .toArray(NdsZeugnisAngaben.Text[]::new);
                         final NdsZeugnisAngaben.FreieBemerkung[] custom = tre.getFreeNotes().entrySet().stream()
                                 .map(me -> new NdsZeugnisAngaben.FreieBemerkung(me.getValue(), me.getKey(), null))
                                 .toArray(NdsZeugnisAngaben.FreieBemerkung[]::new);
-//                        NdsZeugnisAngaben.Text
                         final NdsZeugnisAngaben angaben = new NdsZeugnisAngaben(tre.getFehltage(), tre.getUnentschuldigt(), avnote, svnote, markers, custom);
+                        angaben.setText(text);
                         final DOMResult result = new DOMResult();
                         try {
                             getZeungnisAngabenJAXB().createMarshaller().marshal(angaben, result);
@@ -257,7 +260,7 @@ public class AdminReportsProcessor extends AbstractAdminContainerProcessor {
         em.merge(entity);
     }
 
-    protected void update(final TermReportDocumentEntity tre, final NdsZeugnisAngaben angaben) {
+    protected void update(final TermReportDocumentEntity tre, final NdsZeugnisAngaben angaben) throws SyntaxException {
         boolean changed = false;
         final ValueElement<Grade> av = angaben.getArbeitsverhalten();
         final Action avAction;
@@ -374,7 +377,34 @@ public class AdminReportsProcessor extends AbstractAdminContainerProcessor {
             }
         }
         //
-//        NdsZeugnisAngaben.Text
+        final NdsZeugnisAngaben.Text[] tnn = angaben.getText();
+        if (tnn != null) {
+            for (final NdsZeugnisAngaben.Text tn : tnn) {
+                final Action tnAction;
+                if (tn != null && (tnAction = tn.getAction()) != null) {
+                    final String key = tn.getKey();
+                    if (key == null || key.isEmpty()) {
+                        throw ServiceUtils.createSyntaxException("NdsZeugnisAngaben.Text.key cannot be null or empty.");
+                    }
+                    final String text = tn.getValue();
+                    switch (tnAction) {
+                        case FILE:
+                            if (text != null) {
+                                tre.getNotes().put(key, text);
+                                tn.setAction(Action.CONFIRM);
+                            }
+                            break;
+                        case ANNUL:
+                            if (text == null || text.equals(tre.getNotes().get(key))) {
+                                tre.getNotes().remove(key);
+                                tn.setAction(Action.CONFIRM);
+                            }
+                            break;
+                    }
+                    changed = true;
+                }
+            }
+        }
         //
         final NdsZeugnisAngaben.FreieBemerkung[] fbb = angaben.getCustom();
         if (fbb != null) {
