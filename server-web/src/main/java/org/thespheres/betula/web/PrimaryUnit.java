@@ -519,7 +519,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         private void updateFehltage() {
             if (invalidatedFehltage) {
                 final Integer vf = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE);
-                final Integer vu = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE);
+                final Integer vu = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT);
                 fehltage = Optional.ofNullable(vf)
                         .map(i -> Integer.toString(i))
                         .orElse(null);
