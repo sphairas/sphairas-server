@@ -70,7 +70,7 @@
     </security-constraint>
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>iserv</realm-name>
+        <realm-name>${web.module.authentication.realm}</realm-name>
     </login-config>
     <security-role>
         <description>Default logged in user.</description>
