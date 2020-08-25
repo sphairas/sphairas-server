@@ -9,7 +9,6 @@ import org.thespheres.betula.calendar.util.EmbeddableMarker;
 import org.thespheres.betula.calendar.util.EmbeddableUnitId;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,8 +35,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.QueryHint;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Version;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.services.scheme.spi.LessonId;
@@ -82,12 +79,6 @@ public class Lesson implements Serializable {
     private EmbeddableUnitId unit;
     @OneToMany(mappedBy = "lesson", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<WeeklyLessonComponent> times = new ArrayList<>();
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "BEGIN_DATE")
-    private Date beginDate;
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "END_DATE")
-    private Date endDate;
     @OneToMany(mappedBy = "lesson")
     private Set<LessonSubscriber> subscribers;
     @ElementCollection
@@ -120,22 +111,6 @@ public class Lesson implements Serializable {
 
     public UnitId getUnit() {
         return unit.getUnitId();
-    }
-
-    public Date getBeginDate() {
-        return beginDate;
-    }
-
-    public void setBeginDate(Date beginDate) {
-        this.beginDate = beginDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
     }
 
     public Set<VendorLessonMapping> getVendorLessonMappings() {

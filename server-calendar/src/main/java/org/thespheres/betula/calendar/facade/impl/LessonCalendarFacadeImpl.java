@@ -6,7 +6,7 @@
 package org.thespheres.betula.calendar.facade.impl;
 
 import java.text.NumberFormat;
-import java.time.DayOfWeek;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
@@ -117,7 +117,10 @@ public class LessonCalendarFacadeImpl extends FixedCalendarFacade<LessonCalendar
         if (ut.getStatus() == null) {
             ccb.addProperty(CalendarComponentProperty.STATUS, "CONFIRMED");
         }
-        ccb.addProperty(CalendarComponentProperty.RRULE, "FREQ=WEEKLY;UNTIL=" + IComponentUtilities.DATE_TIME.format(ut.getLesson().getEndDate()));
+        final Date until = ut.getUntil();
+        if (until != null) {
+            ccb.addProperty(CalendarComponentProperty.RRULE, "FREQ=WEEKLY;UNTIL=" + IComponentUtilities.DATE_TIME.format(until));
+        }
         final String exWeeks = ut.getExDates();
         if (exWeeks != null) {
             ccb.addProperty(CalendarComponentProperty.EXDATE, exWeeks, Parameter.VALUE_DATE);

@@ -33,6 +33,7 @@ public class EmbeddableLessonId implements Serializable {
     public EmbeddableLessonId(LessonId lesson, int link) {
         this.authority = lesson.getAuthority();
         this.id = lesson.getId();
+        this.link = link;
     }
 
     public LessonId getLessonId() {

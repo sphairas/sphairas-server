@@ -11,11 +11,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
@@ -35,6 +34,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.jboss.logging.Logger;
+import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.server.beans.annot.Authority;
@@ -114,25 +115,26 @@ public class LessonResource {
                     .setParameter("lesson", new EmbeddableLessonId(l.getLesson(), 0))
                     .getSingleResult();
         } catch (final NoResultException ignored) {
-            lesson = new Lesson(lessonCalendar, l.getLesson(), l.getUnit());
+            if (l.getUnits() != null && l.getUnits().length != 1) {
+                Logger.getLogger(LessonResource.class.getName()).log(Logger.Level.WARN, "Multiple units not supported.");
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            final UnitId unit = l.getUnits() == null ? null : l.getUnits()[0];
+            lesson = new Lesson(lessonCalendar, l.getLesson(), unit);
             em.persist(lesson);
         }
         final VendorData vData = l.getVendorData();
-        VendorLessonMapping mapping = null;
+        VendorLessonMapping lessonMapping = null;
         if (vData != null) {
-            mapping = em.find(VendorLessonMapping.class, new EmbeddableLessonId(vData.getVendorLesson(), vData.getVendorLink()));
-            if (mapping == null) {
-                mapping = new VendorLessonMapping(vData.getVendorLesson(), vData.getVendorLink(), lesson);
-                em.persist(lesson);
+            lessonMapping = em.find(VendorLessonMapping.class, new EmbeddableLessonId(vData.getVendorLesson(), vData.getVendorLink()));
+            if (lessonMapping == null) {
+                lessonMapping = new VendorLessonMapping(vData.getVendorLesson(), vData.getVendorLink(), lesson);
+                em.persist(lessonMapping);
             } else {
-                mapping.getComponents().clear();
+                lessonMapping.getComponents().clear();
             }
-            lesson.getVendorLessonMappings().add(mapping);
+            lesson.getVendorLessonMappings().add(lessonMapping);
         }
-        final Date b = Date.from(l.getCourseBegin().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-        lesson.setBeginDate(b);
-        final Date e = Date.from(l.getCourseEnd().atStartOfDay().plusDays(1l).atZone(ZoneId.systemDefault()).toInstant());
-        lesson.setEndDate(e);
 
         final List<WeeklyLessonComponent> toRemove = new ArrayList<>(lesson.getTimes());
         param:
@@ -142,15 +144,9 @@ public class LessonResource {
                     updateComponent(cmp, t, l);
                     toRemove.remove(cmp);
                     cmp.getVendorLessonMappings().clear();
-                    if (mapping != null) {
-                        cmp.getVendorLessonMappings().add(mapping);
-                        mapping.getComponents().add(cmp);
-                    }
+                    updateVendorMappings(cmp, lessonMapping, t.getVendorData());
                     continue param;
-                } else if (vData != null && isLinked(cmp, vData, lesson)) {
-                    //Don't remove the component if it stems from the same updater session
-                    toRemove.remove(cmp);
-                }
+                } 
             }
             final WeeklyLessonComponent cmp;
             try {
@@ -160,65 +156,66 @@ public class LessonResource {
             }
             updateComponent(cmp, t, l);
             lesson.getTimes().add(cmp);
-            if (mapping != null) {
-                cmp.getVendorLessonMappings().add(mapping);
-                mapping.getComponents().add(cmp);
-            }
+            updateVendorMappings(cmp, lessonMapping, t.getVendorData());
         }
         lesson.getTimes().removeAll(toRemove);
         em.merge(lessonCalendar);
         em.merge(lesson);
-        if (mapping != null) {
-            em.merge(mapping);
+        if (lessonMapping != null) {
+            em.merge(lessonMapping);
         }
         return Response.ok().build();
     }
 
-    private void updateComponent(final WeeklyLessonComponent ut, final LessonTimeData t, final LessonData d) {
-        final Date s = toDate(d, t, false);
-        final Date e = toDate(d, t, true);
-        ut.setDtstart(s);
-        ut.setDtend(e);
-        ut.setLocation(t.getRoom());
-        ut.setDayOfWeek(t.getDay());
-        ut.setPeriod(t.getPeriod());
-
-        final LessonTimeData.ExWeeks[] exWeeks = t.getExWeeks();
-        if (exWeeks != null && exWeeks.length != 0) {
-            Calendar c = Calendar.getInstance(Locale.GERMANY);
-//            c.setFirstDayOfWeek(Calendar.MONDAY);
-//            c.setMinimalDaysInFirstWeek(1);
-            c.setTime(ut.getDtstart());
-            final StringJoiner sj = new StringJoiner(",");
-            for (final LessonTimeData.ExWeeks me : exWeeks) {
-                //Set it every time, problem is week 53 > week of year 53 may add +1 one to year!
-//                c.set(Calendar.YEAR, me.getKey());
-                for (int i = 0; i < me.getExWeeks().length; i++) {
-                    int w = me.getExWeeks()[i];
-                    c.set(Calendar.YEAR, me.getYear());
-                    c.set(Calendar.WEEK_OF_YEAR, w);
-                    String f = IComponentUtilities.DATE.format(c.getTime());
-                    sj.add(f);
-                }
+    private void updateVendorMappings(final WeeklyLessonComponent cmp, final VendorLessonMapping lessonMapping, final VendorData timeVendorData) {
+        if (lessonMapping != null) {
+            cmp.getVendorLessonMappings().add(lessonMapping);
+            lessonMapping.getComponents().add(cmp);
+        }
+        if (timeVendorData != null) {
+            VendorLessonMapping timeMapping = em.find(VendorLessonMapping.class, new EmbeddableLessonId(timeVendorData.getVendorLesson(), timeVendorData.getVendorLink()));
+            if (timeMapping == null) {
+                timeMapping = new VendorLessonMapping(timeVendorData.getVendorLesson(), timeVendorData.getVendorLink(), cmp.getLesson());
+                em.persist(timeMapping);
+            } else {
+                timeMapping.getComponents().clear();
             }
-            ut.setExDates(sj.toString());
+            cmp.getVendorLessonMappings().add(timeMapping);
+            timeMapping.getComponents().add(cmp);
         }
     }
 
+    private void updateComponent(final WeeklyLessonComponent ut, final LessonTimeData t, final LessonData d) {
+        final Date s = toDate(t, false);
+        final Date e = toDate(t, true);
+        ut.setDtstart(s);
+        ut.setDtend(e);
+        ut.setLocation(t.getLocation());
+        ut.setDayOfWeek(t.getDay());
+        ut.setPeriod(t.getPeriod());
+
+        final Date since = Date.from(t.getSince().atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        ut.setSince(since);
+        final Date until = Date.from(t.getUntil().atStartOfDay().plusDays(1l).atZone(ZoneId.systemDefault()).toInstant());
+        ut.setUntil(until);
+
+        final LocalDate[] exDates = t.getExdates();
+        if (exDates != null) {
+            final String exDatesValue = Arrays.stream(exDates)
+                    .map(ld -> IComponentUtilities.DATE_FORMATTER.format(ld))
+                    .collect(Collectors.joining(","));
+            ut.setExDates(exDatesValue);
+        }
+
+    }
+
     private static boolean equalDt(final WeeklyLessonComponent cmp, final LessonTimeData t, final LessonData d) {
-        return cmp.getDtstart().equals(toDate(d, t, false))
-                && cmp.getDtend().equals(toDate(d, t, true));
+        return cmp.getDtstart().equals(toDate(t, false))
+                && cmp.getDtend().equals(toDate(t, true));
     }
 
-    private boolean isLinked(final WeeklyLessonComponent cmp, final VendorData vData, final Lesson lesson) {
-        return cmp.getVendorLessonMappings().stream()
-                .filter(vlm -> vlm.getLessonUnit().equals(lesson)) //just in case
-                .map(vlm -> vlm.getVendorLessonId())
-                .anyMatch(vData.getJoinedVendorLessons()::contains);
-    }
-
-    static Date toDate(final LessonData d, final LessonTimeData t, final boolean end) {
-        final LocalDate cb = d.getCourseBegin()
+    static Date toDate(final LessonTimeData t, final boolean end) {
+        final LocalDate cb = t.getSince()
                 .with(TemporalAdjusters.nextOrSame(t.getDay()));
         final LocalDateTime sdt = LocalDateTime.of(cb, !end ? t.getStart() : t.getEnd());
         return Date.from(sdt.atZone(ZoneId.systemDefault()).toInstant());

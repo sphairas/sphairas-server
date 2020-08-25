@@ -8,6 +8,7 @@ package org.thespheres.betula.calendar.lesson;
 import org.thespheres.betula.calendar.util.EmbeddablePeriodId;
 import java.io.Serializable;
 import java.time.DayOfWeek;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import org.thespheres.betula.calendar.UniqueCalendarComponentEntity;
 import org.thespheres.betula.services.scheme.spi.PeriodId;
 import org.thespheres.ical.CalendarComponent;
@@ -58,6 +61,12 @@ public class WeeklyLessonComponent extends UniqueCalendarComponentEntity<LessonC
     private Set<LessonJournalEntry> journalEntries;
     @ManyToMany(mappedBy = "components")
     private Set<VendorLessonMapping> vendorLessonMappings = new HashSet<>();
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "SINCE_DATE")
+    private Date since;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "UNTIL_DATE")
+    private Date until;
 
     public WeeklyLessonComponent() {
     }
@@ -71,6 +80,22 @@ public class WeeklyLessonComponent extends UniqueCalendarComponentEntity<LessonC
 
     public Lesson getLesson() {
         return lesson;
+    }
+
+    public Date getSince() {
+        return since;
+    }
+
+    public void setSince(final Date since) {
+        this.since = since;
+    }
+
+    public Date getUntil() {
+        return until;
+    }
+
+    public void setUntil(Date until) {
+        this.until = until;
     }
 
     public String getLocation() {
@@ -101,8 +126,8 @@ public class WeeklyLessonComponent extends UniqueCalendarComponentEntity<LessonC
         return exDates;
     }
 
-    public void setExDates(String exWeeks) {
-        this.exDates = exWeeks;
+    public void setExDates(String exDates) {
+        this.exDates = exDates;
     }
 
     public List<LessonUpdate> getUpdates() {
