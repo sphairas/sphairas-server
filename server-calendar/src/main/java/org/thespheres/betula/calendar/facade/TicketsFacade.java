@@ -20,7 +20,7 @@ import org.thespheres.ical.UID;
 @Local
 public interface TicketsFacade {
 
-    public ICalendar getICalendar(UID[] restrict);
+    public ICalendar getICalendar(UID[] restrict, CalendarCompatibilities compat);
 
     public boolean exists(UID uid);
 

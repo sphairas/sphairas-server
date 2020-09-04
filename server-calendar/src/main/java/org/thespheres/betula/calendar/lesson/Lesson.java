@@ -49,7 +49,8 @@ import org.thespheres.betula.services.scheme.spi.LessonId;
     @NamedQuery(name = "findLessonsForUnit", query = "SELECT l FROM Lesson l "
             + "WHERE l.unit=:unit"),
     @NamedQuery(name = "findLessonForLessonId", query = "SELECT l FROM Lesson l "
-            + "WHERE l.lesson=:lesson")})
+            + "WHERE l.lesson=:lesson "
+            + "AND l.calendar=:calendar")})
 @Entity
 @Table(name = "LESSON")
 @Access(AccessType.FIELD)

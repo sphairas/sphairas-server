@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.thespheres.betula.UnitId;
+import org.thespheres.betula.calendar.facade.CalendarCompatibilities;
 import org.thespheres.betula.server.beans.Utilities;
 import org.thespheres.ical.ICalendar;
 import org.thespheres.ical.UID;
@@ -29,14 +30,15 @@ public class LessonServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         final UnitId unit = Utilities.extractUnitId(request);
+        final CalendarCompatibilities compat = CalendarCompatibilities.extractCompatibilities(request);
         if (facade.getCalendar() == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             final ICalendar ical;
             if (unit != null) {
-                ical = facade.getPublished(unit);
+                ical = facade.getPublished(unit, compat);
             } else {
-                ical = facade.getPublished((UID[]) null);
+                ical = facade.getPublished((UID[]) null, compat);
             }
             response.getWriter().print(ical.toString());
         }

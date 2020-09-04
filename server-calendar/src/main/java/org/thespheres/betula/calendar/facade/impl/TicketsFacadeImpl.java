@@ -18,6 +18,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.calendar.config.PropertyNames;
+import org.thespheres.betula.calendar.facade.CalendarCompatibilities;
 import org.thespheres.betula.calendar.facade.TicketsFacade;
 import org.thespheres.betula.calendar.tickets.EmbeddedableTicketEntry;
 import org.thespheres.betula.calendar.tickets.TicketEntity;
@@ -63,8 +64,8 @@ public class TicketsFacadeImpl extends FixedCalendarFacade<TicketsCalendar, Tick
     }
 
     @Override
-    public ICalendar getICalendar(UID[] restrict) {
-        return super.getICalendar(restrict);
+    public ICalendar getICalendar(UID[] restrict, CalendarCompatibilities compat) {
+        return super.getICalendar(restrict, compat);
     }
 
     @Override
@@ -166,8 +167,8 @@ public class TicketsFacadeImpl extends FixedCalendarFacade<TicketsCalendar, Tick
 //        cb.addProperty("X-CALENDAR-ID", id.getId(), new Parameter("x-calendar-authority", id.getAuthority()), new Parameter("x-calendar-version", id.getVersion().getVersion()));
 //    }
     @Override
-    protected void addEntityPropertiesToComponent(ICalendarBuilder.CalendarComponentBuilder ccb, TicketEntity ut) throws InvalidComponentException {
-        super.addEntityPropertiesToComponent(ccb, ut);
+    protected void addEntityPropertiesToComponent(ICalendarBuilder.CalendarComponentBuilder ccb, TicketEntity ut, final CalendarCompatibilities compat) throws InvalidComponentException {
+        super.addEntityPropertiesToComponent(ccb, ut, compat);
         if (ut.getStatus() == null) {
             ccb.addProperty(CalendarComponentProperty.STATUS, "CONFIRMED");
         }

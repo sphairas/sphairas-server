@@ -113,6 +113,7 @@ public class LessonResource {
         try {
             lesson = em.createNamedQuery("findLessonForLessonId", Lesson.class)
                     .setParameter("lesson", new EmbeddableLessonId(l.getLesson(), 0))
+                    .setParameter("calendar", lessonCalendar)
                     .getSingleResult();
         } catch (final NoResultException ignored) {
             if (l.getUnits() != null && l.getUnits().length != 1) {

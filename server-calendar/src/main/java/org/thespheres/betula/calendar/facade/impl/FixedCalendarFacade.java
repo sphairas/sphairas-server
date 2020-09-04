@@ -19,6 +19,7 @@ import org.thespheres.betula.calendar.BaseCalendarEntity;
 import org.thespheres.betula.calendar.EmbeddableComponentProperty;
 import org.thespheres.betula.calendar.UniqueCalendarComponentEntity;
 import org.thespheres.betula.calendar.config.PropertyNames;
+import org.thespheres.betula.calendar.facade.CalendarCompatibilities;
 import org.thespheres.ical.CalendarComponent;
 import org.thespheres.ical.CalendarComponentProperty;
 import org.thespheres.ical.ICalendar;
@@ -67,7 +68,7 @@ public abstract class FixedCalendarFacade<T extends BaseCalendarEntity<? extends
         return false;
     }
 
-    public ICalendar getICalendar(UID[] restrict) {
+    public ICalendar getICalendar(UID[] restrict, final CalendarCompatibilities compat) {
         ICalendarBuilder cb = new ICalendarBuilder();
         try {
             cb.addProperty(CalendarComponent.PRODID, PropertyNames.CAL_PRODID);
@@ -75,18 +76,18 @@ public abstract class FixedCalendarFacade<T extends BaseCalendarEntity<? extends
             addPropertiesToICalendarBody(cb);
         } catch (InvalidComponentException ex) {
         }
-        addComponentsToICalendar(cb, restrict);
+        addComponentsToICalendar(cb, restrict, compat);
         return cb.toICalendar();
     }
 
     protected void addPropertiesToICalendarBody(ICalendarBuilder cb) throws InvalidComponentException {
     }
 
-    protected void addComponentsToICalendar(final ICalendarBuilder cb, final UID[] restrict) {
+    protected void addComponentsToICalendar(final ICalendarBuilder cb, final UID[] restrict, final CalendarCompatibilities compat) {
         for (final UniqueCalendarComponentEntity c : getCalendar().getComponents()) { //Lambda not supported!!
             if (restrict == null || Arrays.stream(restrict).anyMatch(uid -> uid.equals(c.getUID()))) {
                 try {
-                    addComponentToICalendar(cb, entityClass.cast(c));
+                    addComponentToICalendar(cb, entityClass.cast(c), compat);
                 } catch (ClassCastException e) {
                 } catch (InvalidComponentException incex) {
                     Logger.getLogger(FixedCalendarFacade.class.getName()).log(Level.WARNING, incex.getMessage(), incex);
@@ -95,9 +96,9 @@ public abstract class FixedCalendarFacade<T extends BaseCalendarEntity<? extends
         }
     }
 
-    protected void addComponentToICalendar(ICalendarBuilder cb, E c) throws InvalidComponentException {
+    protected void addComponentToICalendar(ICalendarBuilder cb, E c, final CalendarCompatibilities compat) throws InvalidComponentException {
         CalendarComponentBuilder ccb = cb.addComponent(c.getName(), c.getUID());
-        addEntityPropertiesToComponent(ccb, c);
+        addEntityPropertiesToComponent(ccb, c, compat);
         List<EmbeddableComponentProperty> l = c.getProperties();
         for (EmbeddableComponentProperty ccp : l) {
             List<Parameter> el = ccp.getParameters();
@@ -110,7 +111,7 @@ public abstract class FixedCalendarFacade<T extends BaseCalendarEntity<? extends
         }
     }
 
-    protected void addEntityPropertiesToComponent(CalendarComponentBuilder ccb, E c) throws InvalidComponentException {
+    protected void addEntityPropertiesToComponent(CalendarComponentBuilder ccb, E c, final CalendarCompatibilities compat) throws InvalidComponentException {
         final Parameter[] spp = c.getSummaryParameters().getList().stream()
                 .toArray(Parameter[]::new);
         ccb.addProperty(CalendarComponentProperty.DTSTART, IComponentUtilities.DATE_TIME.format(c.getDtstart()))

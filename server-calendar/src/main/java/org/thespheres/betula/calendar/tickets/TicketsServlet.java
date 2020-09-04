@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.thespheres.betula.Ticket;
+import org.thespheres.betula.calendar.facade.CalendarCompatibilities;
 import org.thespheres.betula.calendar.facade.TicketsFacade;
 import org.thespheres.betula.server.beans.Utilities;
 import org.thespheres.ical.CalendarComponent;
@@ -36,16 +37,17 @@ public class TicketsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Ticket ticket = Utilities.extractTicket(request);
+        final Ticket ticket = Utilities.extractTicket(request);
+        final CalendarCompatibilities compat = CalendarCompatibilities.extractCompatibilities(request);
         final ICalendar ical;
         if (ticket != null) {
             final List<TicketEntity> l = facade.findTicketEntitiesForTicket(ticket);
             UID[] uid = l.stream()
                     .map(TicketEntity::getUID)
                     .toArray(UID[]::new);
-            ical = facade.getICalendar(uid);
+            ical = facade.getICalendar(uid, compat);
         } else {
-            ical = facade.getICalendar((UID[]) null);
+            ical = facade.getICalendar((UID[]) null, compat);
         }
         response.getWriter().print(ical.toString());
     }
@@ -55,7 +57,7 @@ public class TicketsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         final List<ICalendar> ical;
-        try (InputStream is = request.getInputStream()) {
+        try ( InputStream is = request.getInputStream()) {
             ical = ICalendarBuilder.parseCalendars(is);
         } catch (ParseException | InvalidComponentException ex) {
             throw new IOException(ex);

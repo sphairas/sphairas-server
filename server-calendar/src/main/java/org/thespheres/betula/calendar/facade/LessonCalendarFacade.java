@@ -23,9 +23,9 @@ public interface LessonCalendarFacade {
 
     public LessonCalendar getCalendar();
 
-    public ICalendar getPublished(UID[] restrict);
+    public ICalendar getPublished(UID[] restrict, CalendarCompatibilities compat);
 
-    public ICalendar getPublished(UnitId unit);
+    public ICalendar getPublished(UnitId unit, CalendarCompatibilities compat);
 
     public List<Lesson> findLessonsForSignee(Signee signee);
 }

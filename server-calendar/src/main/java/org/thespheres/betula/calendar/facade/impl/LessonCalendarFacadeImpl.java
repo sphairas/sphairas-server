@@ -6,6 +6,7 @@
 package org.thespheres.betula.calendar.facade.impl;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import javax.persistence.LockModeType;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.calendar.UniqueCalendarComponentEntity;
+import org.thespheres.betula.calendar.facade.CalendarCompatibilities;
 import org.thespheres.ical.builder.ICalendarBuilder;
 import org.thespheres.betula.calendar.util.EmbeddableSignee;
 import org.thespheres.betula.calendar.util.EmbeddableUnitId;
@@ -78,8 +80,8 @@ public class LessonCalendarFacadeImpl extends FixedCalendarFacade<LessonCalendar
     }
 
     @Override
-    public ICalendar getPublished(UID[] restrict) {
-        return getICalendar(restrict);
+    public ICalendar getPublished(UID[] restrict, final CalendarCompatibilities compat) {
+        return getICalendar(restrict, compat);
     }
 
     @Override
@@ -89,7 +91,7 @@ public class LessonCalendarFacadeImpl extends FixedCalendarFacade<LessonCalendar
     }
 
     @Override   //TODO security check!!!!
-    public ICalendar getPublished(final UnitId unit) {
+    public ICalendar getPublished(final UnitId unit, final CalendarCompatibilities compat) {
         final List<Lesson> l = getEntityManager().createNamedQuery("findLessonsForUnit", Lesson.class)
                 .setParameter("unit", new EmbeddableUnitId(unit))
                 .setLockMode(LockModeType.OPTIMISTIC)
@@ -98,12 +100,12 @@ public class LessonCalendarFacadeImpl extends FixedCalendarFacade<LessonCalendar
                 .flatMap(lu -> lu.getTimes().stream())
                 .map(UniqueCalendarComponentEntity::getUID)
                 .toArray(UID[]::new);
-        return getPublished(uid);
+        return getPublished(uid, compat);
     }
 
     @Override
-    protected void addEntityPropertiesToComponent(ICalendarBuilder.CalendarComponentBuilder ccb, WeeklyLessonComponent ut) throws InvalidComponentException {
-        super.addEntityPropertiesToComponent(ccb, ut);
+    protected void addEntityPropertiesToComponent(ICalendarBuilder.CalendarComponentBuilder ccb, WeeklyLessonComponent ut, final CalendarCompatibilities compat) throws InvalidComponentException {
+        super.addEntityPropertiesToComponent(ccb, ut, compat);
         if (ut.getSummary() == null) {
             final String dn;
             try {
@@ -123,7 +125,16 @@ public class LessonCalendarFacadeImpl extends FixedCalendarFacade<LessonCalendar
         }
         final String exWeeks = ut.getExDates();
         if (exWeeks != null) {
-            ccb.addProperty(CalendarComponentProperty.EXDATE, exWeeks, Parameter.VALUE_DATE);
+            if (compat.hasCompatibility("google-calendar")) {
+                final String time = IComponentUtilities.DATE_TIME.format(ut.getDtstart()).substring(8);
+                final String mapped = Arrays.stream(exWeeks.split(","))
+                        .map(w -> w.concat(time))
+                        .collect(Collectors.joining(","));
+                        
+                ccb.addProperty(CalendarComponentProperty.EXDATE, mapped);
+            } else {
+                ccb.addProperty(CalendarComponentProperty.EXDATE, exWeeks, Parameter.VALUE_DATE);
+            }
         }
         if (ut.getLocation() != null) {
             ccb.addProperty(CalendarComponentProperty.LOCATION, ut.getLocation());

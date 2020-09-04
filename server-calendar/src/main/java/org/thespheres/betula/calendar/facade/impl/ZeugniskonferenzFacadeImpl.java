@@ -17,6 +17,7 @@ import javax.persistence.LockModeType;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.calendar.UniqueCalendarComponentEntity;
+import org.thespheres.betula.calendar.facade.CalendarCompatibilities;
 import org.thespheres.ical.builder.ICalendarBuilder.CalendarComponentBuilder;
 import org.thespheres.betula.calendar.facade.ZeugniskonferenzFacade;
 import org.thespheres.betula.calendar.reports.EmbeddableStringDocumentIdMapValue;
@@ -106,7 +107,7 @@ public class ZeugniskonferenzFacadeImpl extends FixedCalendarFacade<TicketsCalen
                     .distinct()
                     .toArray(UID[]::new);
         }
-        return getICalendar(restrict);
+        return getICalendar(restrict, null);
     }
 
     @Override
@@ -141,7 +142,7 @@ public class ZeugniskonferenzFacadeImpl extends FixedCalendarFacade<TicketsCalen
             ze.addProperty(CalendarComponentProperty.CATEGORIES, cat);
         }
     }
-    
+
     //Prevent updating non-standard categories
     @Override
     protected void updateNonStandardComponentProperty(final String name, final String value, final List<Parameter> l, final UniqueCalendarComponentEntity te) {
@@ -172,8 +173,8 @@ public class ZeugniskonferenzFacadeImpl extends FixedCalendarFacade<TicketsCalen
 
     //TODO: This is never called!!!! ---> remove?
     @Override
-    protected void addEntityPropertiesToComponent(final CalendarComponentBuilder ccb, final ZeugniskonferenzEntity zke) throws InvalidComponentException {
-        super.addEntityPropertiesToComponent(ccb, zke);
+    protected void addEntityPropertiesToComponent(final CalendarComponentBuilder ccb, final ZeugniskonferenzEntity zke, final CalendarCompatibilities compat) throws InvalidComponentException {
+        super.addEntityPropertiesToComponent(ccb, zke, compat);
         if (zke.getLocation() != null) {
             ccb.addProperty(CalendarComponentProperty.LOCATION, zke.getLocation());
         }
