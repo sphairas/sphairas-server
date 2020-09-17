@@ -34,7 +34,7 @@ public class Configuration extends Application {
     @Produces
     public BetulaWebService createService() {
         try {
-            Object lookup = new InitialContext().lookup("java:global/Betula_Server/Betula_Persistence/RemoteBetulaService!org.thespheres.betula.services.ws.BetulaWebService");
+            final Object lookup = new InitialContext().lookup("java:global/Betula_Server/Betula_Persistence/RemoteBetulaService!org.thespheres.betula.services.ws.BetulaWebService");
 //            lookup = service.getBetulaServicePort("http://localhost:8080/service/betulaws"); //no caller propagation
             return (BetulaWebService) lookup;
         } catch (NamingException ex) {

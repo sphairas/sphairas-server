@@ -50,7 +50,7 @@ public class JWTAuthenticationMechanism implements HttpAuthenticationMechanism {
 //        } else 
         if (token != null) {
             // validation of the jwt credential
-            return validateToken(token, context);
+            return tokenProvider.validateToken(token, context);
         } else if (context.isProtected()) {
             // A protected resource is a resource for which a constraint has been defined.
             // if there are no credentials and the resource is protected, we response with unauthorized status
@@ -68,12 +68,4 @@ public class JWTAuthenticationMechanism implements HttpAuthenticationMechanism {
         return null;
     }
 
-    private AuthenticationStatus validateToken(final String token, final HttpMessageContext context) {
-        final JWTCredential credsd = tokenProvider.validateToken(token);
-        if (credsd != null) {
-            return context.notifyContainerAboutLogin(credsd.getPrincipal(), credsd.getGroups());
-        }
-//                    LOGGER.log(Level.INFO, "Security exception for user {0} - {1}", new String[]{eje.getClaims().getSubject(), eje.getMessage()});
-        return context.responseUnauthorized();
-    }
 }

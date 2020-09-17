@@ -13,8 +13,12 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.security.Key;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.security.enterprise.AuthenticationStatus;
+import javax.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 
 /**
  *
@@ -33,7 +37,7 @@ public class JWTAuthentication {
         key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
     }
 
-    public JWTCredential validateToken(final String jwt) {
+    public AuthenticationStatus validateToken(final String jwt, final HttpMessageContext context) {
         try {
             final Claims claims = Jwts.parserBuilder()
                     //                    .requireIssuer(authToken)
@@ -44,16 +48,16 @@ public class JWTAuthentication {
 //            String[] groups = claims
 //                    .get(GROUPS_KEY, String.class)
 //                    .split(",");
-           String[] groups = new String[]{"signees"};
-            return new JWTCredential(claims.getSubject(), groups);
+            final String[] groups = new String[]{"signees"};
+            final JWTCallerPrincipal principal = new JWTCallerPrincipal(claims.getSubject(), jwt);
+            return context.notifyContainerAboutLogin(principal, Arrays.stream(groups).collect(Collectors.toSet()));
         } catch (final SignatureException e) {
 //            LOGGER.log(Level.INFO, "Invalid JWT signature: {0}", e.getMessage());       
-
         } catch (final ExpiredJwtException e) {
 
         } catch (final JwtException e) {
 
         }
-        return null;
+        return context.responseUnauthorized();
     }
 }
