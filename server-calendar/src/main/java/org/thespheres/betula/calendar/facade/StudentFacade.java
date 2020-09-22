@@ -21,7 +21,7 @@ public interface StudentFacade {
 
     public void create(StudentId id, String fn);
 
-    public VCard findVCard(StudentId id);
+    public VCard findVCard(StudentId id);//TODO: SEC?
 
     public Collection<VCard> findAllVCards();
 

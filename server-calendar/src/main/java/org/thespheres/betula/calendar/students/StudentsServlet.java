@@ -9,11 +9,13 @@ import org.thespheres.betula.services.dav.CardDavProp;
 import org.thespheres.betula.services.dav.AddressData;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Optional;
 import javax.ejb.EJB;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -70,23 +72,22 @@ public class StudentsServlet extends HttpServlet {
         }
     }
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet StudentsServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet StudentsServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
+//    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException {
+//        response.setContentType("text/html;charset=UTF-8");
+//        try (PrintWriter out = response.getWriter()) {
+//            /* TODO output your page here. You may use following sample code. */
+//            out.println("<!DOCTYPE html>");
+//            out.println("<html>");
+//            out.println("<head>");
+//            out.println("<title>Servlet StudentsServlet</title>");
+//            out.println("</head>");
+//            out.println("<body>");
+//            out.println("<h1>Servlet StudentsServlet at " + request.getContextPath() + "</h1>");
+//            out.println("</body>");
+//            out.println("</html>");
+//        }
+//    }
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
         final StudentId student = Utilities.extractStudentId(req);
@@ -98,42 +99,62 @@ public class StudentsServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 //        CriteriaBuilder cb = em.getCriteriaBuilder();
 //        CriteriaQuery<StudentEntity> cq = cb.createQuery(StudentEntity.class);
 //        Root<StudentEntity> sroot = cq.from(StudentEntity.class);
 //        cq.select(sroot).distinct(true);
         final UnitId unit = Utilities.extractUnitId(request);
-        Collection<VCard> l;
+        final boolean json = Optional.ofNullable(request.getHeader("Accept"))
+                .map(val -> val.split(","))
+                .map(arr -> Arrays.stream(arr).map(String::trim).anyMatch("application/json"::equals))
+                .orElse(false);
+        final Collection<VCard> l;
         if (unit != null) {
             l = facade.findAllVCards(unit); //em.createQuery(cq).getResultList();
         } else {
             l = facade.findAllVCards();
         }
-        Multistatus ms = new Multistatus();
+        if (!json) {
+            writeMultistatus(l, response);
+        } else {
+            writeJson(l, response);
+        }
+    }
+
+    void writeMultistatus(final Collection<VCard> l, final HttpServletResponse response) throws IOException {
+        final Multistatus ms = new Multistatus();
         l.stream().forEach((card) -> {
-            String vcard = card.toString();
-//            Response resp = new Response(se.getStudentId().getId().toString());
-            Response resp = new Response(card.getAnyPropertyValue("X-STUDENT").get());
-            PropStat ps = new PropStat();
+            final String vcard = card.toString();
+            final Response resp = new Response(card.getAnyPropertyValue("X-STUDENT").get());
+            final PropStat ps = new PropStat();
             ps.setStatus("HTTP/1.1 200 OK"); //HTTP/1.1 200 OK
-            CardDavProp prop = new CardDavProp();
+            final CardDavProp prop = new CardDavProp();
             prop.setAddressData(new AddressData(vcard));
             ps.setProp(prop);
             resp.getPropstat().add(ps);
             ms.getResponses().add(resp);
         });
+        response.setContentType("application/xml;charset=UTF-8");
         response.setCharacterEncoding("utf-8");
-//        JAXBContext ctx;
         try {
-//            ctx = JAXBContext.newInstance(Propertyupdate.class.getPackage().getName() + ":" + CardDavProp.class.getPackage().getName());
-//            ctx = JAXBContext.newInstance(Multistatus.class, CardDavProp.class);
             response.setStatus(207);
             getMultiStatusJAXB().createMarshaller().marshal(ms, response.getWriter());
         } catch (JAXBException ex) {
-            Logger.getLogger(StudentsServlet.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IOException(ex);
         }
-//        Multistatus.marshal(ms, response.getWriter());
+    }
+
+    void writeJson(final Collection<VCard> l, final HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("utf-8");
+        final JsonArrayBuilder builder = Json.createArrayBuilder();
+        l.stream()
+                .map(VCard::toString)
+                .forEach(builder::add);
+        final JsonWriter writer = Json.createWriter(response.getOutputStream());
+        writer.writeArray(builder.build());
+        response.setStatus(200);
     }
 
     @Override
