@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.LockModeType;
-import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
@@ -39,7 +38,6 @@ public class TicketFacadeImpl extends AbstractTicketsFacade implements TicketFac
 
 //    @Inject
 //    private DocumentsModel model;
-
     @Override
     public List<BaseTicketEntity> getTickets(final DocumentId targetDoc, final TermId term, final StudentId student, final String signeeType) {
         final List<BaseTicketEntity> ret = new ArrayList<>();
@@ -87,7 +85,7 @@ public class TicketFacadeImpl extends AbstractTicketsFacade implements TicketFac
     }
 
     @Override
-    public List<BaseTicketEntity> getTickets(Identity scope) {
+    public List<BaseTicketEntity> getUnitTickets(final UnitId scope) {//TODO scope not implemented
         javax.persistence.criteria.CriteriaQuery<BaseTicketEntity> cq = em.getCriteriaBuilder().createQuery(BaseTicketEntity.class);
         cq.select(cq.from(BaseTicketEntity.class));
         return em.createQuery(cq)

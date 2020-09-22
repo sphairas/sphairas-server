@@ -6,21 +6,17 @@
 package org.thespheres.betula.entities.service;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.LockModeType;
-import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.Action;
-import org.thespheres.betula.document.Container;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Entry;
 import org.thespheres.betula.document.Envelope;
@@ -46,13 +42,10 @@ import org.thespheres.betula.services.ws.UnauthorizedException;
 @Stateless
 public class UnitsProcessor extends AbstractContainerProcessor {
 
-    private final String[] PU_PARTICIPANTS_PATH = new String[]{"primary-units", "participants"};
     @EJB
     private UnitDocumentFacade udef;
     @EJB
     private GradeTargetDocumentFacade targets;
-//    @Inject
-//    private DocumentsNotificator documentsNotificator;
     @Inject
     private CommonDocuments cd;
 
@@ -60,13 +53,14 @@ public class UnitsProcessor extends AbstractContainerProcessor {
         super(new String[][]{Paths.UNITS_PATH, Paths.UNITS_PARTICIPANTS_PATH, Paths.TARGETS_PATH});
     }
 
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     @Override
-    protected void process(Container container, String[] path, Envelope template) throws UnauthorizedException, NotFoundException, SyntaxException {
+    public void process(final String[] path, final Envelope template) throws UnauthorizedException, NotFoundException, SyntaxException {
         if (Arrays.equals(path, Paths.UNITS_PATH)) {
             processUnits(template);
         } else if (Arrays.equals(path, Paths.UNITS_PARTICIPANTS_PATH)) {
-            final Entry<UnitId, ?> entryNode = toEntry(template, UnitId.class);
-            processUnitsParticipants(container, entryNode);
+            final Entry<UnitId, ?> entryNode = ServiceUtils.toEntry(template, UnitId.class);
+            processUnitsParticipants(entryNode);
         } else if (Arrays.equals(path, Paths.TARGETS_PATH)) {
             processTargets(template);
         }
@@ -122,10 +116,10 @@ public class UnitsProcessor extends AbstractContainerProcessor {
         }
     }
 
-    private void processUnitsParticipants(Container container, Entry<UnitId, ?> entryNode) throws NotFoundException, SyntaxException, UnauthorizedException {
+    private void processUnitsParticipants(Entry<UnitId, ?> entryNode) throws NotFoundException, SyntaxException, UnauthorizedException {
         UnitId unit = entryNode.getIdentity();
         for (Template<?> t : entryNode.getChildren()) {
-            UnitEntry uentry = toEntryType(t, UnitEntry.class);
+            UnitEntry uentry = ServiceUtils.toEntryType(t, UnitEntry.class);
             DocumentId docId = uentry.getIdentity();
             GenericXmlDocument xmlDoc = null;
             try {
@@ -158,7 +152,7 @@ public class UnitsProcessor extends AbstractContainerProcessor {
                     uentry.setPreferredTermSchedule(ts);
                     ZonedDateTime exp = u.getExpirationDate();
                     uentry.setDocumentValidity(exp);
-                    addPrimaryUnitsToContainer(container, u.getStudentIds());
+//                    addPrimaryUnitsToContainer(u.getStudentIds());
                 } else {
 //                    boolean bulk = ServiceUtils.getBulkProcessValue(uentry, context);
 //
@@ -249,44 +243,35 @@ public class UnitsProcessor extends AbstractContainerProcessor {
         }
     }
 
-    private void addPrimaryUnitsToContainer(Container container, Collection<StudentId> secoll) {
-        final Map<UnitId, List<StudentId>> m = new HashMap<>();
-        for (StudentId sid : secoll) {
-            UnitId pu = udef.findPrimaryUnitForStudent(sid, null, LockModeType.OPTIMISTIC);
-            m.computeIfAbsent(pu, key -> new ArrayList())
-                    .add(sid);
-//            for (UnitDocumentEntity ude : ul) {
-//                UnitId pu = ude.getUnitId();
-//                m.computeIfAbsent(pu, key -> new ArrayList());
-//                m.compute(pu, (key, l) -> {
-//                    l.add(sid);
-//                    return l;
-//                });
+//    private void addPrimaryUnitsToContainer(Collection<StudentId> secoll) {
+//        final Map<UnitId, List<StudentId>> m = new HashMap<>();
+//        for (StudentId sid : secoll) {
+//            UnitId pu = udef.findPrimaryUnitForStudent(sid, null, LockModeType.OPTIMISTIC);
+//            m.computeIfAbsent(pu, key -> new ArrayList())
+//                    .add(sid);
+//        }
+//        m.keySet().stream()
+//                .forEach(pu -> createStudentOrUnitImpl(container, pu, m.get(pu), PU_PARTICIPANTS_PATH, Action.RETURN_COMPLETION));
+//    }
+//
+//    private Template createStudentOrUnitImpl(Container container, UnitId unit, List<StudentId> id, String[] pathIdentifiers, Action action) {
+//        Template file = new Template(action);
+//        id.stream().map(s -> new Entry(null, s)).forEach(e -> file.getChildren().add(e));
+//        Entry root = new Entry(null, unit);
+//        root.getChildren().add(file);
+//        addPath(container, pathIdentifiers, root);
+//        container.getEntries().add(root);
+//        return root;
+//    }
+//
+//    private void addPath(Container container, String[] pathIdentifiers, Template unitFile) {
+//        if (pathIdentifiers != null && pathIdentifiers.length > 0) {
+//            int l = pathIdentifiers.length;
+//            Container.PathDescriptorElement pathEl = new Container.PathDescriptorElement(unitFile, pathIdentifiers[--l]);
+//            while (l != 0) {
+//                pathEl = new Container.PathDescriptorElement(pathEl, pathIdentifiers[--l]);
 //            }
-        }
-        m.keySet().stream()
-                .forEach(pu -> createStudentOrUnitImpl(container, pu, m.get(pu), PU_PARTICIPANTS_PATH, Action.RETURN_COMPLETION));
-    }
-
-    private Template createStudentOrUnitImpl(Container container, UnitId unit, List<StudentId> id, String[] pathIdentifiers, Action action) {
-        Template file = new Template(action);
-        id.stream().map(s -> new Entry(null, s)).forEach(e -> file.getChildren().add(e));
-        Entry root = new Entry(null, unit);
-        root.getChildren().add(file);
-        addPath(container, pathIdentifiers, root);
-        container.getEntries().add(root);
-        return root;
-    }
-
-    private void addPath(Container container, String[] pathIdentifiers, Template unitFile) {
-        if (pathIdentifiers != null && pathIdentifiers.length > 0) {
-            int l = pathIdentifiers.length;
-            Container.PathDescriptorElement pathEl = new Container.PathDescriptorElement(unitFile, pathIdentifiers[--l]);
-            while (l != 0) {
-                pathEl = new Container.PathDescriptorElement(pathEl, pathIdentifiers[--l]);
-            }
-            container.getPathElements().add(pathEl);
-        }
-    }
-
+//            container.getPathElements().add(pathEl);
+//        }
+//    }
 }

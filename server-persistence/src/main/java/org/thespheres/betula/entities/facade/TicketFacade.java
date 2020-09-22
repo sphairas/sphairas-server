@@ -8,7 +8,6 @@ package org.thespheres.betula.entities.facade;
 import java.util.List;
 import javax.ejb.Local;
 import javax.persistence.LockModeType;
-import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
@@ -29,7 +28,7 @@ public interface TicketFacade {
 
     public List<BaseTicketEntity> getTickets(DocumentId targetDoc, TermId term, StudentId student, String signeeType);
 
-    public List<BaseTicketEntity> getTickets(Identity scope);
+    public List<BaseTicketEntity> getUnitTickets(UnitId scope);
 
     public BaseTicketEntity getTicket(Ticket ticket, LockModeType lmt) throws NoEntityFoundException;
 

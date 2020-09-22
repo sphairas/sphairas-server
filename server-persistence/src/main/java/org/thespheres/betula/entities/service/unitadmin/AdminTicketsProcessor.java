@@ -32,9 +32,6 @@ import org.thespheres.betula.document.util.GenericXmlTicket;
 import org.thespheres.betula.document.util.GenericXmlTicket.XmlTicketScope;
 import org.thespheres.betula.document.util.TicketEntry;
 import org.thespheres.betula.entities.BaseTicketEntity;
-import org.thespheres.betula.entities.StudentsTicketEntity;
-import org.thespheres.betula.entities.TermGradeTargAssessTicketEnt;
-import org.thespheres.betula.entities.UnitTicketEntity;
 import org.thespheres.betula.entities.facade.TicketFacade;
 import org.thespheres.betula.services.ws.NotFoundException;
 import org.thespheres.betula.services.ws.Paths;
@@ -88,55 +85,13 @@ public class AdminTicketsProcessor extends AbstractAdminContainerProcessor {
     }
 
     private void addTickets(Envelope node, UnitId scope) {
-        final List<BaseTicketEntity> l = tickets.getTickets(scope);
+        final List<BaseTicketEntity> l = tickets.getUnitTickets(scope);
         node.getChildren().clear();
         node.setAction(Action.RETURN_COMPLETION);
         l.stream()
-                .map(this::toEntry)
+                .map(TicketsProcessorUtils::toEntry)
                 .filter(Objects::nonNull)
                 .forEach(node.getChildren()::add);
-    }
-
-    private TicketEntry toEntry(BaseTicketEntity entity) {
-        final TicketEntry ret;
-        if (entity instanceof UnitTicketEntity) {
-            ret = new TicketEntry(null, entity.getTicket(), "unit-ticket", "1.0");
-            addTicketData(ret, (UnitTicketEntity) entity);
-        } else if (entity instanceof StudentsTicketEntity) {
-            ret = new TicketEntry(null, entity.getTicket(), "student-ticket", "1.0");
-            addTicketData(ret, (StudentsTicketEntity) entity);
-        } else if (entity instanceof TermGradeTargAssessTicketEnt) {
-            ret = new TicketEntry(null, entity.getTicket(), "target-document-ticket", "1.0");
-            addTicketData(ret, (TermGradeTargAssessTicketEnt) entity);
-        } else {
-            ret = null;
-        }
-        return ret;
-    }
-
-    private void addTicketData(TicketEntry entry, UnitTicketEntity ute) {
-        final List<XmlTicketScope> scope = entry.getValue().getScope();
-        final UnitId unit = ute.getUnit();
-        if (unit != null) {
-            scope.add(new XmlTicketScope("unit", unit, "include"));
-        }
-        final TermId term = ute.getTerm();
-        if (term != null) {
-            scope.add(new XmlTicketScope("term", term, "include"));
-        }
-        final String signeeType = ute.getSigneeType();
-        if (signeeType != null) {
-            scope.add(new XmlTicketScope("entitlement", signeeType, "include"));
-        }
-        final String targetType = ute.getTargetType();
-        if (targetType != null) {
-            Arrays.stream(targetType.split(","))
-                    .map(tt -> new XmlTicketScope("target-type", tt, "include"))
-                    .forEach(scope::add);
-        }
-        ute.getExemptedStudents().stream()
-                .map(es -> new XmlTicketScope("student", es.getStudentId(), "exclude"))
-                .forEach(scope::add);
     }
 
     private BaseTicketEntity createUnitTicket(GenericXmlTicket xml) throws SyntaxException {
@@ -158,21 +113,6 @@ public class AdminTicketsProcessor extends AbstractAdminContainerProcessor {
         return tickets.createUnitTicketEntity(unit, term, signeeType, tt, es);
     }
 
-    private void addTicketData(TicketEntry entry, StudentsTicketEntity ste) {
-        final List<XmlTicketScope> scope = entry.getValue().getScope();
-        final TermId term = ste.getTerm();
-        if (term != null) {
-            scope.add(new XmlTicketScope("term", term, "include"));
-        }
-        final String signeeType = ste.getSigneeType();
-        if (signeeType != null) {
-            scope.add(new XmlTicketScope("entitlement", signeeType, "include"));
-        }
-        ste.getStudents().stream()
-                .map(es -> new XmlTicketScope("student", es.getStudentId(), "include"))
-                .forEach(scope::add);
-    }
-
     private BaseTicketEntity createStudentTicket(GenericXmlTicket xml) throws SyntaxException {
         final List<XmlTicketScope> scope = xml.getScope();
         TermId term;
@@ -186,23 +126,6 @@ public class AdminTicketsProcessor extends AbstractAdminContainerProcessor {
         List<StudentId> incl = extractMultipleScopeDefinitionValue(scope, StudentId.class, "student", "include");
         StudentId[] es = (incl == null || incl.isEmpty()) ? null : incl.stream().toArray(StudentId[]::new);
         return tickets.createStudentTicket(es, term, signeeType);
-    }
-
-    private void addTicketData(TicketEntry entry, TermGradeTargAssessTicketEnt tgt) {
-        final List<XmlTicketScope> scope = entry.getValue().getScope();
-        scope.add(new XmlTicketScope("target", tgt.getTarget().getDocumentId(), "include"));
-        final TermId term = tgt.getTerm();
-        if (term != null) {
-            scope.add(new XmlTicketScope("term", term, "include"));
-        }
-        final String signeeType = tgt.getSigneeType();
-        if (signeeType != null) {
-            scope.add(new XmlTicketScope("entitlement", signeeType, "include"));
-        }
-        final StudentId student = tgt.getStudent();
-        if (student != null) {
-            scope.add(new XmlTicketScope("student", student, "include"));
-        }
     }
 
     private BaseTicketEntity createTermGradeTargetTicket(GenericXmlTicket xml) throws SyntaxException, NotFoundException {
@@ -239,7 +162,7 @@ public class AdminTicketsProcessor extends AbstractAdminContainerProcessor {
                 } catch (NoEntityFoundException ex) {
                     throw ServiceUtils.createNotFoundException(ticket);
                 }
-                final TicketEntry entry = toEntry(bte);
+                final TicketEntry entry = TicketsProcessorUtils.toEntry(bte);
                 te.setAction(Action.RETURN_COMPLETION);
                 te.setValue(entry.getValue());
             } else if (action.equals(Action.FILE) && xmlTicket != null && ticket == null) {
