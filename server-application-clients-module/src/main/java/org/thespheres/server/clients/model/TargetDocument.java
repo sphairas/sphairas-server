@@ -5,10 +5,8 @@
  */
 package org.thespheres.server.clients.model;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +36,7 @@ public class TargetDocument extends BaseDocument {
     private String convention;
     private final Map<String, String> matchingSigneeTypes = new HashMap<>();
     private String targetType;
-    private Date expirationDate; //Zoned...
+    private ZonedDateTime expirationDate;
     private String subjectAltName;
 
     @JsonbCreator
@@ -119,14 +117,13 @@ public class TargetDocument extends BaseDocument {
     @JsonbProperty("expires")
     @JsonbDateFormat("dd.MM.yyyy")
     public ZonedDateTime getExpirationDate() {
-        return this.expirationDate != null ? ZonedDateTime.ofInstant(this.expirationDate.toInstant(), ZoneId.systemDefault()) : null;
+        return this.expirationDate;
     }
 
     @JsonbProperty("expires")
     @JsonbDateFormat("dd.MM.yyyy")
     public void setExpirationDate(final ZonedDateTime expirationDate) {
-        final Date d = Date.from(expirationDate.toInstant());
-        this.expirationDate = d;
+        this.expirationDate = expirationDate;
     }
 
     @JsonbProperty("subject-alt-name")
