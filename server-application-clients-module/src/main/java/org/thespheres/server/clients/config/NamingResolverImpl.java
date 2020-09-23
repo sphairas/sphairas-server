@@ -48,7 +48,7 @@ public class NamingResolverImpl implements NamingResolver {
     @Override
     public Result resolveDisplayNameResult(final Identity id) throws IllegalAuthorityException {
         final Result res = delegate.resolveDisplayNameResult(id);
-        if (res.hasResolverHint("unresolved")) { //NamingResolver.Result.HINT_UNRESOLVED
+        if (res.hasResolverHint(NamingResolver.Result.HINT_UNRESOLVED)) {
             UnitId uid = null; 
             if (id instanceof UnitId) {
                 uid = (UnitId) id;
