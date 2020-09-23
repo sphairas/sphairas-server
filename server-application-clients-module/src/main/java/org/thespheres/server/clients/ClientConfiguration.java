@@ -6,52 +6,121 @@
 package org.thespheres.server.clients;
 
 import java.io.Serializable;
-import java.util.function.Supplier;
-import javax.enterprise.context.SessionScoped;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import javax.json.bind.annotation.JsonbProperty;
+import org.thespheres.betula.StudentId;
+import org.thespheres.betula.TermId;
+import org.thespheres.betula.UnitId;
+import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
+import org.thespheres.betula.document.Signee;
+import org.thespheres.server.clients.model.JSONConvention;
+import org.thespheres.server.clients.model.Property;
 
 /**
  *
- * @author boris
+ * @author boris.heithecker@gmx.net
  */
-@SessionScoped
 public class ClientConfiguration implements Serializable {
 
-    public String getAuthority() {
-        return "demo/1";
+    @JsonbProperty("authority")
+    private final String authority;
+    @JsonbProperty("students-authority")
+    private final String studentsAuthority;
+    @JsonbProperty("term-authority")
+    private final String termAuthority;
+    @JsonbProperty("grade-convention")
+    private String gradeConvention;
+    private String suffix;
+    @JsonbProperty("properties")
+    private final Property.PropertyList properties = new Property.PropertyList();
+    @JsonbProperty("conventions")
+    private final List<JSONConvention> conventions = new ArrayList<>();
+
+    public List<Property> getProperties() {
+        return properties;
     }
 
-    public static DocumentId parseDocumentId(final String representation, final Supplier<String> getAuthority) {
-        if (representation == null || representation.isEmpty()) {
-            return DocumentId.NULL;
-        }
-        final String[] authParts = representation.split("@");
-        final String authority;
-        switch (authParts.length) {
-            case 1:
-                authority = getAuthority.get();
-                break;
-            case 2:
-                authority = authParts[1];
-                break;
-            default:
-                throw new IllegalArgumentException("DocumentId can have only one @ character.");
-        }
-        final String[] versionParts = authParts[0].split("#");
+    public List<JSONConvention> getConventions() {
+        return conventions;
+    }
 
-        final DocumentId.Version version;
-        switch (versionParts.length) {
-            case 1:
-                version = DocumentId.Version.LATEST;
-                break;
-            case 2:
-                version = DocumentId.Version.parse(authParts[0]);
-                break;
-            default:
-                throw new IllegalArgumentException("DocumentId id part can have only one # character.");
+    ClientConfiguration(final String authority, final String studentsAuthority, final String termAuthority) {
+        this.authority = authority;
+        this.studentsAuthority = studentsAuthority;
+        this.termAuthority = termAuthority;
+    }
+
+    public String getAuthority() {
+        return this.authority;
+    }
+
+    public String getStudentsAuthority() {
+        return studentsAuthority;
+    }
+
+    public String getTermAuthority() {
+        return termAuthority;
+    }
+
+    public String getGradeConvention() {
+        return gradeConvention;
+    }
+
+    public void setGradeConvention(final String gradeConvention) {
+        this.gradeConvention = gradeConvention;
+    }
+
+    public String getSigneeSuffix() {
+        return suffix;
+    }
+
+    public void setSigneeSuffix(final String value) {
+        this.suffix = value;
+    }
+
+    public String toString(final DocumentId doc) {
+        if (!Objects.equals(getAuthority(), doc.getAuthority()) || !DocumentId.Version.LATEST.equals(doc.getVersion())) {
+            return doc.toString();
         }
-        final String id = versionParts[0];
-        return new DocumentId(authority, id, version);
+        return doc.getId();
+    }
+
+    public String toString(final UnitId unit) {
+        if (!Objects.equals(getAuthority(), unit.getAuthority())) {
+            return unit.toString();
+        }
+        return unit.getId();
+    }
+
+    public String toString(final StudentId student) {
+        if (!Objects.equals(getStudentsAuthority(), student.getAuthority())) {
+            return student.toString();
+        }
+        return Long.toString(student.getId());
+    }
+
+    public String toString(final TermId term) {
+        if (!Objects.equals(getTermAuthority(), term.getAuthority())) {
+            return term.toString();
+        }
+        return Integer.toString(term.getId());
+    }
+
+    public String toString(final Signee signee) {
+        if (!Objects.equals(getSigneeSuffix(), signee.getSuffix())) {
+            return signee.toString();
+        }
+        return signee.getPrefix();
+    }
+
+    public String toString(final Grade grade) {
+        if (!Objects.equals(getGradeConvention(), grade.getConvention())) {
+            return grade.toString();
+        }
+        return grade.getId();
     }
 
 }

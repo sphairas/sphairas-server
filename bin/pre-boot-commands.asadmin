@@ -14,3 +14,6 @@ set configs.config.server-config.network-config.protocols.protocol.http-listener
 
 #create-jvm-options '-Dcom.sun.enterprise.security.httpsOutboundKeyAlias=s1as
 create-system-properties com.sun.enterprise.security.httpsOutboundKeyAlias=s1as
+
+set configs.config.server-config.network-config.protocols.protocol.http-listener-1.http.encoded-slash-enabled=true
+set configs.config.server-config.network-config.protocols.protocol.http-listener-1.http.websockets-support-enabled=true

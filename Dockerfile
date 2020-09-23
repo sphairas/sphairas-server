@@ -30,9 +30,9 @@ ENV DOMAIN_DIR=${PAYARA_DIR}/glassfish/domains/${DOMAIN_NAME}\
 #Connector/J 8 not working.... use 5.1.45 series
 COPY --chown=payara:payara target/lib/mysql-connector-java-*.jar ${PAYARA_DIR}/glassfish/lib
 
+COPY --chown=payara:payara server-application-clients-module/target/server-application-clients-module-0.9-SNAPSHOT.war $DEPLOY_DIR/ApplicationClients.war
 COPY --chown=payara:payara server-admin-authentication/target/server-admin-authentication-0.9-SNAPSHOT.war $DEPLOY_DIR/AdminAuthentication.war
 COPY --chown=payara:payara server-ear/target/server-ear-0.9-SNAPSHOT.ear $DEPLOY_DIR/Betula_Server.ear
-COPY --chown=payara:payara server-application-clients-module/target/server-application-clients-module-0.9-SNAPSHOT.war $DEPLOY_DIR/ApplicationClients.war
 
 COPY --chown=payara:payara target/lib/* ${DOMAIN_DIR}/lib/
 

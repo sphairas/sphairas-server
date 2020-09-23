@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-<!--    <parent>
+    <!--    <parent>
         <artifactId>server</artifactId>
         <groupId>org.thespheres</groupId>
         <version>0.9-SNAPSHOT</version>
@@ -10,7 +10,7 @@
     <artifactId>server-application-clients-module</artifactId>
     <version>0.9-SNAPSHOT</version>
     <packaging>war</packaging>
-    <name>server-application-clients-module</name>
+    <name>Clients</name>
     
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -34,9 +34,10 @@
             <version>0.11.1</version>
         </dependency>
         <dependency>
-            <groupId>org.thespheres</groupId>
-            <artifactId>services</artifactId>
-            <version>0.2.17</version>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sphairas-server-libs</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+            <!--<scope>provided</scope>-->
             <type>jar</type>
         </dependency>
         <dependency>
@@ -45,10 +46,23 @@
             <version>0.11.1</version>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.6.1-jre</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>${jakartaee}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.main.web</groupId>
+            <artifactId>web-naming</artifactId>
+            <version>4.1</version>
+            <scope>provided</scope>
+            <type>jar</type>
         </dependency>
     </dependencies>
     
