@@ -125,8 +125,10 @@ public class TargetsProcessor extends AbstractContainerProcessor {
                         if (tickets.length != 0) {
                             targets.submitSingle(docId, sfrid, tid, grade);
                         }
+                        sre.setAction(Action.CONFIRM);
                     } else if (sre.getAction().equals(Action.ANNUL)) {
                         targets.submitSingle(docId, sfrid, gradeId, null);
+                        sre.setAction(Action.CONFIRM);
                     }
                 }
             }
