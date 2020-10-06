@@ -47,7 +47,6 @@ import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.scheme.spi.TermNotFoundException;
 import org.thespheres.betula.services.scheme.spi.TermSchedule;
 import org.thespheres.betula.services.ws.CommonDocuments;
-import org.thespheres.betula.util.IDUtilities;
 
 /**
  *
@@ -105,7 +104,7 @@ public class ConfigurationPropertiesImpl {
                     final TermId ptid = findPrecedingTermId(parsed.getScheduledItemId());
                     return parsed.getSchedule().resolve(ptid);
                 } catch (ClassCastException ccex) {
-                    TermId tid = IDUtilities.parseTermId(prop);
+                    TermId tid = TermId.resolve(prop);
                     if (preceding) {
                         tid = findPrecedingTermId(tid);
                     }
