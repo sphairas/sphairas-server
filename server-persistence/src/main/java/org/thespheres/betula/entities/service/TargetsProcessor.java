@@ -12,6 +12,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import org.openide.util.NbBundle;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
@@ -32,6 +33,7 @@ import org.thespheres.betula.services.ws.NotFoundException;
 import org.thespheres.betula.services.ws.Paths;
 import org.thespheres.betula.services.ws.SyntaxException;
 import org.thespheres.betula.services.ws.UnauthorizedException;
+import org.thespheres.betula.services.ws.UnauthorizedFault;
 import org.thespheres.betula.util.GradeAdapter;
 
 /**
@@ -65,6 +67,7 @@ public class TargetsProcessor extends AbstractContainerProcessor {
         }
     }
 
+    @NbBundle.Messages("TargetsProcessor.processTargetAssessment.noTickets=Keine Berechtigungen/Tickets")
     private void processTargetAssessment(final DocumentEntry de) throws NotFoundException, SyntaxException, UnauthorizedException {
         final DocumentId docId = de.getIdentity();
         final GenericXmlDocument xmlDoc;
@@ -117,23 +120,29 @@ public class TargetsProcessor extends AbstractContainerProcessor {
                     } catch (final ClassCastException cce) {
                         throw ServiceUtils.createSyntaxException(cce);
                     }
+                    if (!(Action.FILE.equals(sre.getAction()) || Action.ANNUL.equals(sre.getAction()))) {
+                        continue;
+                    }
                     final StudentId sfrid = sre.getIdentity();
-                    if (sre.getValue() != null && sre.getAction().equals(Action.FILE)) {
-                        Grade grade = sre.getValue().getGrade();
-                        final TermId tid = gradeId;
-                        Ticket[] tickets = targets.getTickets(docId, tid, sfrid);
-                        if (tickets.length != 0) {
+                    final Grade grade = sre.getValue().getGrade();
+                    final TermId tid = gradeId;
+                    final Ticket[] tickets = targets.getTickets(docId, tid, sfrid);
+                    if (tickets.length != 0) {
+                        if (sre.getValue() != null && sre.getAction().equals(Action.FILE)) {
                             targets.submitSingle(docId, sfrid, tid, grade);
+                        } else if (sre.getAction().equals(Action.ANNUL)) {
+                            targets.submitSingle(docId, sfrid, gradeId, null);
                         }
                         sre.setAction(Action.CONFIRM);
-                    } else if (sre.getAction().equals(Action.ANNUL)) {
-                        targets.submitSingle(docId, sfrid, gradeId, null);
-                        sre.setAction(Action.CONFIRM);
+                    } else {
+                        final UnauthorizedFault fault = new UnauthorizedFault();
+                        final String message = NbBundle.getMessage(TargetsProcessor.class, "TargetsProcessor.processTargetAssessment.noTickets");
+                        fault.setMessage(message);
+                        throw new UnauthorizedException(message, fault);
                     }
                 }
             }
         }
-//        }
     }
-
+//        }
 }
