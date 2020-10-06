@@ -5,69 +5,78 @@
  */
 package org.thespheres.server.clients.model;
 
-import java.util.List;
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbPropertyOrder;
 import javax.json.bind.config.PropertyOrderStrategy;
-import org.thespheres.server.clients.model.Property.PropertyList;
 
 /**
  *
  * @author boris.heithecker
  */
 @JsonbPropertyOrder(PropertyOrderStrategy.ANY)
-public class JSONGrade {
+public class Grade {
 
-    @JsonbProperty(value = "id")
     protected final String id;
-    @JsonbProperty(value = "label")
     protected String label;
-    @JsonbProperty("long-label")
     private String longLabel;
-    @JsonbProperty(value = "styles")
-    private PropertyList styles;
+    private String icon;
+    private String[] styles;
 
     @JsonbCreator
-    public JSONGrade(@JsonbProperty("id") final String id) {
+    public Grade(@JsonbProperty("id") final String id) {
         this.id = id;
     }
 
-    public JSONGrade(final String id, final String label) {
-        this(id);
-        this.label = label;
+    public Grade(final org.thespheres.betula.assess.Grade orig) {
+        this(orig.getId());
+        setLabel(orig.getShortLabel());
+        setLongLabel(orig.getLongLabel());
     }
 
+    @JsonbProperty(value = "id")
     public String getId() {
         return id;
     }
 
+    @JsonbProperty(value = "label")
     public String getLabel() {
         return label;
     }
 
+    @JsonbProperty(value = "label")
     public void setLabel(final String label) {
         this.label = label;
     }
 
+    @JsonbProperty("long-label")
     public String getLongLabel() {
         return longLabel;
     }
 
-    public void setLongLabel(String longLabel) {
+    @JsonbProperty("long-label")
+    public void setLongLabel(final String longLabel) {
         this.longLabel = longLabel;
     }
 
-    public List<Property> getStyles() {
+    @JsonbProperty("icon")
+    public String getIcon() {
+        return icon;
+    }
+
+    @JsonbProperty("icon")
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    @JsonbProperty(value = "styles")
+    public String[] getStyles() {
         return styles;
     }
 
-    public void addStyle(final String name, final String value) {
-        final Property add = new Property(name, value);
-        if (styles == null) {
-            styles = new PropertyList();
-        }
-        styles.add(add);
+    @JsonbProperty(value = "styles")
+    public void setStyles(final String[] styles) {
+        this.styles = styles;
     }
 
 }

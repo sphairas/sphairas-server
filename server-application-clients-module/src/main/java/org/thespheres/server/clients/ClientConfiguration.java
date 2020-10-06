@@ -16,7 +16,7 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Signee;
-import org.thespheres.server.clients.model.JSONConvention;
+import org.thespheres.server.clients.model.Convention;
 import org.thespheres.server.clients.model.Property;
 
 /**
@@ -37,15 +37,7 @@ public class ClientConfiguration implements Serializable {
     @JsonbProperty("properties")
     private final Property.PropertyList properties = new Property.PropertyList();
     @JsonbProperty("conventions")
-    private final List<JSONConvention> conventions = new ArrayList<>();
-
-    public List<Property> getProperties() {
-        return properties;
-    }
-
-    public List<JSONConvention> getConventions() {
-        return conventions;
-    }
+    private final List<Convention> conventions = new ArrayList<>();
 
     ClientConfiguration(final String authority, final String studentsAuthority, final String termAuthority) {
         this.authority = authority;
@@ -79,6 +71,14 @@ public class ClientConfiguration implements Serializable {
 
     public void setSigneeSuffix(final String value) {
         this.suffix = value;
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public List<Convention> getConventions() {
+        return conventions;
     }
 
     public String toString(final DocumentId doc) {

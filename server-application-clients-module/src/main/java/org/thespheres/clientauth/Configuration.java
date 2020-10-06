@@ -46,6 +46,7 @@ public class Configuration extends Application {
         resources.add(org.thespheres.clientauth.CORSFilter.class);
         resources.add(org.thespheres.server.clients.JavaEE8Resource.class);
         resources.add(org.thespheres.server.clients.ServiceClient.class);
+        resources.add(org.thespheres.server.clients.SettingsResource.class);
         resources.add(org.thespheres.server.clients.TargetsResource.class);
         resources.add(org.thespheres.server.clients.UnitsResource.class);
         resources.add(org.thespheres.server.clients.config.JSONConfigurator.class);
