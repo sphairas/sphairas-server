@@ -26,7 +26,8 @@ public class CORSFilter implements ContainerResponseFilter {
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext response) {
         response.getHeaders().putSingle("Access-Control-Allow-Origin", "*");
         response.getHeaders().putSingle("Access-Control-Allow-Methods", "OPTIONS, GET, POST, PUT, DELETE");
-        response.getHeaders().putSingle("Access-Control-Allow-Headers", "Content-Type");
+        response.getHeaders().putSingle("Access-Control-Allow-Headers", "Accept, Content-Type, Authorization");
+//        response.getHeaders().putSingle("Access-Control-Allow-Credentials", "true");
     }
 
 }
