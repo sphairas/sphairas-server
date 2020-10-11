@@ -16,7 +16,7 @@ if [ -f $APP_RESOURCES/host.conf ]; then
 fi
 
 SERVER_KEY=${SECRETS}/server.key
-SERVER_PKCS12_FILE=/tmp/server.p12
+SERVER_PKCS12_FILE=${SECRETS_DIR}/server.p12 //In futur, server.p12 should be provided in /run/secrets
 SERVER_CERT=${SECRETS}/server.crt
 
 set +x
