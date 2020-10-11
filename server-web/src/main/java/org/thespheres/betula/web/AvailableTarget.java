@@ -26,6 +26,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.primefaces.push.EventBus;
 import org.primefaces.push.EventBusFactory;
@@ -48,8 +49,11 @@ import org.thespheres.betula.document.model.AssessmentDecoration;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.niedersachsen.NdsTerms;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
+import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.services.scheme.spi.Term;
+import org.thespheres.betula.util.CollectionUtil;
 import org.thespheres.betula.web.AvailableTarget.AvailableTermColumn;
 import org.thespheres.betula.web.config.ExtraAnnotation;
 
@@ -73,6 +77,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     private List<CrossMarkSubject> crossMarkSubjects = new ArrayList<>();
     private String entitlementTitle = null;
     private String signeeTypeTitle;
+    private DocumentId commentsDoc;
 
     AvailableTarget(final String displayName, final BetulaWebApplication app) {
         super(app, displayName);
@@ -278,13 +283,21 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         return studs;
     }
 
+    @Override
+    protected AvailableStudent createAvailableStudent(StudentId sid, String dirName, Marker sgl) {
+        return new TargetStudent(sid, dirName, sgl);
+    }
+
     public synchronized List<AvailableTermColumn> getTermColumns() {
         if (gradeColumns == null) {
             gradeColumns = new ArrayList<>();
             docs.stream().forEach(d -> {
-                application.getFastDocument(d).getTerms().stream()
-                        .filter(t -> addToRenderedTerms(t, d))
-                        .forEach(t -> gradeColumns.add(new AvailableTermColumn(d, t, null, false, application.getWebUIConfiguration().getDefaultCommitTargetType())));
+                final FastTermTargetDocument fd = application.getFastDocument(d);
+                if (fd != null) {
+                    fd.getTerms().stream()
+                            .filter(t -> addToRenderedTerms(t, d))
+                            .forEach(t -> gradeColumns.add(new AvailableTermColumn(d, t, null, false, application.getWebUIConfiguration().getDefaultCommitTargetType())));
+                }
             });
             Collections.sort(gradeColumns);
             if (gradeColumns.size() > 3) {//nicht mehr als 3 !!!, siehe terms.xhtml
@@ -299,13 +312,17 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     public synchronized Map<String, AvailableTermColumn> getEditableTermColumns() {
         if (editableGradeColumns == null) {
+            application.getWebUIConfiguration().getCommitTargetTypes();
             editableGradeColumns = new HashMap<>();
             for (DocumentId d : docs) {
-                for (TermId t : application.getFastDocument(d).getTerms()) {
-                    if (addToEditableTerms(t, d)) {
-                        final String type = application.getDocumentsModel().getSuffix(d);
-                        if (type != null) {
-                            editableGradeColumns.put(type, new AvailableTermColumn(d, t, getEditTerm(), true, type));
+                final FastTermTargetDocument fd = application.getFastDocument(d);
+                if (fd != null) {
+                    for (TermId t : fd.getTerms()) {
+                        if (addToEditableTerms(t, d)) {
+                            final String type = application.getDocumentsModel().getSuffix(d);
+                            if (type != null) {
+                                editableGradeColumns.put(type, new AvailableTermColumn(d, t, getEditTerm(), true, type));
+                            }
                         }
                     }
                 }
@@ -458,6 +475,18 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     }
 
+    public boolean hasComments() {
+        if (this.commentsDoc == null) {
+            final String sfx = this.application.getWebUIConfiguration().getProperty("targets.comments.suffix");
+            this.commentsDoc = this.docs.stream()
+                    .filter(d -> sfx != null && sfx.equals(this.application.getDocumentsModel().getSuffix(d)))
+                    .collect(CollectionUtil.singleton())
+                    .orElse(DocumentId.NULL);
+            application.getLogger().log(Level.FINE, "AvailableTarget.hasComments Comment doc: {0}", commentsDoc.toString());
+        }
+        return this.commentsDoc != null;
+    }
+
     public boolean isCrossMarksEnabled() {
         return !crossMarkSubjects.isEmpty();
     }
@@ -468,6 +497,48 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     void addCrossMarksDocument(final DocumentId doc, final Marker sub) {
         crossMarkSubjects.add(new CrossMarkSubject(doc, sub));
+    }
+
+    public class TargetStudent extends AvailableStudent {
+
+        private String comment;
+        private boolean commentsEnabled = true;
+
+        TargetStudent(final StudentId sid, final String dirName, final Marker sgl) {
+            super(sid, dirName, sgl);
+        }
+
+        public String getComment() {
+            if (comment == null) {
+                final FastTextTermTargetDocument fttd = application.getFastTextDocument(commentsDoc);
+                comment = fttd.select(getId(), application.getCurrentTerm().getScheduledItemId()).stream()
+                        .filter(e -> e.getSection() == null)
+                        .collect(CollectionUtil.singleton())
+                        .map(FastTextTermTargetDocument.Entry::getText)
+                        .orElse("");
+                application.getLogger().log(Level.FINE, "TargetStudent.getComment Found comment: {0}", comment);
+            }
+            return comment;
+        }
+
+        public void setComment(final String value) {
+            final String cmnt = StringUtils.stripToNull(value);
+            if (!(cmnt == null && StringUtils.isBlank(comment))) {
+                final boolean res = application.submitText(commentsDoc, application.getCurrentTerm().getScheduledItemId(), null, getId(), cmnt);
+                if (res) {
+                    this.comment = cmnt;
+                }
+            }
+        }
+
+        public boolean isCommentsEnabled() {
+            return commentsEnabled;
+        }
+
+        public void setCommentsEnabled(boolean commentsEnabled) {
+            this.commentsEnabled = commentsEnabled;
+        }
+
     }
 
     public class AvailableTermColumn implements Comparable<AvailableTermColumn>, Converter {

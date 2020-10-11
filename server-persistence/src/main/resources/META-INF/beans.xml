@@ -7,5 +7,6 @@
         <class>org.thespheres.betula.entities.saccess.SigneeFacadeSigneeDecorator</class>
         <class>org.thespheres.betula.entities.saccess.UnitDocumentSigneeDecorator</class>
         <class>org.thespheres.betula.entities.saccess.TermGradeTargetDocumentSigneeDecorator</class>
+        <class>org.thespheres.betula.entities.saccess.TextTargetDocumentSigneeDecorator</class>
     </decorators>
 </beans>

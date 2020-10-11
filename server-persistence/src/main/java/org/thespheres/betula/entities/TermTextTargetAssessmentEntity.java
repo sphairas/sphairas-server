@@ -38,6 +38,13 @@ import org.thespheres.betula.document.Marker;
             hints = {
                 @QueryHint(name = "eclipselink.query-results-cache", value = "true"),
                 @QueryHint(name = "eclipselink.query-results-cache.size", value = "100")
+            }),
+    @NamedQuery(name = "findTermTextTargetAssessmentsSignees", query = "SELECT DISTINCT te FROM TermTextTargetAssessmentEntity te, IN(te.signeeInfoentries) si "
+            + "WHERE si.type IN :types "
+            + "AND si.signee=:signee",
+            hints = {
+                @QueryHint(name = "eclipselink.query-results-cache", value = "true"),
+                @QueryHint(name = "eclipselink.query-results-cache.size", value = "150")
             })})
 @Access(AccessType.FIELD)
 public class TermTextTargetAssessmentEntity extends BaseTargetAssessmentEntity<String, TermId> {
@@ -101,8 +108,8 @@ public class TermTextTargetAssessmentEntity extends BaseTargetAssessmentEntity<S
     public TermTextAssessmentEntry2 findAssessmentEntry(final StudentId student, final TermId gradeId, final Marker section) {
         TermTextAssessmentEntry2 ae = null;
         for (final TermTextAssessmentEntry2 a : getEntries()) {
-            if (a.getStudentId().equals(student) 
-                    && Objects.equals(a.getTermId(), gradeId) 
+            if (a.getStudentId().equals(student)
+                    && Objects.equals(a.getTermId(), gradeId)
                     && Objects.equals(a.getSection(), section)) {
                 ae = a;
                 break;

@@ -30,7 +30,7 @@
                     <f:event type="preRenderComponent" listener="#{target.onPreRenderComponent}"/>
                     <p:columnGroup type="header">   
                         <p:row>  
-                            <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled()}" style="width:2%" />   
+                            <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled() or target.hasComments()}" style="width:2%" />   
                             <p:column rowspan="2" headerText="#{bundle['student.name']}" />   
                             <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
                             <p:column colspan="#{target.editableTermColumns.size()}" rendered="#{!target.editableTermColumns.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
@@ -44,8 +44,8 @@
                             </c:forEach>
                         </p:row>  
                     </p:columnGroup> 
-                    
-                    <p:column rendered="#{target.isCrossMarksEnabled()}">  
+
+                    <p:column rendered="#{target.isCrossMarksEnabled() or target.hasComments()}">  
                         <p:rowToggler />
                     </p:column>   
                     <p:column>  
@@ -159,8 +159,23 @@
                     </c:forEach>
                     <!--</p:repeat>-->
 
-                    <p:rowExpansion rendered="#{target.isCrossMarksEnabled()}">  <!--ui-widget-content grid -->
+                    <p:rowExpansion rendered="#{target.hasComments() or target.isCrossMarksEnabled()}">  <!--ui-widget-content grid -->
+
+                        <h:form rendered="#{target.hasComments()}" style="box-shadow: 2px 2px 2px; width: 100%;">
+                            <div class="ui-g">
+                                <div class="ui-g-12 ui-md-2">
+                                    <p:outputLabel for="comments" value="#{bundle['availableTarget.datatable.comments.label']}" />
+                                </div>
+                                <div class="ui-g-12 ui-md-10">
+                                    <p:inputTextarea id="comments" rows="3" value="#{student.comment}" disabled="#{!student.commentsEnabled}" autoResize="true" style="min-width: 100%;">
+                                        <p:ajax event="blur" update="@this" />
+                                    </p:inputTextarea>
+                                </div>
+                            </div>
+                        </h:form>
+
                         <p:dataTable id="crossMarks" 
+                                     rendered="#{target.isCrossMarksEnabled()}"
                                      var="crossMarkSubject" 
                                      value="#{target.crossMarkSubjects}" 
                                      editable="true"  

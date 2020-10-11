@@ -85,6 +85,7 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     protected ChannelsLocalImpl channels;
     protected transient Set<DocumentId> targets;
     protected transient List<TermGradeTargetAssessmentEntity> resultList; //transient: not serializable named query result list
+    protected transient List<TermTextTargetAssessmentEntity> textResultList; //transient: not serializable named query result list
     protected final Map<UnitId, Set<DocumentId>> unitTargetDocs = new HashMap<>();
     protected final Map<UnitId, Map<TermId, Set<DocumentId>>> unitTermTargetDocs = new HashMap<>();
     protected UnitId[] primaryUnit;
@@ -115,7 +116,7 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     protected List<TermGradeTargetAssessmentEntity> getTargetAssessmentDocumentResultList() {
         if (resultList == null) {
             final long start = System.currentTimeMillis();
-            //this is a live list, returned form cached named query...
+            //this is a live list, returned from cached named query...
             final SigneeEntity se = login.getCurrent();
             if (se != null) {
                 resultList = facade.findAll(se, TermGradeTargetAssessmentEntity.class, LockModeType.OPTIMISTIC);
@@ -129,10 +130,27 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
         return resultList;
     }
 
+    protected List<TermTextTargetAssessmentEntity> getTextTargetAssessmentDocumentResultList() {
+        if (textResultList == null) {
+            final SigneeEntity se = login.getCurrent();
+            if (se != null) {
+                textResultList = textFacade.findAll(se, LockModeType.OPTIMISTIC);
+            } else {
+                textResultList = Collections.EMPTY_LIST;
+            }
+        }
+        return textResultList;
+    }
+
     protected Set<DocumentId> getSigneeTargetAssessmentDocumentIds() {
-        if (targets == null || resultList == null) {
+        if (targets == null || resultList == null || textResultList == null) {
             //TODO: check if targets transient suffices
-            targets = getTargetAssessmentDocumentResultList().stream().map(TermGradeTargetAssessmentEntity::getDocumentId).collect(Collectors.toSet());
+            final Set<DocumentId> set = getTargetAssessmentDocumentResultList().stream().map(TermGradeTargetAssessmentEntity::getDocumentId).collect(Collectors.toSet());
+            getTextTargetAssessmentDocumentResultList().stream()
+                    .map(TermTextTargetAssessmentEntity::getDocumentId)
+                    .distinct()
+                    .forEach(set::add);
+            targets = set;
         }
         return targets;
     }
@@ -150,7 +168,7 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     @RolesAllowed(value = {"signee", "unitadmin"})
     @Override
     public FastTermTargetDocument getFastTermTargetDocument(final DocumentId d) {
-        if (getSigneeTargetAssessmentDocumentIds().contains(d)) {
+        if (getSigneeTargetAssessmentDocumentIds().contains(d) && getTextTargetAssessmentDocumentResultList().stream().map(BaseDocumentEntity::getDocumentId).noneMatch(d::equals)) {
             final TermGradeTargetAssessmentEntity s = getTargetAssessmentDocumentResultList().stream().filter((TermGradeTargetAssessmentEntity tgtae) -> tgtae.getDocumentId().equals(d)).collect(CollectionUtil.singleOrNull());
             if (s == null) {
                 //Should not happen!
@@ -247,6 +265,15 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
             return facade.submit(d, studId, termId, grade, null);
         }
         throw new IllegalArgumentException("DocumentId, StudentId, TermId, and Grade cannot be null.");
+    }
+
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
+    @Override
+    public boolean submitSingle(final DocumentId d, final StudentId studId, final TermId termId, final Marker section, final String text) {
+        if (d != null && studId != null && termId != null) {
+            return this.textFacade.submit(d, studId, termId, section, text, null, -1);
+        }
+        throw new IllegalArgumentException("DocumentId, StudentId, and TermId cannot be null.");
     }
 
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
@@ -426,5 +453,4 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
 //                    return new JoinedUnitsEntry(ju, units);
 //                }).orElse(JoinedUnitsEntry.EMPTY);
 //    }
-
 }

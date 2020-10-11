@@ -74,6 +74,7 @@ import org.thespheres.ical.VCard;
 import org.thespheres.betula.assess.AssessmentConvention;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 
 /**
  *
@@ -133,6 +134,7 @@ public class BetulaWebApplication implements Serializable {
     @Inject
     private LocalProperties properties;
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
+    private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
     private DefaultStreamedContent image;
     private final Logger log = Logger.getLogger(BetulaWebApplication.class.getPackage().getName());
     @Inject
@@ -321,6 +323,10 @@ public class BetulaWebApplication implements Serializable {
         return fastDocs.computeIfAbsent(id, d -> bean.getFastTermTargetDocument(id));
     }
 
+    FastTextTermTargetDocument getFastTextDocument(final DocumentId id) {
+        return fastTextDocs.computeIfAbsent(id, d -> bean.getFastTextTermTargetDocument(id));
+    }
+
     Collection<DocumentId> getTargetAssessmentDocuments(UnitId primaryUnit) {
         return bean.getTargetAssessmentDocuments(primaryUnit);
     }
@@ -356,6 +362,10 @@ public class BetulaWebApplication implements Serializable {
 
     boolean submitGrade(DocumentId docId, TermId termId, StudentId studId, Grade grade) throws IOException {
         return bean.submitSingle(docId, studId, termId, grade); //submit(docId, studId, termId, grade, new Timestamp());
+    }
+
+    boolean submitText(final DocumentId docId, final TermId termId, final Marker section, final StudentId studId, final String text) {
+        return bean.submitSingle(docId, studId, termId, null, text);
     }
 
     Ticket[] findApplicableTickets(DocumentId docId, TermId termId, StudentId studId) {

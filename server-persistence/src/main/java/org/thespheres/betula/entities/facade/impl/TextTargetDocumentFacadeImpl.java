@@ -32,6 +32,7 @@ import org.thespheres.betula.entities.TermTextAssessmentEntry2;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntityLock;
 import org.thespheres.betula.entities.UnitDocumentEntity;
+import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.service.BetulaService;
 import org.thespheres.betula.entities.watch.DocumentLockTimeoutTimer;
@@ -40,7 +41,6 @@ import org.thespheres.betula.entities.watch.DocumentLockTimeoutTimer;
  *
  * @author boris.heithecker
  */
-@RolesAllowed("unitadmin")
 @LocalBean
 @Stateless
 public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTargetAssessmentEntity> implements TextTargetDocumentFacade {
@@ -56,6 +56,7 @@ public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTar
     }
 
     //Must be overriden otherwise decorator is not called!
+    @RolesAllowed("unitadmin")
     @Override
     public List<TermTextTargetAssessmentEntity> findAll(LockModeType lmt) {
         return findAllEntities(lmt, TermTextTargetAssessmentEntity.class);
@@ -71,10 +72,12 @@ public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTar
                 .getResultList();
     }
 
+    @RolesAllowed({"signee", "unitadmin"})
     @Override
-    public List<TermTextTargetAssessmentEntity> findAll(SigneeEntity signee, LockModeType lmt) {
-        return em.createNamedQuery("findTermTextTargetAssessmentsForEntitledSignee", TermTextTargetAssessmentEntity.class)
+    public List<TermTextTargetAssessmentEntity> findAll(final SigneeEntity signee, final LockModeType lmt) {
+        return em.createNamedQuery("findTermTextTargetAssessmentsSignees", TermTextTargetAssessmentEntity.class)
                 .setParameter("signee", signee)
+                .setParameter("types", AppProperties.secureSigneeTypes())
                 .setLockMode(lmt)
                 .getResultList();
     }
@@ -109,7 +112,7 @@ public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTar
             } else if (ae != null) {
                 old = ae.getText();
                 if (grade != null) {
-                    changed = ae.setText(old, timestamp);
+                    changed = ae.setText(grade, timestamp);
                     nv = ae.getText();
                     nt = ae.getTimestamp();
                 } else {
@@ -133,6 +136,7 @@ public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTar
         return false;
     }
 
+    @RolesAllowed("unitadmin")
     @Override
     public TermTextTargetAssessmentEntity create(DocumentId docId, UnitId related) {
         TermTextTargetAssessmentEntity tae = new TermTextTargetAssessmentEntity(docId, null);
@@ -150,6 +154,7 @@ public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTar
         return tae;
     }
 
+    @RolesAllowed("unitadmin")
     @Override
     public long getLock(DocumentId id, long timeout) {
         TermTextTargetAssessmentEntity target = findEntity(id, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
