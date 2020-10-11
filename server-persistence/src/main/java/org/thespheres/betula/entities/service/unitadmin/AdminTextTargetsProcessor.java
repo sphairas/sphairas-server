@@ -106,7 +106,7 @@ public class AdminTextTargetsProcessor extends AbstractAdminContainerProcessor {
                     entry.getChildren().clear();
                     tae.getEntries().stream().forEach(assess -> {
                         org.thespheres.betula.document.Timestamp ts = assess.getTimestamp() != null ? new org.thespheres.betula.document.Timestamp(assess.getTimestamp()) : null;
-                        entry.submit(assess.getStudentId(), assess.getTermId(), assess.getSection(), assess.getText(), ts);
+                        entry.submit(assess.getStudentId(), assess.getTermId(), assess.getSection(), assess.getText(), ts, null);
                     });
                 }
             } else if (action.equals(Action.FILE)) {
