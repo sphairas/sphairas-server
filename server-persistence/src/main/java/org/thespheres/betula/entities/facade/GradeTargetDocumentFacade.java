@@ -22,6 +22,7 @@ import org.thespheres.betula.entities.BaseDocumentEntity;
 import org.thespheres.betula.entities.GradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
+import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.UnitDocumentEntity;
 import org.thespheres.betula.util.GradeEntry;
 
@@ -59,6 +60,8 @@ public interface GradeTargetDocumentFacade {
 
     public List<TermGradeTargetAssessmentEntity> findForUnitDocument(UnitDocumentEntity related, TermId term);
 
+    public List<TermTextTargetAssessmentEntity> findTextsForUnitDocument(UnitDocumentEntity related, TermId term);
+
     public Collection<TermGradeTargetAssessmentEntity> findForStudent(final StudentId related);
 
     public Collection<TermGradeTargetAssessmentEntity> findForStudents(Set<StudentId> related, TermId term);
@@ -66,7 +69,6 @@ public interface GradeTargetDocumentFacade {
     public boolean linkPrimaryUnits(DocumentId docId, StudentId[] toArray);
 
 //    public UnitJoinDocumentEntity[] findJoinedUnits(UnitId unit);
-
     public boolean remove(DocumentId docId);
 
     public String getStringValue(DocumentId stringValueDocument, DocumentId base);

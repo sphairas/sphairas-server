@@ -432,7 +432,7 @@ public class NdsFormatter {
         return baos.toByteArray();
     }
 
-    public byte[] formatDetails(final Collection<StudentId> students, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTermTargetDocument> agTargets, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map, UnitId pu, Term current, String mime, int preTermsCount) throws IOException {
+    public byte[] formatDetails(final Collection<StudentId> students, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTermTargetDocument> agTargets, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map, UnitId pu, Term current, String mime, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData) throws IOException {
 
         final DetailsListXml collection = new DetailsListXml();
         collection.setFooterCenter(builderFactory.getSchulvorlage().getSchoolName());
@@ -457,7 +457,7 @@ public class NdsFormatter {
             details.setListDate(ldate);
             details.setListName(lname);
             details.setSortString(StudentComparator.sortStringFromDirectoryName(card.getDirectoryName()));
-            formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets);
+            formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets, textDocMap, textData);
 
             collection.list.add(details);
         }

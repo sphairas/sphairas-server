@@ -295,6 +295,23 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
         }).collect(Collectors.toSet());
     }
 
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    @RolesAllowed(value = {"signee", "unitadmin"})
+    @Override
+    public Collection<DocumentId> getTextTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTextTermTargetDocument> map) {
+        final DocumentId docId = docModel.convertToUnitDocumentId(unit);
+        final UnitDocumentEntity ude = unitfacade.find(docId, LockModeType.OPTIMISTIC);
+        if (ude == null) {
+            throw new NoSuchEntityException();
+        }
+        final Collection<DocumentId> coll = facade.findTextsForUnitDocument(ude, term).stream()
+                .map(TermTextTargetAssessmentEntity::getDocumentId)
+                .collect(Collectors.toSet());
+        return coll.stream()
+                .peek(d -> map.computeIfAbsent(d, this::getFastTextTermTargetDocument))
+                .collect(Collectors.toSet());
+    }
+
     protected Set<DocumentId> fetchTargetAssessmentDocumentsForTerm(UnitId unit, TermId term) {
         DocumentId docId = docModel.convertToUnitDocumentId(unit);
         UnitDocumentEntity ude = unitfacade.find(docId, LockModeType.OPTIMISTIC);

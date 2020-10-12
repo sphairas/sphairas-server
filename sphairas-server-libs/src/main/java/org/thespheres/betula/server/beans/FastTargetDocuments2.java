@@ -67,4 +67,5 @@ public interface FastTargetDocuments2 {
 
     Collection<DocumentId> getTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTermTargetDocument> map);
 
+    Collection<DocumentId> getTextTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTextTermTargetDocument> map);
 }

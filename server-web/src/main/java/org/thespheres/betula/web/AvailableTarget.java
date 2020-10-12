@@ -484,7 +484,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                     .orElse(DocumentId.NULL);
             application.getLogger().log(Level.FINE, "AvailableTarget.hasComments Comment doc: {0}", commentsDoc.toString());
         }
-        return this.commentsDoc != null;
+        return !DocumentId.isNull(commentsDoc);
     }
 
     public boolean isCrossMarksEnabled() {

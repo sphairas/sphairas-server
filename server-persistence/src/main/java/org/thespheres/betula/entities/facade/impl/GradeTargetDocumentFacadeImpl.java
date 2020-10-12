@@ -46,6 +46,7 @@ import org.thespheres.betula.entities.EmbeddableTermId;
 import org.thespheres.betula.entities.GradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
+import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.UnitDocumentEntity;
 import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
@@ -353,6 +354,15 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
                     .setLockMode(LockModeType.OPTIMISTIC)
                     .getResultList();
         }
+    }
+
+    @Override
+    public List<TermTextTargetAssessmentEntity> findTextsForUnitDocument(final UnitDocumentEntity related, final TermId term) {
+        return em.createNamedQuery("findTermTextTargetAssessmentsForUnitEntityStudents", TermTextTargetAssessmentEntity.class)
+                .setParameter("unit", related)
+                .setParameter("term", new EmbeddableTermId(term))
+                .setLockMode(LockModeType.OPTIMISTIC)
+                .getResultList();
     }
 
     @Override

@@ -161,13 +161,13 @@
 
                     <p:rowExpansion rendered="#{target.hasComments() or target.isCrossMarksEnabled()}">  <!--ui-widget-content grid -->
 
-                        <h:form rendered="#{target.hasComments()}" style="box-shadow: 2px 2px 2px; width: 100%;">
+                        <h:form rendered="#{target.hasComments()}" style="box-shadow: 2px 2px 2px; width: 97%;">
                             <div class="ui-g">
-                                <div class="ui-g-12 ui-md-2">
+                                <div class="ui-g-12 ui-md-12">
                                     <p:outputLabel for="comments" value="#{bundle['availableTarget.datatable.comments.label']}" />
                                 </div>
-                                <div class="ui-g-12 ui-md-10">
-                                    <p:inputTextarea id="comments" rows="3" value="#{student.comment}" disabled="#{!student.commentsEnabled}" autoResize="true" style="min-width: 100%;">
+                                <div class="ui-g-12 ui-md-12">
+                                    <p:inputTextarea id="comments" rows="3" value="#{student.comment}" disabled="#{!student.commentsEnabled}" autoResize="true" style="width: 100%; box-sizing: border-box;">
                                         <p:ajax event="blur" update="@this" />
                                     </p:inputTextarea>
                                 </div>

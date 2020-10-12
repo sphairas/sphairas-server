@@ -45,6 +45,16 @@ import org.thespheres.betula.document.Marker;
             hints = {
                 @QueryHint(name = "eclipselink.query-results-cache", value = "true"),
                 @QueryHint(name = "eclipselink.query-results-cache.size", value = "150")
+            }),
+    @NamedQuery(name = "findTermTextTargetAssessmentsForUnitEntityStudents", query = "SELECT DISTINCT te FROM TermTextTargetAssessmentEntity te, UnitDocumentEntity ude, IN(te.entries) e, IN(ude.studentIds) s "
+            + "WHERE ude=:unit "
+            + "AND e.term=:term "
+            + "AND e.student=s",
+            //            + "AND e.student.studentAuthority=:s.studentAuthority "
+            //            + "AND e.student.studentId=:s.studentId",
+            hints = {
+                @QueryHint(name = "eclipselink.query-results-cache", value = "true"),
+                @QueryHint(name = "eclipselink.query-results-cache.size", value = "100")
             })})
 @Access(AccessType.FIELD)
 public class TermTextTargetAssessmentEntity extends BaseTargetAssessmentEntity<String, TermId> {

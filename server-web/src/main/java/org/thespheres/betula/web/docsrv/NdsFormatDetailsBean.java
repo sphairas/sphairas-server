@@ -10,6 +10,7 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -25,6 +26,7 @@ import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -46,6 +48,7 @@ import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.StudentDetailsXml;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NamingResolver;
@@ -89,7 +92,7 @@ public class NdsFormatDetailsBean {
 
 //    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
 //    @RolesAllowed({"signee", "unitadmin"})
-    public void oneStudent(final StudentDetailsXml details, final MappedStudent ms, UnitId pu, Term current, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap, final Map<DocumentId, FastTermTargetDocument> targetData, final Map<DocumentId, FastTermTargetDocument> agTargetData) {
+    public void oneStudent(final StudentDetailsXml details, final MappedStudent ms, UnitId pu, Term current, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap, final Map<DocumentId, FastTermTargetDocument> targetData, final Map<DocumentId, FastTermTargetDocument> agTargetData, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData) {
         final StudentId student = ms.getStudentId();
         final String sName = ms.getDisplayName();
         final Marker sgl = ms.getCareer();
@@ -287,6 +290,38 @@ public class NdsFormatDetailsBean {
                 final StudentDetailsXml.Text tb = details.addText(lbl, pos);
                 tb.setValue(e.getValue());
             }
+
+            //Comments
+            final Map<MultiSubject, Set<DocumentId>> cm = textDocMap.get(current.getScheduledItemId()).get("kommentare");
+            if (cm != null && !cm.isEmpty()) {
+                final StringJoiner sj = new StringJoiner("\n");
+                for (final Map.Entry<MultiSubject, Set<DocumentId>> e : cm.entrySet()) {
+                    for (final DocumentId cd : e.getValue()) {
+                        final FastTextTermTargetDocument texts = textData.get(cd);
+                        if (texts != null) {
+                            final List<FastTextTermTargetDocument.Entry> sel = texts.select(student, current.getScheduledItemId());
+                            if (sel != null && !sel.isEmpty()) {
+                                final DocumentId cdb = docModel.convert(cd);
+                                String commentDocName = null;
+                                try {
+                                    commentDocName = namingResolver.resolveDisplayNameResult(cdb).getResolvedName(current);
+                                } catch (IllegalAuthorityException ex) {
+                                    commentDocName = cd.toString();
+                                }
+                                sj.add(commentDocName + ":");
+                                sel.stream()
+                                        .filter(le -> le.getSection() == null)
+                                        .map(FastTextTermTargetDocument.Entry::getText)
+                                        .forEach(sj::add);
+                            }
+                        }
+                    }
+                }
+                final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.comments.label");
+                final StudentDetailsXml.Text cv = details.addText(lbl, Integer.MAX_VALUE - 1000);
+                cv.setValue(StringUtils.trimToNull(sj.toString()));
+            }
+
             //            AGs
 //            final String[] ags = zeugnisBean.getAGs(student, current.getScheduledItemId());
 //            final String agText = Arrays.stream(ags)

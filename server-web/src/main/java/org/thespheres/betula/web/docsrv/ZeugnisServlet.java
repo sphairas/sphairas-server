@@ -46,6 +46,7 @@ import org.thespheres.betula.services.web.WebUIConfiguration;
 import org.thespheres.betula.niedersachsen.NdsTerms;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.Utilities;
 import org.thespheres.betula.server.beans.annot.Current;
@@ -292,10 +293,11 @@ public class ZeugnisServlet extends HttpServlet {
                 throw new IOException(ex);
             }
         }
+        final FastTargetDocuments2 ftd2 = getFastTargetDocuments2();
+        //Grades
         final Map<DocumentId, FastTermTargetDocument> targets = new HashMap<>();
         final Map<DocumentId, FastTermTargetDocument> agTargets = new HashMap<>();
         final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map = new HashMap<>();
-        final FastTargetDocuments2 ftd2 = getFastTargetDocuments2();
         for (final Term t : terms) {
             final Collection<DocumentId> coll;
             try {
@@ -311,10 +313,24 @@ public class ZeugnisServlet extends HttpServlet {
                         .forEach(d -> agTargets.put(d, ftd2.getFastTermTargetDocument(d)));
             }
         }
+        //Texts
+        final Map<DocumentId, FastTextTermTargetDocument> textData = new HashMap<>();
+        final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap = new HashMap<>();
+        for (final Term t : terms) {
+            final Collection<DocumentId> coll;
+            try {
+                coll = ftd2.getTextTargetAssessmentDocumentsForTerm(pu, t.getScheduledItemId(), textData);
+            } catch (final EJBException | PersistenceException e) {
+                throw new IOException(e);
+            }
+            final Map<String, Map<MultiSubject, Set<DocumentId>>> m = documentMapper.getDocMap(coll, false);
+            textDocMap.put(t.getScheduledItemId(), m);
+        }
+        
         final Collection<StudentId> students = ftd2.getStudents(pu, null);
 
 //        final byte[] out = fOPFormatter.formatDetails(tgtae, map, ag, pu, term, mime, preTermsCount);
-        final byte[] out = fOPFormatter.formatDetails(students, targets, agTargets, map, pu, term, mime, preTermsCount); //formatDetails(students, fttd, agTargets, pu, term, mime, preTermsCount);
+        final byte[] out = fOPFormatter.formatDetails(students, targets, agTargets, map, pu, term, mime, preTermsCount, textDocMap, textData); //formatDetails(students, fttd, agTargets, pu, term, mime, preTermsCount);
         response.setContentType(mime);
         response.getOutputStream().write(out);
     }
@@ -373,5 +389,4 @@ public class ZeugnisServlet extends HttpServlet {
 //            throw new RuntimeException(ex);
 //        }
 //    }
-
 }
