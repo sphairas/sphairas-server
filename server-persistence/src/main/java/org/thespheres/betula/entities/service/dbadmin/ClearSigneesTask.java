@@ -38,6 +38,7 @@ import org.thespheres.betula.services.jms.AbstractDocumentEvent;
 @Stateless
 public class ClearSigneesTask {
 
+    public static final int DEFAULT_MAX_RESULTS = 500;
     static final String QUERY = "SELECT DISTINCT t FROM TermGradeTargetAssessmentEntity t, IN(t.signeeInfoentries) si WHERE NOT EXISTS(SELECT e FROM TermAssessmentEntry2 e WHERE e.term=:term AND e.document=t)";
     public static final String NAME = "clear-signees";
     public static final String VERSION = "1.0";
@@ -71,9 +72,11 @@ public class ClearSigneesTask {
         final boolean dryRun = task.getArg("dry-run", Boolean.class);
         //TODO support effective Date
         final Date effective = null;
+        final int maxResults = task.getArg("max-documents", Integer.class, DEFAULT_MAX_RESULTS);
         final String msg = em.createQuery(QUERY, TermGradeTargetAssessmentEntity.class)
                 .setLockMode(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
                 .setParameter("term", new EmbeddableTermId(term))
+                .setMaxResults(maxResults)
                 .getResultStream()
                 .flatMap(e -> checkTarget(e, term, effective, dryRun))
                 .collect(Collectors.joining("\n"));
