@@ -120,7 +120,7 @@ public class CleanUpTask {
                 .count();
         final String msg = NbBundle.getMessage(CleanUpTask.class, "CleanUpTask.success.message", docs, entriesRemoved[0], terms);
         LOGGER.log(Level.INFO, msg);
-        return new DBAdminTaskResult(msg);
+        return new DBAdminTaskResult(true, msg);
     }
 
     private class Removed {

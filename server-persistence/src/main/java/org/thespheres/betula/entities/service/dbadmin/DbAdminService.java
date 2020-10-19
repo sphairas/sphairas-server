@@ -28,6 +28,8 @@ public class DbAdminService {
     @Inject
     private CleanUpTask cleanUpTask;
     @Inject
+    private ClearSigneesTask clearSigneesTask;
+    @Inject
     private UpgradeDBTask upgradeDBTask;
 
     @WebMethod(operationName = "submitTask")
@@ -36,7 +38,9 @@ public class DbAdminService {
             return cleanUpTask.process(task);
         } else if (task.getName().equals(upgradeDBTask.getName())) {
             return upgradeDBTask.process(task);
+        } else if (task.getName().equals(clearSigneesTask.getName())) {
+            return clearSigneesTask.process(task);
         }
-        return new DBAdminTaskResult("No task.");
+        return new DBAdminTaskResult(false, "No task.");
     }
 }

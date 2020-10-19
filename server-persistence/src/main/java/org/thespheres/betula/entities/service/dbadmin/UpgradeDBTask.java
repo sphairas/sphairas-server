@@ -62,7 +62,7 @@ public class UpgradeDBTask {
 //        final String msg = termGrades();
 //        final String msg2 = termTexts();
 //        return new DBAdminTaskResult(msg + "\n" + msg2);
-        return new DBAdminTaskResult("Don't use it!");
+        return new DBAdminTaskResult(true, "Don't use it!");
     }
 
     private String termGrades() {
