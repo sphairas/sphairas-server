@@ -39,7 +39,7 @@ fi
 source ${SUBJECT}
 if [ ! -f ${SERVER_KEY} ] || [ ! -f ${SERVER_CERT} ]; then
     echo "Create a new RSA key pair."
-    openssl req -x509 -newkey rsa:4096 -keyout $SERVER_KEY -passout pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_CERT -days 365  -subj "/CN=${CN}/C=${C}/ST=${ST}/L=${L}/O=${O}" 
+    openssl req -x509 -newkey rsa:4096 -keyout $SERVER_KEY -passout pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_CERT -days 365  -subj "/CN=${CN}/C=${C}/ST=${ST}/L=${L}/O=${O}" ${SPHAIRAS_HOSTNAME_SAN:+ -addext "subjectAltName=${SPHAIRAS_HOSTNAME_SAN}"} 
 else
     openssl x509 -in ${SERVER_CERT} -noout -subject | sed 's/^subject=//' | awk '{for (i = 1; i <= NF; i++) print $i}' FS="," OFS="\n" | sed 's/ //g' > ${SUBJECT}
 fi
