@@ -36,7 +36,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>niedersachsen</artifactId>
-            <version>0.2.7</version>
+            <version>0.2.8</version>
             <type>jar</type>
         </dependency>
         <dependency>

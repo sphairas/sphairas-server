@@ -57,6 +57,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
@@ -68,6 +69,7 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.services.CommonTargetProperties;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.IllegalAuthorityException;
@@ -99,6 +101,7 @@ import org.thespheres.betula.niedersachsen.zeugnis.listen.DetailsListXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.StudentDetailsXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeCsv;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument.Entry;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.services.ServiceConstants;
@@ -152,6 +155,8 @@ public class NdsFormatter {
     @Inject
     @SessionScoped
     private LocalProperties properties;
+    @Inject
+    private DocumentsModel docModel;
     private JAXBContext jaxb;
     private Templates template;
     private FopFactory fopFactory;
@@ -622,88 +627,137 @@ public class NdsFormatter {
         return v;
     }
 
-    public byte[] formatKursListe(FastTargetDocuments2 tgtae, DocumentId[] target, NamingResolver resolver, Term current, Term[] before, String mime, Identity<String> display) throws IOException {
-        FastTermTargetDocument[] fttds = Arrays.stream(target)
+    public byte[] formatKursListe(final FastTargetDocuments2 tgtae, final DocumentId[] targets, final DocumentId[] textDocs, final Term[] before, final String mime, final DocumentId docBase) throws IOException {
+
+        final FastTermTargetDocument[] fttds = Arrays.stream(targets)
                 .map(tgtae::getFastTermTargetDocument)
                 .filter(Objects::nonNull)
                 .toArray(FastTermTargetDocument[]::new);
+
+        final FastTextTermTargetDocument[] texts = Arrays.stream(textDocs)
+                .map(tgtae::getFastTextTermTargetDocument)
+                .filter(Objects::nonNull)
+                .toArray(FastTextTermTargetDocument[]::new);
 
         if (fttds.length == 0) {
             return null;
         }
 
-        Marker fach = Arrays.stream(target)
-                .map(tgtae::getDocumentMarkers)
-                .flatMap(Collection::stream)
+        Marker fach = Arrays.stream(fttds)
+                .flatMap(fttd -> Arrays.stream(fttd.markers()))
                 .filter(m -> m.getConvention().equals(Faecher.CONVENTION_NAME) || m.getConvention().equals(Profile.CONVENTION_NAME))
                 .collect(CollectionUtil.singleOrNull());
 
         ZensurenListenCollectionXml collection = new ZensurenListenCollectionXml();
         collection.setFooterCenter(builderFactory.getSchulvorlage().getSchoolName());
 
-        ZensurenListeXml list = new ZensurenListeXml();
+        final ZensurenListeXml list = new ZensurenListeXml();
         list.firstColumnWidth = "8.0cm";
-        String jahr = Integer.toString((Integer) current.getParameter(NdsTerms.JAHR));
-        int hj = (Integer) current.getParameter(NdsTerms.HALBJAHR);
+        list.columnWidth = "1.1cm";
+        String jahr = Integer.toString((Integer) currentTerm.getParameter(NdsTerms.JAHR));
+        int hj = (Integer) currentTerm.getParameter(NdsTerms.HALBJAHR);
         String kla;
         try {
-            kla = resolver.resolveDisplayNameResult(display).getResolvedName(current);
+            kla = namingResolver.resolveDisplayNameResult(docBase).getResolvedName(currentTerm);
         } catch (IllegalAuthorityException ex) {
-            kla = display.getId();
+            kla = docBase.getId();
 
         }
         String lname = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.download.kurs.title", kla, jahr, hj);
         String ldate = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.download.allelisten.date", new Date());
         list.setListName(lname);
         list.setListDate(ldate);
-        for (FastTermTargetDocument fttd : fttds) {
-            for (StudentId student : fttd.getStudents(current.getScheduledItemId())) {
-                String sName = studentCardBean.get(student).getFN();
-                Marker sgl = getStudentSGL(student, termEnd(current.getScheduledItemId()));
-                UnitId studentPu = sllb.findPrimaryUnit(student, null);
-//            ZensurenListeXml.DataLineXml l = list.addLine(sName);
-                StringJoiner sj = new StringJoiner(", ", "(", ")");
-                if (studentPu != null) {
-                    try {
-                        String pudn = resolver.resolveDisplayNameResult(studentPu).getResolvedName(current);
-                        if (pudn != null) {
-                            sj.add(pudn);
-                        }
-                    } catch (IllegalAuthorityException ex) {
-                    }
-                }
-                if (sgl != null) {
-                    sj.add(sgl.getShortLabel().replace("KGS ", ""));
-                }
-//            l.setStudentHint(sj.toString());
-                ZensurenListeXml.DataLineXml l = list.addLine(sName + " " + sj.toString());
-                Term[] noten;
-                boolean includeCurrentTerm = true;
-                if (includeCurrentTerm) {
-                    noten = Arrays.copyOf(before, before.length + 1);
-                    noten[noten.length - 1] = current;
-                } else {
-                    noten = before;
-                }
-                for (Term vornoten : noten) {
-                    TermId tid = vornoten.getScheduledItemId();
-                    FastTermTargetDocument.Entry entry = fttd.selectEntry(student, tid);
-                    Grade g = entry != null ? entry.grade : null;
-                    if (g == null && fach != null) {
-                        g = tgtae.findSingle(student, tid, fach, defaultEditingTargetType);
-                    }
-                    String flk = null;
-                    if (g != null) {
-                        Marker kurssgl = getDocumentSGL(tgtae, fttd.getDocument());
-                        flk = checkAndGetFLK(sgl, kurssgl);
-                    }
 
-                    ZensurenListeXml.ColumnXml val = list.setValue(l, vornoten, g, null);
-                    if (flk != null) {
-                        val.setLevel(flk);
+        final Map<String, Integer> tierMap = new HashMap<>();
+        for (int i = 0; i < webConfig.getCommitTargetTypes().length; i++) {
+            final String tt = webConfig.getCommitTargetTypes()[i];
+            if (!tt.equals(webConfig.getDefaultCommitTargetType())) {
+                final int tier = i + 1;
+                tierMap.put(tt, tier);
+            }
+        }
+
+        final Map<StudentId, ZensurenListeXml.DataLineXml> lines = new HashMap<>();
+        for (FastTermTargetDocument fttd : fttds) {
+            for (StudentId student : fttd.getStudents(currentTerm.getScheduledItemId())) {
+                final Marker sgl = getStudentSGL(student, termEnd(currentTerm.getScheduledItemId()));
+                final ZensurenListeXml.DataLineXml l = lines.computeIfAbsent(student, s -> createStudentLine(s, list));
+                final String sfx = docModel.getSuffix(fttd.getDocument());
+                if (webConfig.getDefaultCommitTargetType().equals(sfx)) {
+                    Term[] noten;
+                    boolean includeCurrentTerm = true;
+                    if (includeCurrentTerm) {
+                        noten = Arrays.copyOf(before, before.length + 1);
+                        noten[noten.length - 1] = currentTerm;
+                    } else {
+                        noten = before;
                     }
+                    for (Term vornoten : noten) {
+                        TermId tid = vornoten.getScheduledItemId();
+                        FastTermTargetDocument.Entry entry = fttd.selectEntry(student, tid);
+                        Grade g = entry != null ? entry.grade : null;
+                        if (g == null && fach != null) {
+                            g = tgtae.findSingle(student, tid, fach, defaultEditingTargetType);
+                        }
+                        String flk = null;
+                        if (g != null) {
+                            final Marker kurssgl = getDocumentSGL(tgtae, fttd.getDocument());
+                            flk = checkAndGetFLK(sgl, kurssgl);
+                        }
+
+                        ZensurenListeXml.ColumnXml val = list.setValue(l, vornoten, g, null);
+                        if (flk != null) {
+                            val.setLevel(flk);
+                        }
+                    }
+                } else if (tierMap.containsKey(sfx)) {
+                    final FastTermTargetDocument.Entry entry = fttd.selectEntry(student, currentTerm.getScheduledItemId());
+                    final Grade g = entry != null ? entry.grade : null;
+                    final int tier = tierMap.get(sfx);
+                    final ZensurenListeXml.ColumnXml val = list.setValue(l, tier, currentTerm, g, null, fttd.getTargetType());
                 }
             }
+        }
+        for (final FastTextTermTargetDocument text : texts) {
+            String title;
+            if (docBase != null) {
+                title = StringUtils.capitalize(text.getTargetType());
+            } else {
+                try {
+                    title = namingResolver.resolveDisplayNameResult(text.getDocument()).getResolvedName(currentTerm);
+                } catch (final IllegalAuthorityException ex) {
+                    title = text.getDocument().toString();
+                }
+
+            }
+            final class ToAdd {
+
+                final String name;
+                final String value;
+
+                ToAdd(final StudentId sid) {
+                    name = studentCardBean.get(sid).getFN();
+                    value = text.select(sid, currentTerm.getScheduledItemId()).stream()
+                            .map(Entry::getText)
+                            .collect(Collectors.joining(" \u2014 "));
+                }
+
+                boolean isNotEmpty() {
+                    return StringUtils.isNotBlank(value);
+                }
+
+                String getText() {
+                    return name + ":\n" + value;
+                }
+            }
+            final String textValue = text.students(currentTerm.getScheduledItemId()).stream()
+                    .map(s -> new ToAdd(s))
+                    .sorted((ta1, ta2) -> collator.compare(StudentComparator.sortStringFromDirectoryName(ta1.name), StudentComparator.sortStringFromDirectoryName(ta2.name)))
+                    .filter(ToAdd::isNotEmpty)
+                    .map(ToAdd::getText)
+                    .collect(Collectors.joining("\n"));
+            final ZensurenListeXml.Text addText = list.addText(title, 1000);
+            addText.setValue(textValue);
         }
         list.sort();
         collection.LISTS.add(list);
@@ -716,7 +770,7 @@ public class NdsFormatter {
         }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final FOUserAgent foUserAgent = createFOUserAgent(display, current);
+        final FOUserAgent foUserAgent = createFOUserAgent(docBase, currentTerm);
 
         try {
             // Construct fop with desired output formatReports
@@ -747,6 +801,28 @@ public class NdsFormatter {
             } catch (IOException ex) {
             }
         }
+    }
+
+    private ZensurenListeXml.DataLineXml createStudentLine(final StudentId student, final ZensurenListeXml list) {
+        final String sName = studentCardBean.get(student).getFN();
+        final Marker sgl = getStudentSGL(student, termEnd(currentTerm.getScheduledItemId()));
+        final UnitId studentPu = sllb.findPrimaryUnit(student, null);
+//            ZensurenListeXml.DataLineXml l = list.addLine(sName);
+        final StringJoiner sj = new StringJoiner(", ", "(", ")");
+        if (studentPu != null) {
+            try {
+                String pudn = namingResolver.resolveDisplayNameResult(studentPu).getResolvedName(currentTerm);
+                if (pudn != null) {
+                    sj.add(pudn);
+                }
+            } catch (IllegalAuthorityException ex) {
+            }
+        }
+        if (sgl != null) {
+            sj.add(sgl.getShortLabel().replace("KGS ", ""));
+        }
+//            l.setStudentHint(sj.toString());
+        return list.addLine(sName + " " + sj.toString());
     }
 
     FOUserAgent createFOUserAgent(final Identity<?> pu, final Term term) throws MalformedURLException {

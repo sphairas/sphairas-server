@@ -96,6 +96,8 @@ public class FormatListBean {
 
     public void oneListe(final boolean vorzensuren, final FastTargetDocuments2 tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, Map<DocumentId, FastTermTargetDocument> fttd, Term before, ZensurenListenCollectionXml collection) {
         final ZensurenListeXml list = new ZensurenListeXml();
+        list.getTierLabels().put(1, "WPK");
+//        list.getTierLabels().put(2, "Profil");
         if (!oneListeImpl(vorzensuren, tgtae, pu, term, ltype, docMap, resolver, list, fttd, before)) {
             return;
         }

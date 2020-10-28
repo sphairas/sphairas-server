@@ -165,6 +165,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         if (hasJoinedTargets()) {
             ret += "&joinTargets=" + Boolean.toString(joinTargets);
         }
+        if (hasComments()) {
+            try {
+                final String enc = URLEncoder.encode(commentsDoc.toString(), "utf-8");
+                ret += "&comments=" + enc;
+            } catch (final UnsupportedEncodingException ex) {
+            }
+        }
         return ret;
     }
 
@@ -391,7 +398,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     }
 
     @Override
-    protected void onTicketEvent(TicketEvent evt) {
+    protected void onTicketEvent(final TicketEvent evt) {
         Ticket ticket = evt.getSource();
         boolean dirty = false;
         if (evt.getType().equals(TicketEventType.REMOVE)) {
@@ -406,6 +413,12 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 m.values().stream().forEach(g -> g.invalidateTickets());
             });
             dirty = true;
+        }
+        if (dirty) {
+            getStudents().stream()
+                    .filter(TargetStudent.class::isInstance)
+                    .map(TargetStudent.class::cast)
+                    .forEach(TargetStudent::invalidateTickets);
         }
         if (dirty && shouldUpdate()) {
             EventBus eventBus = EventBusFactory.getDefault().eventBus();
@@ -503,6 +516,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
         private String comment;
         private boolean commentsEnabled = true;
+        private Ticket[] tickets = null;
 
         TargetStudent(final StudentId sid, final String dirName, final Marker sgl) {
             super(sid, dirName, sgl);
@@ -523,15 +537,25 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
         public void setComment(final String value) {
             final String cmnt = StringUtils.stripToNull(value);
-            if (!(cmnt == null && StringUtils.isBlank(comment))) {
+            if (!(cmnt == null && StringUtils.isBlank(getComment()))) {
                 final boolean res = application.submitText(commentsDoc, application.getCurrentTerm().getScheduledItemId(), null, getId(), cmnt);
                 if (res) {
                     this.comment = cmnt;
+                } else {
+                    application.getLogger().log(Level.WARNING, "Could not submit text value \"{0}\" to document {1}.", new String[]{cmnt, commentsDoc.toString()});
                 }
             }
         }
 
+        void invalidateTickets() {
+            tickets = null;
+        }
+
         public boolean isCommentsEnabled() {
+            if (tickets == null && hasComments()) {
+                tickets = application.findApplicableTickets(commentsDoc, application.getCurrentTerm().getScheduledItemId(), getId());
+            }
+            //return tickets.length != 0;
             return commentsEnabled;
         }
 

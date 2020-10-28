@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,7 +34,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.fop.apps.MimeConstants;
-import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
@@ -64,6 +64,7 @@ import org.thespheres.betula.web.config.WebAppProperties;
 //@SessionScoped
 public class ZeugnisServlet extends HttpServlet {
 
+    public static final int BEFORE_TERMS = 3;
     @EJB
     private NdsFormatter fOPFormatter;
 //    @EJB //Cannot inject stateful bean, will be destroy permanently (!) after EJBAccessException
@@ -174,9 +175,12 @@ public class ZeugnisServlet extends HttpServlet {
             throw new ServletException();
         }
 
-        final DocumentId[] arr;
-        Identity<String> display = target;
-        boolean joinTargets = false;
+        //  final DocumentId[] arr;
+        final DocumentId base = docModel.convert(target);
+        final DocumentId[] arr = Arrays.stream(webConfig.getCommitTargetTypes())
+                .map(t -> docModel.convert(target, t))
+                .toArray(DocumentId[]::new);
+//        boolean joinTargets = false;
 //        String jtp;
 //        if ((jtp = request.getParameter("joinTargets")) != null) {
 //            joinTargets = Boolean.valueOf(jtp);
@@ -192,17 +196,29 @@ public class ZeugnisServlet extends HttpServlet {
 //                    .map(u -> new DocumentId(u.getAuthority(), u.getId() + "-" + webConfig.getDefaultCommitTargetType(), DocumentId.Version.LATEST))
 //                    .toArray(DocumentId[]::new);
 //        } else {
-        arr = new DocumentId[]{target};
+        //    arr = new DocumentId[]{target};
 //        }
 //        this.mtad.getJoinedUnits(null)
+        DocumentId[] texts = new DocumentId[]{};
+        final String commentsDoc = request.getParameter("comments");
+        if (commentsDoc != null) {
+            try {
+                final DocumentId resolved = DocumentId.resolve(commentsDoc);
+                if (resolved != null) {
+                    texts = new DocumentId[]{resolved};
+                }
+            } catch (final IllegalArgumentException e) {
+                Logger.getLogger(ZeugnisServlet.class.getName()).log(Level.WARNING, e.getLocalizedMessage(), e);
+            }
+        }
         Term term = null;
         Term[] before = null;
         if (termId != null) {
             try {
                 term = NdsTerms.fromId(termId);
-                before = new Term[3];
-                int id = termId.getId() - 3;
-                for (int i = 0; i < 3; i++) {
+                before = new Term[BEFORE_TERMS];
+                int id = termId.getId() - BEFORE_TERMS;
+                for (int i = 0; i < BEFORE_TERMS; i++) {
                     TermId tid = new TermId(termId.getAuthority(), id++);
                     before[i] = NdsTerms.fromId(tid);
                 }
@@ -214,7 +230,7 @@ public class ZeugnisServlet extends HttpServlet {
             before = new Term[]{beforeTerm}; //new Term[]{SystemProperties.terms()[0]};
         }
         if (MimeConstants.MIME_PDF.equals(mime)) {
-            byte[] out = fOPFormatter.formatKursListe(mtad, arr, namingResolver, term, before, mime, display);
+            byte[] out = fOPFormatter.formatKursListe(mtad, arr, texts, before, mime, base);
             response.setContentType(mime);
             response.getOutputStream().write(out);
         } else if ("text/csv".equals(mime)) {
@@ -326,7 +342,7 @@ public class ZeugnisServlet extends HttpServlet {
             final Map<String, Map<MultiSubject, Set<DocumentId>>> m = documentMapper.getDocMap(coll, false);
             textDocMap.put(t.getScheduledItemId(), m);
         }
-        
+
         final Collection<StudentId> students = ftd2.getStudents(pu, null);
 
 //        final byte[] out = fOPFormatter.formatDetails(tgtae, map, ag, pu, term, mime, preTermsCount);
