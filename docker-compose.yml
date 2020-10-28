@@ -21,6 +21,7 @@ services:
       - "DB_USER=sphairas"
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "PAYARA_ARGS=--debug"
+      - "TZ=Europe/Berlin"
     env_file:
       - "docker.env"
   db:
