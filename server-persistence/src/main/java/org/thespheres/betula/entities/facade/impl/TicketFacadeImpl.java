@@ -20,6 +20,7 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.services.jms.TicketEvent;
 import org.thespheres.betula.document.DocumentId;
+import org.thespheres.betula.entities.BaseTargetAssessmentEntity;
 import org.thespheres.betula.entities.BaseTicketEntity;
 import org.thespheres.betula.entities.EmbeddableStudentId;
 import org.thespheres.betula.entities.StudentsTicketEntity;
@@ -41,22 +42,22 @@ public class TicketFacadeImpl extends AbstractTicketsFacade implements TicketFac
     @Override
     public List<BaseTicketEntity> getTickets(final DocumentId targetDoc, final TermId term, final StudentId student, final String signeeType) {
         final List<BaseTicketEntity> ret = new ArrayList<>();
-        final TermGradeTargetAssessmentEntity target = findEntity(targetDoc);
+        final BaseTargetAssessmentEntity<?, ?> target = em.find(BaseTargetAssessmentEntity.class, targetDoc, LockModeType.OPTIMISTIC);
         if (target == null) {
             return ret;
         }
         //luid -> to jahrgang, find jahrgangstickets
-        List<TermGradeTargAssessTicketEnt> l = findTickets(target, term, student, signeeType, false, LockModeType.OPTIMISTIC);
+        final List<TermGradeTargAssessTicketEnt> l = findTickets(target, term, student, signeeType, false, LockModeType.OPTIMISTIC);
         ret.addAll(l);
         if (signeeType != null && term != null && student != null) {
             //Do not remove commented alternative if getUnitTickets causes problems
 //            List<UnitTicketEntity> l2 = getUnitTickets(target, term, student, signeeType, LockModeType.OPTIMISTIC);
             final List<UnitTicketEntity> l2 = getUnitTickets(term, student, signeeType, LockModeType.OPTIMISTIC);
             l2.stream()
-                    .filter(ute -> !isTargetTypeExempted(ute, target))
+                    .filter(ute -> !isTargetTypeExempted(ute, target.getTargetType()))
                     .filter(ute -> !isStudentExempted(ute, student))
                     .forEach(ret::add);
-            List<UnitTicketEntity> l3 = getAGTickets(target, term, student, signeeType, LockModeType.OPTIMISTIC);
+            final List<UnitTicketEntity> l3 = getAGTickets(target, term, student, signeeType, LockModeType.OPTIMISTIC);
             ret.addAll(l3);
         }
         if (student != null) {
@@ -73,10 +74,9 @@ public class TicketFacadeImpl extends AbstractTicketsFacade implements TicketFac
         return false;
     }
 
-    private boolean isTargetTypeExempted(final UnitTicketEntity ute, final TermGradeTargetAssessmentEntity target) {
+    private boolean isTargetTypeExempted(final UnitTicketEntity ute, final String entityTargetType) {
         final String tt = ute.getTargetType();
         if (tt != null) {
-            final String entityTargetType = target.getTargetType();
             return entityTargetType == null
                     || Arrays.stream(tt.split(","))
                             .noneMatch(entityTargetType::equalsIgnoreCase);

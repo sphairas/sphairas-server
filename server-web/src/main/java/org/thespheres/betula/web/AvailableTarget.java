@@ -515,7 +515,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     public class TargetStudent extends AvailableStudent {
 
         private String comment;
-        private boolean commentsEnabled = true;
+        //private boolean commentsEnabled = true;
         private Ticket[] tickets = null;
 
         TargetStudent(final StudentId sid, final String dirName, final Marker sgl) {
@@ -523,7 +523,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         }
 
         public String getComment() {
-            if (comment == null) {
+            if (comment == null && hasComments()) {
                 final FastTextTermTargetDocument fttd = application.getFastTextDocument(commentsDoc);
                 comment = fttd.select(getId(), application.getCurrentTerm().getScheduledItemId()).stream()
                         .filter(e -> e.getSection() == null)
@@ -555,14 +555,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             if (tickets == null && hasComments()) {
                 tickets = application.findApplicableTickets(commentsDoc, application.getCurrentTerm().getScheduledItemId(), getId());
             }
-            //return tickets.length != 0;
-            return commentsEnabled;
+            return tickets != null && tickets.length != 0;
+            //return commentsEnabled;
         }
 
-        public void setCommentsEnabled(boolean commentsEnabled) {
-            this.commentsEnabled = commentsEnabled;
-        }
-
+//        public void setCommentsEnabled(boolean commentsEnabled) {
+//            this.commentsEnabled = commentsEnabled;
+//        }
     }
 
     public class AvailableTermColumn implements Comparable<AvailableTermColumn>, Converter {

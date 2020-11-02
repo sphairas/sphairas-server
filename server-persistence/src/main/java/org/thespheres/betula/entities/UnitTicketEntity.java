@@ -50,7 +50,7 @@ import org.thespheres.betula.UnitId;
                 @QueryHint(name = "eclipselink.query-results-cache", value = "true"),
                 @QueryHint(name = "eclipselink.query-results-cache.size", value = "10000")
             }),
-    @NamedQuery(name = "findUnitTicketForAG", query = "SELECT c FROM UnitTicketEntity c, UnitDocumentEntity pu, TermGradeTargetAssessmentEntity t, "
+    @NamedQuery(name = "findUnitTicketForAG", query = "SELECT c FROM UnitTicketEntity c, UnitDocumentEntity pu, BaseTargetAssessmentEntity t, "
             + "IN(t.unitDocs) ag, IN(ag.studentIds) ags, IN(ag.markerSet) agm, IN(pu.markerSet) pum, IN(pu.studentIds) pus "
             + "WHERE t=:target "
             + "AND pum.convention='betula-db' AND pum.markerId='primary-unit' AND pum.subset=NULL "

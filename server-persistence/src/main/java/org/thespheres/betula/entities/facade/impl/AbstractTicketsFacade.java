@@ -22,6 +22,7 @@ import org.thespheres.betula.Ticket;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.entities.BaseTargetAssessmentEntity;
 import org.thespheres.betula.entities.BaseTicketEntity;
 import org.thespheres.betula.entities.EmbeddableStudentId;
 import org.thespheres.betula.entities.EmbeddableTermId;
@@ -58,7 +59,7 @@ public abstract class AbstractTicketsFacade {
         return t;
     }
 
-    protected List<UnitTicketEntity> getAGTickets(TermGradeTargetAssessmentEntity target, TermId term, StudentId student, String signeeType, LockModeType lmt) {
+    protected List<UnitTicketEntity> getAGTickets(final BaseTargetAssessmentEntity target, TermId term, StudentId student, String signeeType, LockModeType lmt) {
         if (!target.getDocumentId().getId().contains("-ag-")) {
             //TODO: config, service: marker for documentId
             return Collections.EMPTY_LIST;
@@ -103,7 +104,7 @@ public abstract class AbstractTicketsFacade {
     }
 
     //strict = for createion check of new ticekt
-    protected List<TermGradeTargAssessTicketEnt> findTickets(TermGradeTargetAssessmentEntity target, TermId term, StudentId student, String signeeType, boolean strict, LockModeType lmt) {
+    protected List<TermGradeTargAssessTicketEnt> findTickets(final BaseTargetAssessmentEntity<?, ?> target, TermId term, StudentId student, String signeeType, boolean strict, LockModeType lmt) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<TermGradeTargAssessTicketEnt> cq = cb.createQuery(TermGradeTargAssessTicketEnt.class);
         Root<TermGradeTargAssessTicketEnt> tgtate = cq.from(TermGradeTargAssessTicketEnt.class);

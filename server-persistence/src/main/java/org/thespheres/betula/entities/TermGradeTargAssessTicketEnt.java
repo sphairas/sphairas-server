@@ -52,7 +52,7 @@ import org.thespheres.betula.TermId;
             "STUDENT_ID",
             "STUDENT_AUTHORITY",
             "SIGNGEE_TYPE"}))
-public class TermGradeTargAssessTicketEnt extends BaseTicketEntity {
+public class TermGradeTargAssessTicketEnt extends BaseTicketEntity {//TODO: rename to TermTargetAssessmentTicketEntity
 
     private static final long serialVersionUID = 1L;
     @JoinColumns({
