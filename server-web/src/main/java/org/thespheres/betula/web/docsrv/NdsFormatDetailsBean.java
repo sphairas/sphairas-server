@@ -36,6 +36,7 @@ import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
@@ -50,10 +51,12 @@ import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.ReportsBean;
+import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.scheme.spi.TermNotFoundException;
+import org.thespheres.betula.services.util.SigneeEntitlement;
 import org.thespheres.betula.util.CollectionUtil;
 import org.thespheres.betula.web.PrimaryUnit;
 import org.thespheres.betula.web.config.ExtraAnnotation;
@@ -89,6 +92,8 @@ public class NdsFormatDetailsBean {
     private BemerkungenBean bemBean;
     @Inject
     private NdsReportBuilderFactory factory;
+    @Inject
+    private SigneeLocal signees;
 
 //    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
 //    @RolesAllowed({"signee", "unitadmin"})
@@ -308,18 +313,29 @@ public class NdsFormatDetailsBean {
                                 } catch (IllegalAuthorityException ex) {
                                     commentDocName = cd.toString();
                                 }
-                                sj.add(commentDocName + ":");
-                                sel.stream()
+                                final String t = sel.stream()
                                         .filter(le -> le.getSection() == null)
                                         .map(FastTextTermTargetDocument.Entry::getText)
-                                        .forEach(sj::add);
+                                        .collect(Collectors.joining("\n"));
+                                if (StringUtils.isNotBlank(t)) {
+                                    sj.add(commentDocName + ":");
+                                    final StringJoiner sigs = new StringJoiner(", ", " (", ")");
+                                    sigs.setEmptyValue("");
+                                    texts.getSignees().entrySet().stream()
+                                            .map(se -> formatSignee(se.getValue(), se.getKey()))
+                                            .forEach(sigs::add);
+                                    sj.add(t.trim() + sigs.toString());
+                                }
                             }
                         }
                     }
                 }
-                final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.comments.label");
-                final StudentDetailsXml.Text cv = details.addText(lbl, Integer.MAX_VALUE - 1000);
-                cv.setValue(StringUtils.trimToNull(sj.toString()));
+                final String comment = StringUtils.trimToNull(sj.toString());
+                if (comment != null) {
+                    final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.comments.label");
+                    final StudentDetailsXml.Text cv = details.addText(lbl, Integer.MAX_VALUE - 1000);
+                    cv.setValue(comment);
+                }
             }
 
             //            AGs
@@ -466,5 +482,18 @@ public class NdsFormatDetailsBean {
                     .findAny().orElse(null);
         }
         return null;
+    }
+
+    private String formatSignee(final Signee signee, final String entitlement) {
+        final StringJoiner ret = new StringJoiner(": ");
+        if (!"entitled.signee".equals(entitlement)) {
+            final String e = SigneeEntitlement.find(entitlement)
+                    .map(SigneeEntitlement::getDisplayName)
+                    .orElse(entitlement);
+            ret.add(e);
+        }
+        final String cn = signees.getSigneeCommonName(signee);
+        ret.add(cn);
+        return ret.toString();
     }
 }
