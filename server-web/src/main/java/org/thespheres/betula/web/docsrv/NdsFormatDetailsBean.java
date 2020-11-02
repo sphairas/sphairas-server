@@ -33,6 +33,7 @@ import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.AbstractGrade;
 import org.thespheres.betula.assess.Grade;
+import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
@@ -189,40 +190,62 @@ public class NdsFormatDetailsBean {
                         }
                     }
                 }
-                final String avsvlb = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.message",
-                        avlbl == null ? "---" : avlbl,
-                        avg == null ? "-" : avg.getShortLabel(),
-                        svlbl == null ? "---" : svlbl,
-                        svg == null ? "-" : svg.getShortLabel());
-                sj.add(avsvlb);
+                final StringJoiner avsvlb = new StringJoiner(" / ");
+                if (avg != null) {
+                    final String m = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.message",
+                            GradeFactory.findConvention(ASVAssessmentConvention.AV_NAME).getDisplayName(),
+                            avlbl,
+                            avg.getShortLabel());
+                    avsvlb.add(m);
+                } else {
+                    final String m = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.no.avsv.message",
+                            GradeFactory.findConvention(ASVAssessmentConvention.AV_NAME).getDisplayName());
+                    avsvlb.add(m);
+                }
+                if (svg != null) {
+                    final String m = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.message",
+                            GradeFactory.findConvention(ASVAssessmentConvention.SV_NAME).getDisplayName(),
+                            svlbl,
+                            svg.getShortLabel());
+                    avsvlb.add(m);
+                } else {
+                    final String m = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.no.avsv.message",
+                            GradeFactory.findConvention(ASVAssessmentConvention.SV_NAME).getDisplayName());
+                    avsvlb.add(m);
+                }
+                sj.add(avsvlb.toString());
                 //Addvalue
                 if (avcount != null) {
-                    final String m = avcount.entrySet().stream()
+                    final StringJoiner m = new StringJoiner(", ", "(", ")");
+                    m.setEmptyValue("");
+                    avcount.entrySet().stream()
                             .filter(e -> Arrays.stream(validConv).anyMatch(e.getKey().getConvention()::equals))
                             .sorted(Comparator.comparing(e -> e.getKey().getShortLabel(), Collator.getInstance(Locale.getDefault())))
                             .map(e -> NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.entries.format", e.getKey().getShortLabel(), e.getValue()))
                             .sorted(Collator.getInstance(Locale.getDefault()))
-                            .collect(Collectors.joining(", ", "(", ")"));
+                            .forEach(m::add);
                     long sum = avcount.entrySet().stream()
                             .filter(e -> Arrays.stream(validConv).anyMatch(e.getKey().getConvention()::equals))
                             .map(e -> e.getValue())
                             .collect(Collectors.summarizingInt(i -> (int) i))
                             .getSum();
-                    final String msg = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.av.count.message", sum, m.trim());
+                    final String msg = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.av.count.message", sum, m.toString());
                     sj.add(msg);
                 }
                 if (svcount != null) {
-                    final String m = svcount.entrySet().stream()
+                    final StringJoiner m = new StringJoiner(", ", "(", ")");
+                    m.setEmptyValue("");
+                    svcount.entrySet().stream()
                             .filter(e -> Arrays.stream(validConv).anyMatch(e.getKey().getConvention()::equals))
                             .sorted(Comparator.comparing(e -> e.getKey().getShortLabel(), Collator.getInstance(Locale.getDefault())))
                             .map(e -> NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.entries.format", e.getKey().getShortLabel(), e.getValue()))
-                            .collect(Collectors.joining(", ", "(", ")"));
+                            .forEach(m::add);
                     long sum = svcount.entrySet().stream()
                             .filter(e -> Arrays.stream(validConv).anyMatch(e.getKey().getConvention()::equals))
                             .map(e -> e.getValue())
                             .collect(Collectors.summarizingInt(i -> (int) i))
                             .getSum();
-                    final String msg = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.sv.count.message", sum, m.trim());
+                    final String msg = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.sv.count.message", sum, m.toString());
                     sj.add(msg);
                 }
                 tb.setValue(sj.toString());
