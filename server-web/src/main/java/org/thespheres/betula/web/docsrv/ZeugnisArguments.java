@@ -26,6 +26,7 @@ import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.ical.VCard;
+import org.thespheres.ical.util.VCardHolder;
 
 /**
  *
@@ -66,10 +67,9 @@ public class ZeugnisArguments {
             }
 
             if (stud != null) {
-                final VCard card = studentCards.get(stud);
-                final String n = card.getAnyPropertyValue(VCard.N).get();
-                final String given = n.split(";")[1].replace(",", " ");
-                final String g = card.getAnyPropertyValue(VCard.GENDER).get();
+                final VCardHolder vch = new VCardHolder(studentCards.get(stud));
+                final String given = vch.getGivenNames();
+                final String g = vch.getGender();
                 final Long gender = "F".equals(g) ? 1l : 0l;
                 final String gen = NdsReportConstants.getGenitiv(given);
                 final String possesiv = NdsReportConstants.getPossessivPronomen(g);
