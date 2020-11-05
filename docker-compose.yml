@@ -24,6 +24,11 @@ services:
       - "TZ=Europe/Berlin"
     env_file:
       - "docker.env"
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "10m"
+            max-file: "20"
   db:
     image: "mysql:5.7.30"
     volumes:
