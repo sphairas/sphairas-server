@@ -23,7 +23,7 @@
                 niedersachsen.sozialverhalten
             </preferred-convention>
         </target>
-        <target target-type="quartalsnoten" target-selector="seki go" />
+        <target target-type="quartalsnoten" target-selector="seki" />
     </target-defaults>
     <target-selectors>
         <tsext:marker-target-selector type="ABSENCE" name="nicht-ag">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <webcf:web-ui-configuration xmlns:webcf="http://www.thespheres.org/xsd/betula/web-configuration.xsd" name="${PROVIDER}">
     <login-provider-display-label>${login-provider-display-label}</login-provider-display-label>
-    <primary-unit-listed-target-types>zeugnisnoten arbeitsverhalten sozialverhalten vorzensuren</primary-unit-listed-target-types>
+    <primary-unit-listed-target-types>zeugnisnoten quartalsnoten arbeitsverhalten sozialverhalten vorzensuren</primary-unit-listed-target-types>
     <commit-target-types>quartalsnoten zeugnisnoten arbeitsverhalten sozialverhalten</commit-target-types>
     <default-commit-target-type>zeugnisnoten</default-commit-target-type>
     <properties/>
