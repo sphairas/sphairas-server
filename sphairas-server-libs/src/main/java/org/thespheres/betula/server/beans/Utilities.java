@@ -144,4 +144,12 @@ public class Utilities {
                 .map(arr -> arr[0])
                 .orElse(card.getFN());
     }
+    
+        public static String findGivenName(VCard card) {
+        return card.getAnyPropertyValue(VCard.N)
+                .map(n -> n.split(";"))
+                .filter(arr -> arr.length >= 2)
+                .map(arr -> arr[1].replace(",", " "))
+                .orElse(card.getFN());
+    }
 }

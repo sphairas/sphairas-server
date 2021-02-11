@@ -134,7 +134,7 @@ public class NdsFormatReportsBean {
         final Marker[] markers = zeugnisBean.getMarkers(zgnId);
 
         final String nProp = card.getAnyPropertyValue(VCard.N).get();
-        final String vorname = nProp.split(";")[1].replace(",", " ");
+        final String vorname = Utilities.findGivenName(card); //nProp.split(";")[1].replace(",", " ");
         final String fN = Utilities.formatFullname(card); //vorname + " " + nProp.split(";")[0];
 
         Marker sgl = null;
