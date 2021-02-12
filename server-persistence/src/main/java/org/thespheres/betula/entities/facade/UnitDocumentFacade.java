@@ -14,6 +14,7 @@ import javax.persistence.LockModeType;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
+import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.UnitDocumentEntity;
@@ -34,6 +35,8 @@ public interface UnitDocumentFacade {
     public UnitDocumentEntity find(DocumentId id, LockModeType lmt);
 
     public List<UnitDocumentEntity> findAll(LockModeType lmt);
+
+    public List<UnitDocumentEntity> findAll(Marker selector, LockModeType lmt);
 
     public UnitId findPrimaryUnitForStudent(StudentId sid, Date asOf, LockModeType lmt);
 

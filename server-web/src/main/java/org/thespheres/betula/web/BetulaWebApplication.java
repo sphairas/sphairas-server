@@ -121,6 +121,7 @@ public class BetulaWebApplication implements Serializable {
     @Inject
     private DocumentsModel docModel;
     private String currentPage = "messages"; //terms";
+    private String currentPrimaryUnit;
     private ApplicationUser currentUser;
     private Messages messages;
     @Inject
@@ -193,8 +194,17 @@ public class BetulaWebApplication implements Serializable {
         return currentPage;
     }
 
-    public void setCurrentPage(String currentPage) {
+    public void setCurrentPage(final String currentPage) {
         this.currentPage = currentPage;
+    }
+
+    public String getCurrentPrimaryUnit() {
+        return currentPrimaryUnit;
+    }
+
+    public void setCurrentPrimaryUnit(final String currentPrimaryUnit) {
+        this.currentPrimaryUnit = currentPrimaryUnit;
+        setCurrentPage("primaryUnits");
     }
 
     public String getMenuStyle(String menu) {
@@ -331,8 +341,8 @@ public class BetulaWebApplication implements Serializable {
         return bean.getTargetAssessmentDocuments(primaryUnit);
     }
 
-    Collection<StudentId> getStudents() { //Signee signee) {
-        return bean.getPrimaryUnitStudents();
+    Collection<StudentId> getStudents(final String docIdName) { //Signee signee) {
+        return bean.getPrimaryUnitStudents(docIdName);
     }
 
     FastMessages getFastMessages() {
@@ -352,8 +362,8 @@ public class BetulaWebApplication implements Serializable {
         return docModel;
     }
 
-    UnitId getPrimaryUnit() {
-        return bean.getPrimaryUnit();
+    UnitId getPrimaryUnit(final String docIdName) {
+        return bean.getPrimaryUnit(docIdName);
     }
 
     Grade selectGrade(DocumentId docId, TermId termId, StudentId studId) throws IOException {

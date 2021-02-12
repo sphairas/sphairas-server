@@ -6,9 +6,12 @@
 package org.thespheres.betula.web;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,6 +31,7 @@ import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.services.NamingResolver;
+import org.thespheres.betula.services.ws.CommonDocuments;
 
 /**
  *
@@ -37,10 +41,9 @@ public class ApplicationUser implements Serializable {
 
     private TabArrayList<AvailableTarget> units;
     private DefaultDashboardModel dashboard;
-    private PrimaryUnit primaryUnit;
+    private PrimaryUnit[] primaryUnits;
     private final BetulaWebApplication application;
     private final Signee signee;
-    private boolean isInitPU;
     private boolean isInitMessages;
 
     ApplicationUser(BetulaWebApplication app, Signee sig) {
@@ -87,7 +90,7 @@ public class ApplicationUser implements Serializable {
             case "terms":
                 return true;
             case "primaryUnits":
-                return getPrimaryUnit() != null;
+                return getPrimaryUnits().length != 0;
         }
         return false;
     }
@@ -160,18 +163,48 @@ public class ApplicationUser implements Serializable {
         return null;
     }
 
-    public synchronized PrimaryUnit getPrimaryUnit() {
-        if (!isInitPU) {
-            final UnitId uid = application.getPrimaryUnit();
-            if (uid != null) {
-                final Term t = application.getCurrentTerm();
-                final Term b = application.getTermBefore();
-                primaryUnit = new PrimaryUnit(uid, t, b, application);
-                application.getEventDispatch().register(primaryUnit);
+    public int getPrimaryUnitsSize() {
+        return getPrimaryUnits().length;
+    }
+
+    public PrimaryUnit[] getPrimaryUnits() {
+        if (primaryUnits == null) {
+            final ArrayList<String> l = new ArrayList<>();
+            l.add(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID);
+            final String names = application.getWebUIConfiguration().getProperty("head-teacher-additional-document-names");
+            if (names != null) {
+                Arrays.stream(names.split(","))
+                        .forEach(l::add);
             }
-            isInitPU = true;
+            primaryUnits = l.stream()
+                    .map(this::createPrimaryUnit)
+                    .filter(Objects::nonNull)
+                    .toArray(PrimaryUnit[]::new);
         }
-        return primaryUnit;
+        return primaryUnits;
+    }
+
+    private PrimaryUnit createPrimaryUnit(final String name) {
+        final UnitId uid = application.getPrimaryUnit(name);
+        if (!UnitId.isNull(uid)) {
+            final Term t = application.getCurrentTerm();
+            final Term b = application.getTermBefore();
+            final PrimaryUnit ret = new PrimaryUnit(name, uid, t, b, application);
+            application.getEventDispatch().register(ret);
+            return ret;
+        }
+        return null;
+    }
+
+    public PrimaryUnit getCurrentPrimaryUnit() {
+        final String page = application.getCurrentPrimaryUnit();
+        if (page != null) {
+            return Arrays.stream(getPrimaryUnits())
+                    .filter(u -> page.equals(u.getDocumentIdName()))
+                    .findAny()
+                    .orElse(null);
+        }
+        return null;
     }
 
     void logout() {
@@ -183,12 +216,13 @@ public class ApplicationUser implements Serializable {
             });
         }
         units = null;
-        if (primaryUnit != null) {
-            primaryUnit.valid = false;
-            application.getEventDispatch().unregister(primaryUnit);
+        if (primaryUnits != null) {
+            Arrays.stream(primaryUnits).forEach(pu -> {
+                pu.valid = false;
+                application.getEventDispatch().unregister(pu);
+            });
         }
-        primaryUnit = null;
-        isInitPU = false;
+        primaryUnits = null;
     }
 
 }

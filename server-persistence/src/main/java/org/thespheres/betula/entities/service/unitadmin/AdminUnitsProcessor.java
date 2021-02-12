@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +44,8 @@ import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Documents;
 import org.thespheres.betula.document.Entry;
 import org.thespheres.betula.document.Envelope;
+import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.Template;
 import org.thespheres.betula.document.util.DateTimeUtil;
@@ -443,18 +446,28 @@ public class AdminUnitsProcessor extends AbstractAdminContainerProcessor {
         uentry.setDocumentValidity(exp);
     }
 
-    private void processPrimaryUnitsSignees(final DocumentEntry<?> node) throws NotFoundException {
+    private void processPrimaryUnitsSignees(final DocumentEntry<?> node) throws NotFoundException, SyntaxException {
         final DocumentId klassenLehrerDoc = node.getIdentity();
         final Action a = node.getAction();
         if (a != null && a.equals(Action.REQUEST_COMPLETION)) {
             node.getChildren().clear();
             node.setAction(Action.RETURN_COMPLETION);
-            final List<UnitDocumentEntity> all = udef.getAllPrimaryUnits(null);
-//                    return l.stream()
-//                .map(e -> e.getUnitId())
-//                .toArray(UnitId[]::new);
+            final List<UnitDocumentEntity> addAll;
+            final Optional<Marker> selector;
+            try {
+                selector = Optional.ofNullable(node.getHints().get("add-all-units-selector"))
+                        .map(MarkerFactory::resolveAbstract)
+                        .filter(m -> !Marker.isNull(m));
+            } catch (final IllegalArgumentException illex) {
+                throw ServiceUtils.createSyntaxException(illex);
+            }
+            if (selector.isPresent()) {
+                addAll = udef.findAll(selector.get(), LockModeType.OPTIMISTIC);
+            } else {
+                addAll = udef.getAllPrimaryUnits(null);
+            }
             final Map<UnitId, List<Signee>> m = udef.getPrimaryUnitsSignees(klassenLehrerDoc);
-            Stream.concat(all.stream().map(UnitDocumentEntity::getUnitId), m.keySet().stream())
+            Stream.concat(addAll.stream().map(UnitDocumentEntity::getUnitId), m.keySet().stream())
                     .distinct()
                     .forEach(pu -> {
                         Entry<UnitId, ?> pue = new Entry<>(null, pu);

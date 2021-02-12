@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,7 +89,7 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     protected transient List<TermTextTargetAssessmentEntity> textResultList; //transient: not serializable named query result list
     protected final Map<UnitId, Set<DocumentId>> unitTargetDocs = new HashMap<>();
     protected final Map<UnitId, Map<TermId, Set<DocumentId>>> unitTermTargetDocs = new HashMap<>();
-    protected UnitId[] primaryUnit;
+    protected final Map<String, UnitId> primaryUnits = new HashMap<>();
     protected final Map<DocumentId, JoinedUnitsEntry> joined = new HashMap<>();
     @EJB
     FastTargetDocuments2Facade security;
@@ -371,8 +372,8 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     }
 
     @Override
-    public Collection<StudentId> getPrimaryUnitStudents() {
-        UnitId uid = getPrimaryUnit();
+    public Collection<StudentId> getPrimaryUnitStudents(final String docIdName) {
+        final UnitId uid = getPrimaryUnit(docIdName);
         if (uid != null) {
             return getStudents(uid, null);
         } else {
@@ -381,17 +382,14 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     }
 
     @Override
-    public UnitId getPrimaryUnit() {
-        if (primaryUnit == null) {
-            final SigneeEntity se = login.getCurrent();
-            if (se != null) {
-                final DocumentId ct = cd.forName(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID);
-                primaryUnit = ct != null ? new UnitId[]{unitfacade.getPrimaryUnit(ct, se.getSignee())} : new UnitId[1];
-            } else {
-                primaryUnit = new UnitId[1];
-            }
-        }
-        return primaryUnit[0];
+    public UnitId getPrimaryUnit(final String docIdName) {
+        return primaryUnits.computeIfAbsent(docIdName, n -> {
+            final DocumentId ct = cd.forName(docIdName);
+            return Optional.ofNullable(login.getCurrent())
+                    .filter(s -> ct != null)
+                    .map(se -> unitfacade.getPrimaryUnit(ct, se.getSignee()))
+                    .orElse(UnitId.NULL);
+        });
     }
 
     @Override
@@ -438,9 +436,9 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     @Override
     public Collection<UnitId> getUnits() {
         //TODO add pu
-        Set<UnitId> set = getTargetAssessmentDocumentResultList().stream().flatMap((TermGradeTargetAssessmentEntity tgtae) -> tgtae.getUnitDocs().stream()).map(UnitDocumentEntity::getUnitId).distinct().collect(Collectors.toSet());
-        if (getPrimaryUnit() != null) {
-            set.add(getPrimaryUnit());
+        final Set<UnitId> set = getTargetAssessmentDocumentResultList().stream().flatMap((TermGradeTargetAssessmentEntity tgtae) -> tgtae.getUnitDocs().stream()).map(UnitDocumentEntity::getUnitId).distinct().collect(Collectors.toSet());
+        if (getPrimaryUnit(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID) != null) {
+            set.add(getPrimaryUnit(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID));
         }
         return set;
     }

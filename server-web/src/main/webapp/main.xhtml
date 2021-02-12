@@ -45,10 +45,12 @@
 
                     <h:form>
                         <!--- Ohne ajax false funktioniert es nicht && zwischen menu und menuitem dürfen keine kommentare --> 
+
                         <p:menu id="menu" style="width:120px"> 
                             <p:menuitem value="#{bundle['main.menu.messages']}" action="#{app.setCurrentPage('messages')}" style="#{app.getMenuStyle('messages')}" update="center" ajax="false"/> 
                             <p:menuitem value="#{bundle['main.menu.terms']}" actionListener="#{app.setCurrentPage('terms')}" rendered="#{app.user.renderMenu('terms')}" style="#{app.getMenuStyle('terms')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" /> 
-                            <p:menuitem value="#{app.user.primaryUnit.displayTitle}" actionListener="#{app.setCurrentPage('primaryUnits')}" rendered="#{app.user.renderMenu('primaryUnits')}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
+                            <p:menuitem value="#{app.user.primaryUnits[0].displayTitle}" actionListener="#{app.setCurrentPrimaryUnit(app.user.primaryUnits[0].documentIdName)}" rendered="#{app.user.primaryUnitsSize > 0}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
+                            <p:menuitem value="#{app.user.primaryUnits[1].displayTitle}" actionListener="#{app.setCurrentPrimaryUnit(app.user.primaryUnits[1].documentIdName)}" rendered="#{app.user.primaryUnitsSize > 1}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
                             <p:separator/> 
                             <p:menuitem value="#{bundle['main.menu.help']}" url="https://www.sphairas.de/faq" target="_blank" /> 
                             <p:menuitem value="#{bundle['main.menu.exit']}" actionListener="#{app.doLogout}" global="false" ajax="true" partialSubmit="true" process="@this"/>

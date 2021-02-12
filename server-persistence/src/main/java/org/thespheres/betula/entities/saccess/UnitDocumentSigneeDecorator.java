@@ -5,7 +5,10 @@
  */
 package org.thespheres.betula.entities.saccess;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.decorator.Decorator;
@@ -20,6 +23,7 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
+import org.apache.commons.lang3.StringUtils;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Signee;
@@ -30,6 +34,7 @@ import org.thespheres.betula.entities.UnitDocumentEntity;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
+import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.ws.CommonDocuments;
 
 /**
@@ -53,6 +58,8 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
     private DocumentsModel docModel;
     @Inject
     private CommonDocuments cd;
+    @Inject
+    private LocalProperties localProperties;
 
     private SessionContext getDecoratedSessionContext() {
         InitialContext ic;
@@ -109,9 +116,19 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
         if (ret != null && !getDecoratedSessionContext().isCallerInRole("unitadmin")) {
             final Signee current = login.getSigneePrincipal(true);
             if (current != null) {
-                final DocumentId ct = cd.forName(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID);
-                final UnitId pu = ct != null ? delegate.getPrimaryUnit(ct, current) : null;
-                boolean permit = (pu != null && pu.equals(docModel.convertToUnitId(id)));
+                final ArrayList<String> l = new ArrayList<>();
+                l.add(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID);
+                final String names = localProperties.getProperty("signees.extra.head.teacher.document.names.permitted");
+                if (names != null) {
+                    Arrays.stream(names.split(","))
+                            .map(StringUtils::trimToNull)
+                            .filter(Objects::nonNull)
+                            .forEach(l::add);
+                }
+                boolean permit = l.stream()
+                        .map(cd::forName)
+                        .map(d -> delegate.getPrimaryUnit(d, current))
+                        .anyMatch(pu -> pu.equals(docModel.convertToUnitId(id)));
                 //TODO: respect unlinked
                 permit = permit | ret.getTargetAssessments().stream()
                         .flatMap(btae -> (Stream<EmbeddableSigneeInfo>) btae.getEmbeddableSignees().values().stream())

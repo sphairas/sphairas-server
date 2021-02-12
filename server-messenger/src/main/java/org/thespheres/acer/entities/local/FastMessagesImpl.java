@@ -111,7 +111,7 @@ public class FastMessagesImpl implements FastMessages, Serializable {
             channelNames = new HashSet<>();
             facade.getStaticChannels(LockModeType.OPTIMISTIC).stream().filter(this::isSigneeIncluded).map(BaseChannel::getName).forEach(channelNames::add);
             channelNames.addAll(getFastTargetDocuments2() .getPatternChannels());
-            getFastTargetDocuments2() .getUnits().stream().map(c -> facade.find(c.getId(), UnitChannel.class, LockModeType.OPTIMISTIC)).filter(dc -> (dc != null)).forEach(dc -> {
+            getFastTargetDocuments2().getUnits().stream().map(c -> facade.find(c.getId(), UnitChannel.class, LockModeType.OPTIMISTIC)).filter(dc -> (dc != null)).forEach(dc -> {
                 channelNames.add(dc.getName());
             });
             facade.getUnitChannels(false, LockModeType.OPTIMISTIC).stream().filter(uc -> getFastTargetDocuments2() .getIntersection(uc.getUnit()).length != 0).map(UnitChannel::getName).forEach(channelNames::add);

@@ -5,6 +5,7 @@
  */
 package org.thespheres.betula.entities.facade.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,6 +34,7 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.services.jms.AbstractDocumentEvent;
 import org.thespheres.betula.services.jms.UnitDocumentEvent;
 import org.thespheres.betula.document.DocumentId;
+import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.BaseTargetAssessmentEntity;
 import org.thespheres.betula.entities.SigneeEntity;
@@ -43,6 +45,7 @@ import org.thespheres.betula.entities.UnitStringMapDocumentEntity;
 import org.thespheres.betula.entities.config.IllegalServiceArgumentException;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
+import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.ical.VCard;
 
 /**
@@ -78,10 +81,15 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
 
     @Override
     public List<UnitDocumentEntity> findAll(LockModeType lmt) {
-//        return findAllEntities(lmt, entityClass);
         return em.createNamedQuery("UnitDocumentEntity.findAll", UnitDocumentEntity.class)
                 .setLockMode(lmt)
                 .getResultList();
+    }
+
+    @RolesAllowed({"remoteadmin", "unitadmin"})
+    @Override
+    public List<UnitDocumentEntity> findAll(final Marker selector, final LockModeType lmt) {
+        return findAllUnits(selector, null, lmt);
     }
 
     @RolesAllowed({"signee", "unitadmin"})
@@ -253,14 +261,23 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
     @RolesAllowed({"remoteadmin", "unitadmin"})
     @Override
     public List<UnitDocumentEntity> getAllPrimaryUnits(final java.sql.Timestamp expringBefore) {
+        Marker selector = ServiceConstants.BETULA_PRIMARY_UNIT_MARKER;
+        return findAllUnits(selector, expringBefore, LockModeType.OPTIMISTIC);
+    }
+
+    protected List<UnitDocumentEntity> findAllUnits(final Marker selector, final Timestamp expringBefore, final LockModeType lmt) {
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<UnitDocumentEntity> cq = cb.createQuery(UnitDocumentEntity.class);
         final Root<UnitDocumentEntity> pet = cq.from(UnitDocumentEntity.class);
 
         final List<Predicate> list = new ArrayList<>();
-        list.add(cb.equal(pet.join("markerSet").get("convention"), "betula-db"));
-        list.add(cb.equal(pet.join("markerSet").get("markerId"), "primary-unit"));
-        list.add(cb.isNull(pet.join("markerSet").get("subset")));
+        list.add(cb.equal(pet.join("markerSet").get("convention"), selector.getConvention()));
+        list.add(cb.equal(pet.join("markerSet").get("markerId"), selector.getId()));
+        if (selector.getSubset() == null) {
+            list.add(cb.isNull(pet.join("markerSet").get("subset")));
+        } else {
+            list.add(cb.equal(pet.join("markerSet").get("subset"), selector.getSubset()));
+        }
 
         if (expringBefore != null) {
 //            ParameterExpression<Date> param = cb.parameter(Date.class, "dateLimit");
@@ -268,7 +285,7 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
         }
 
         cq.select(pet).distinct(true).where(list.stream().toArray(Predicate[]::new));
-        return em.createQuery(cq).setLockMode(LockModeType.OPTIMISTIC).getResultList();
+        return em.createQuery(cq).setLockMode(lmt).getResultList();
     }
 
     @Override

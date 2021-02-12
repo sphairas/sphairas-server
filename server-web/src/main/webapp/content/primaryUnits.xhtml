@@ -8,16 +8,16 @@
     <h:form>
         <p:menubar styleClass="ui-menubar ui-active">  
             <p:submenu label="#{bundle['primaryUnits.menu.download']}" icon="ui-icon-document">  
-                <p:menuitem value="#{bundle['primaryUnits.menu.download.allelisten']}" url="#{app.user.primaryUnit.listenDownload}" target="_blank" >
+                <p:menuitem value="#{bundle['primaryUnits.menu.download.allelisten']}" url="#{app.user.currentPrimaryUnit.listenDownload}" target="_blank" >
                 </p:menuitem> 
-                <p:menuitem rendered="#{app.user.primaryUnit.enableDetails}" value="#{bundle['primaryUnits.menu.download.detailListen']}" url="#{app.user.primaryUnit.detailsDownload}" target="_blank" >
+                <p:menuitem rendered="#{app.user.currentPrimaryUnit.enableDetails}" value="#{bundle['primaryUnits.menu.download.detailListen']}" url="#{app.user.currentPrimaryUnit.detailsDownload}" target="_blank" >
                 </p:menuitem> 
-                <p:menuitem value="#{bundle['primaryUnits.menu.download.allezgn']}" url="#{app.user.primaryUnit.zgnDownload}" target="_blank" >
+                <p:menuitem value="#{bundle['primaryUnits.menu.download.allezgn']}" url="#{app.user.currentPrimaryUnit.zgnDownload}" target="_blank" >
                 </p:menuitem> 
             </p:submenu>  
             <f:facet name="options">  
-                <h:selectOneMenu value="#{app.user.primaryUnit.editingDocType}" required="true" style="margin-right:10px" > 
-                    <f:selectItems value="#{app.user.primaryUnit.editingDocTypes}" var="type" itemLabel="#{app.user.primaryUnit.getDocTypeDisplayName(type)}" />  
+                <h:selectOneMenu value="#{app.user.currentPrimaryUnit.editingDocType}" required="true" style="margin-right:10px" > 
+                    <f:selectItems value="#{app.user.currentPrimaryUnit.editingDocTypes}" var="type" itemLabel="#{app.user.currentPrimaryUnit.getDocTypeDisplayName(type)}" />  
                     <p:ajax update="targettable" />
                 </h:selectOneMenu>  
             </f:facet>  
@@ -26,14 +26,14 @@
 
     <p:dataTable  id="targettable" 
                   var="student" 
-                  value="#{app.user.primaryUnit.students}" 
+                  value="#{app.user.currentPrimaryUnit.students}" 
                   rowExpandMode="single" 
                   style="font-size: 80%" 
                   rowIndexVar="rowIndex" 
                   rowStyleClass="#{empty rowIndex or rowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}">
 
-        <f:event type="preRenderComponent" listener="#{app.user.primaryUnit.onPreRenderComponent}"/>
-        <p:ajax event="rowToggle" listener="#{app.user.primaryUnit.onRowToggle}" />
+        <f:event type="preRenderComponent" listener="#{app.user.currentPrimaryUnit.onPreRenderComponent}"/>
+        <p:ajax event="rowToggle" listener="#{app.user.currentPrimaryUnit.onRowToggle}" />
 
         <p:column style="width:2%">  
             <p:rowToggler />  
@@ -43,13 +43,13 @@
             <h:outputText value="#{student.directoryName}" />  
         </p:column> 
 
-        <p:columns value="#{app.user.primaryUnit.subjects}" var="subject" columnIndexVar="ci" style="text-align: center;"  >
+        <p:columns value="#{app.user.currentPrimaryUnit.subjects}" var="subject" columnIndexVar="ci" style="text-align: center;"  >
             <f:facet name="header">
                 <h:outputText id="subject" value="#{util.label(subject)}" />
                 <p:tooltip for="subject" value="#{util.tooltip(subject)}" showEffect="fade" hideEffect="fade" /> 
             </f:facet>  
-            <h:outputText value="#{app.user.primaryUnit.getGradeValueAt(student, subject).shortLabel}" 
-                          style="#{app.user.primaryUnit.getGradeValueAt(student, subject).style}"/>
+            <h:outputText value="#{app.user.currentPrimaryUnit.getGradeValueAt(student, subject).shortLabel}" 
+                          style="#{app.user.currentPrimaryUnit.getGradeValueAt(student, subject).style}"/>
         </p:columns>  
 
         <p:rowExpansion rendered="#{student.isReportConfigurationEnabled()}">  <!--ui-widget-content grid -->

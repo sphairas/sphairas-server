@@ -78,12 +78,15 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
     }
 
     private void initialize() {
-        final PrimaryUnit pu = application.getUser().getPrimaryUnit();
+        final PrimaryUnit pu = application.getUser().getCurrentPrimaryUnit();
+        if (pu == null) {
+            return;
+        }
         final StudentId cs = pu.getSelectedStudent();
-        if (cs == null) {
+        if (cs == null || pu == null) {
             //c
         } else if (current == null || !cs.equals(current.getStudent())) {
-            final AvailableStudentExt as = (AvailableStudentExt) application.getUser().getPrimaryUnit().getStudents().stream()
+            final AvailableStudentExt as = (AvailableStudentExt) pu.getStudents().stream()
                     .filter(s -> s.getId().equals(cs))
                     .collect(CollectionUtil.requireSingleOrNull());
 

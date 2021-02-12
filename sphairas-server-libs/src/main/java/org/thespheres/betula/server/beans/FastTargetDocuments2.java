@@ -32,11 +32,11 @@ public interface FastTargetDocuments2 {
 
     public Collection<StudentId> getStudents();
 
-    public Collection<StudentId> getPrimaryUnitStudents();
+    public Collection<StudentId> getPrimaryUnitStudents(final String docIdName);
 
     public Collection<UnitId> getUnits();
 
-    public UnitId getPrimaryUnit();
+    public UnitId getPrimaryUnit(final String docIdName);
 
     public Collection<DocumentId> getTargetAssessmentDocuments(UnitId primaryUnit);
 

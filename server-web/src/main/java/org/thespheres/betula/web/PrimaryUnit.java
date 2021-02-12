@@ -65,6 +65,7 @@ import org.thespheres.betula.web.docsrv.NdsFormatter;
  */
 public class PrimaryUnit extends AbstractData<Subject> {
 
+    private final String docIdName;
     private final ReportsBean zeugnisBean = lookupReportsBeanImplRemote();
     private Map<String, Map<MultiSubject, Set<DocumentId>>> docTypes;
     private List<MultiSubject> subjects;
@@ -82,11 +83,16 @@ public class PrimaryUnit extends AbstractData<Subject> {
     private Integer level;
     private final Term termBefore;
 
-    PrimaryUnit(final UnitId unit, final Term term, final Term before, final BetulaWebApplication app) {
+    PrimaryUnit(final String docIdName, final UnitId unit, final Term term, final Term before, final BetulaWebApplication app) {
         super(app, unit.getId());
+        this.docIdName = docIdName;
         this.unit = unit;
         this.term = term;
         this.termBefore = before;
+    }
+
+    public String getDocumentIdName() {
+        return docIdName;
     }
 
     public UnitId getUnitId() {
@@ -345,7 +351,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
     @Override
     protected HashSet<StudentId> createStudents() {
         studIds = new HashSet<>();
-        studIds.addAll(application.getStudents()); //Arrays.asList(unitDocumentBeanRemote.getStudents(unit)));
+        studIds.addAll(application.getStudents(docIdName)); //Arrays.asList(unitDocumentBeanRemote.getStudents(unit)));
         return studIds;
     }
 

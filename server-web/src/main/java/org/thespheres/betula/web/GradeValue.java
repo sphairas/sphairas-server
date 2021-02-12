@@ -128,7 +128,8 @@ public class GradeValue extends AbstractGradeWrapper {
                 return deco.resolveReference(proxy, studId, term, null);
             }
         } else if (Uebertrag.NAME.equals(proxy.getConvention()) && subject != null) {
-            final GradeValue gvref = application.getUser().getPrimaryUnit().gradeValueForDocType(studId, subject, "vorzensuren");//TODO: get for TermId
+            final PrimaryUnit pu = application.getUser().getCurrentPrimaryUnit();
+            final GradeValue gvref = pu.gradeValueForDocType(studId, subject, "vorzensuren");//TODO: get for TermId
             if (gvref != null) {
                 return gvref.getGrade();
             }
@@ -151,8 +152,8 @@ public class GradeValue extends AbstractGradeWrapper {
     public boolean isEditable() {
         final Grade g = getGrade();
         final Ticket[] t = getTickets();
-        return g != null 
-                && t.length > 0 
+        return g != null
+                && t.length > 0
                 && (isPending() || isEditableGrade(g));
     }
 
