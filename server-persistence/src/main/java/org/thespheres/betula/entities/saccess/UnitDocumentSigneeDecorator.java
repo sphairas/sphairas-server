@@ -128,7 +128,7 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
                 boolean permit = l.stream()
                         .map(cd::forName)
                         .map(d -> delegate.getPrimaryUnit(d, current))
-                        .anyMatch(pu -> pu.equals(docModel.convertToUnitId(id)));
+                        .anyMatch(pu -> pu != null && pu.equals(docModel.convertToUnitId(id)));
                 //TODO: respect unlinked
                 permit = permit | ret.getTargetAssessments().stream()
                         .flatMap(btae -> (Stream<EmbeddableSigneeInfo>) btae.getEmbeddableSignees().values().stream())
