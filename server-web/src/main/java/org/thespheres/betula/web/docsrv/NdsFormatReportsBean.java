@@ -31,12 +31,14 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.AssessmentConvention;
 import org.thespheres.betula.assess.Grade;
+import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.document.DocumentId;
@@ -202,9 +204,21 @@ public class NdsFormatReportsBean {
         //use NdsZeugnisAngaben
         final Integer fehltage = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_FEHLTAGE);
         final Integer unentschuldigt = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_UNENTSCHULDIGT);
-        final Grade av = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.AV_NAME);
+        final Grade av;
+        final String avSpecial = properties.getProperty("niedersachsen.arbeitsverhalten.sondertext");
+        if (StringUtils.isBlank(avSpecial)) {
+            av = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.AV_NAME);
+        } else {
+            av = GradeFactory.resolve(avSpecial);
+        }
+        final Grade sv;
+        final String svSpecial = properties.getProperty("niedersachsen.sozialverhalten.sondertext");
+        if (StringUtils.isBlank(svSpecial)) {
+            sv = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.SV_NAME);
+        } else {
+            sv = GradeFactory.resolve(svSpecial);
+        }
         final String avBegruendung = fac.requireAVSVReason(av) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME) : null;
-        final Grade sv = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.SV_NAME);
         final String svBegruendung = fac.requireAVSVReason(sv) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.SV_NAME) : null;
 
         final TermId term = zeugnisBean.getTerm(zgnId);
