@@ -55,9 +55,11 @@ import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.SigneeInfoChangeLog;
 import org.thespheres.betula.entities.RecordTargetAssessmentEntity;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
+import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.VersionChangeLog;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.SigneeFacade;
+import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.jmsimpl.DocumentsNotificator;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.Ersatzeintrag;
@@ -76,9 +78,11 @@ import org.thespheres.betula.util.GradeEntry;
 @Dependent
 @Stateless
 public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
-    
+
     @EJB
     private GradeTargetDocumentFacade facade;
+    @EJB
+    private TextTargetDocumentFacade textFacade;
     @EJB
     private SigneeFacade signees;
     @PersistenceContext(unitName = "betula0")
@@ -87,15 +91,15 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
     protected DocumentsNotificator documentsNotificator;
     @Inject
     private CommonDocuments cd;
-    
+
     private final static Grade PENDING = GradeFactory.find(Ersatzeintrag.NAME, "pending");
     private final static Grade AVC = GradeFactory.find(ASVAssessmentConvention.AV_NAME, "c");
     private final static Grade SVC = GradeFactory.find(ASVAssessmentConvention.SV_NAME, "c");
-    
+
     public AdminTargetsProcessor() {
         super(new String[][]{Paths.UNITS_RECORDS_PATH, Paths.UNITS_TARGETS_PATH, Paths.SIGNEES_TARGET_DOCUMENTS_PATH});
     }
-    
+
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     @Override
     public void process(String[] path, Envelope template) throws UnauthorizedException, NotFoundException, SyntaxException {
@@ -107,7 +111,7 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
             processSigneesTargetAssessments(template);
         }
     }
-    
+
     private <I extends Identity> void processTargetAssessments(Envelope template, Class<? extends GradeTargetAssessmentEntity<I>> entityClass) throws NotFoundException, SyntaxException, UnauthorizedException {
         if (ServiceUtils.isEntryOf(template, UnitId.class)) {
             final Entry<UnitId, ?> entryNode = ServiceUtils.toEntry(template, UnitId.class);
@@ -121,7 +125,7 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
             processOneTargetAssessment(de, entityClass, null);
         }
     }
-    
+
     private <I extends Identity> void processOneTargetAssessment(final DocumentEntry de, Class<? extends GradeTargetAssessmentEntity<I>> entityClass, final UnitId unit) throws UnauthorizedException, SyntaxException, NotFoundException {
         final DocumentId docId = de.getIdentity();
         final GenericXmlDocument xmlDoc;
@@ -241,13 +245,13 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
                 xmlDoc.setFragment(false);
             }
         } else if (action.equals(Action.FILE)) {
-            
+
             @Deprecated
             boolean bulk = ServiceUtils.getBulkProcessValue(de, context);
-            
+
             String hint2 = de.getHints().get("update-pu-links");
             boolean updatePULinks = hint2 != null && hint2.equals("true");
-            
+
             final String keepAfterValue = de.getHints().get("keep.old.target.entries.after");
             Date d = null;
             if (keepAfterValue != null) {
@@ -261,10 +265,10 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
                 }
             }
             final Date keepAfterDate = d;
-            
+
             final Set<StudentId> updatePULinksSet = new HashSet<>();
             GradeTargetAssessmentEntity<I> tae = facade.find(docId, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-            
+
             DocumentId.Version ov = null;
             if (tae == null) {
                 if (UnitId.isNull(unit)) {
@@ -362,10 +366,10 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
                     final Map<StudentId, Grade> grades = new HashMap<>();
                     final Map<StudentId, java.sql.Timestamp> timestamps = new HashMap<>();
                     final Set<StudentId> toClear = new HashSet<>();
-                    
+
                     final Map<StudentId, Grade> current = facade.findAll(docId, term);
                     final Map<StudentId, GradeEntry> currentEntries = facade.findAllEntries(docId, term);
-                    
+
                     for (final Template<?> sr : st.getChildren()) {
                         final Entry<StudentId, GradeAdapter> sre = ServiceUtils.toEntry(sr, StudentId.class, GradeAdapter.class);
                         final StudentId sfrid = sre.getIdentity();
@@ -435,7 +439,7 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
             if (updatePULinks) {
                 final StudentId[] studs = updatePULinksSet.stream()
                         .toArray(StudentId[]::new);
-                
+
                 notifyDocUpdate = notifyDocUpdate | facade.linkPrimaryUnits(docId, studs);
             }
             if (notifyDocUpdate) {
@@ -449,7 +453,7 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
             }
         }
     }
-    
+
     private void processSigneesTargetAssessments(final Envelope template) throws NotFoundException, SyntaxException {
         final Entry<Signee, ?> entryNode = ServiceUtils.toEntry(template, Signee.class);
         final Action action = entryNode.getAction();
@@ -462,12 +466,16 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
                 facade.findAll(se, TermGradeTargetAssessmentEntity.class, LockModeType.OPTIMISTIC).stream()
                         .map(bte -> createSigneeEntry(bte, signee))
                         .forEach(entryNode.getChildren()::add);
+                textFacade.findAll(se, LockModeType.OPTIMISTIC).stream()
+                        .map(tte -> createTextSigneeEntry(tte, signee))
+                        .forEach(entryNode.getChildren()::add);
+
             } else {
                 throw ServiceUtils.createNotFoundException(signee);
             }
         }
     }
-    
+
     private DocumentEntry createSigneeEntry(final TermGradeTargetAssessmentEntity bte, final Signee se) {
         final XmlDocumentEntry ret = new XmlDocumentEntry(bte.getDocumentId(), null, true);
         bte.getSignees().entrySet().stream()
@@ -476,7 +484,16 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
                 .forEach(s -> ret.getValue().addSigneeInfo(s, se));
         return ret;
     }
-    
+
+    private DocumentEntry createTextSigneeEntry(final TermTextTargetAssessmentEntity tte, final Signee se) {
+        final XmlDocumentEntry ret = new XmlDocumentEntry(tte.getDocumentId(), null, true);
+        tte.getSignees().entrySet().stream()
+                .filter(e -> e.getValue().equals(se))
+                .map(Map.Entry::getKey)
+                .forEach(s -> ret.getValue().addSigneeInfo(s, se));
+        return ret;
+    }
+
     private SigneeInfoChangeLog putSigneeToTAE(final BaseTargetAssessmentEntity tae, final Signee sig, String type) throws NotFoundException {
         SigneeEntity se = null;
         if (sig != null && (se = signees.find(sig)) == null) {
@@ -496,5 +513,5 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
         }
         return new SigneeInfoChangeLog(tae, BaseTargetAssessmentEntity.BASE_TARGETASSESSMENT_DOCUMENT_SIGNEEINFO, type, prev, a);
     }
-    
+
 }
