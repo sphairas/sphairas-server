@@ -7,9 +7,9 @@
     <default-no-signee convention="niedersachsen.ersatzeintrag" grade-id="ne"/>
     <target-defaults>
         <target target-type="zeugnisnoten">
-            <preferred-convention>
+<!--            <preferred-convention>
                 de.notensystem
-            </preferred-convention>
+            </preferred-convention>-->
         </target>
         <target target-type="arbeitsverhalten" target-selector="nicht-ag">
             <default convention="niedersachsen.arbeitsverhalten" grade-id="c"/>
