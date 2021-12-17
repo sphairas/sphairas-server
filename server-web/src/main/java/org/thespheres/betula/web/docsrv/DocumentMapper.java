@@ -87,7 +87,7 @@ public class DocumentMapper {
                 }
             }
         }
-        if (!fach.isEmpty()) {
+        if (!fach.isEmpty() || realm != null) {
             final MultiSubject ms = new MultiSubject(realm);
             ms.getSubjectMarkerSet().addAll(fach);
             return ms;
