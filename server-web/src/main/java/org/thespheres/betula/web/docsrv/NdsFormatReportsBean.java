@@ -218,8 +218,10 @@ public class NdsFormatReportsBean {
         } else {
             sv = GradeFactory.resolve(svSpecial);
         }
-        final String avBegruendung = fac.requireAVSVReason(av) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME) : null;
-        final String svBegruendung = fac.requireAVSVReason(sv) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.SV_NAME) : null;
+//        final String avBegruendung = fac.requireAVSVReason(av) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME) : null;
+//        final String svBegruendung = fac.requireAVSVReason(sv) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.SV_NAME) : null;
+        final String avBegruendung = zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME);
+        final String svBegruendung = zeugnisBean.getNote(zgnId, ASVAssessmentConvention.SV_NAME);
 
         final TermId term = zeugnisBean.getTerm(zgnId);
         final TermId before = new TermId(term.getAuthority(), term.getId() - 1);

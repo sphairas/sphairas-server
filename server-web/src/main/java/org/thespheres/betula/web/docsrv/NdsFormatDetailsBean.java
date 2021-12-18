@@ -173,22 +173,22 @@ public class NdsFormatDetailsBean {
                 String avlbl = null;
                 if (avg != null) {
                     avlbl = avg.getLongLabel();
-                    if (ReportProvisionsUtil.requireAvSvReason(avg)) {
+//                    if (factory.requireAVSVReason(avg)) {
                         final String avReason = zeugnisBean.getNote(report, ASVAssessmentConvention.AV_NAME);
                         if (avReason != null) {
                             avlbl = String.join(" ", avlbl, avReason);
                         }
-                    }
+//                    }
                 }
                 String svlbl = null;
                 if (svg != null) {
                     svlbl = svg.getLongLabel();
-                    if (ReportProvisionsUtil.requireAvSvReason(svg)) {
+//                    if (factory.requireAVSVReason(svg)) {
                         final String svReason = zeugnisBean.getNote(report, ASVAssessmentConvention.SV_NAME);
                         if (svReason != null) {
                             svlbl = String.join(" ", svlbl, svReason);
                         }
-                    }
+//                    }
                 }
                 final StringJoiner avsvlb = new StringJoiner(" / ");
                 if (avg != null) {

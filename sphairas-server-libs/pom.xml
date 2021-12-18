@@ -19,7 +19,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>services</artifactId>
-            <version>0.2.19</version>
+            <version>0.2.20</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>niedersachsen</artifactId>
-            <version>0.2.8</version>
+            <version>0.2.10</version>
             <type>jar</type>
         </dependency>
         <dependency>

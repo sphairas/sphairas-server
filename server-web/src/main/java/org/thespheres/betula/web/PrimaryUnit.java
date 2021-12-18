@@ -43,11 +43,13 @@ import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.document.MarkerConvention;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.NdsTerms;
+import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
@@ -57,7 +59,6 @@ import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.web.config.WebAppProperties;
 import org.thespheres.betula.web.docsrv.AmbiguousDocumentCollectionException;
-import org.thespheres.betula.web.docsrv.NdsFormatter;
 
 /**
  *
@@ -424,26 +425,6 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
     }
 
-//    private ZeugnisBean lookupZeugnisBeanImplRemote() {
-//        try {
-//            Context c = new InitialContext();
-//            return (ZeugnisBean) c.lookup("java:global/Betula_Persistence/ZeugnisBeanImpl!org.thespheres.betula.niedersachsen.admin.zgn.ZeugnisBean");
-//        } catch (NamingException ne) {
-//            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
-//            throw new RuntimeException(ne);
-//        }
-//    }
-    private NdsFormatter lookupFOPFormatterBean() {
-        try {
-            final Context c = new InitialContext();
-//            return (NdsFormatter) c.lookup("java:global/Betula_Web/FOPFormatter!org.thespheres.betula.web.docsrv.NdsFormatter");
-            return (NdsFormatter) c.lookup("java:module/FOPFormatter");
-        } catch (NamingException ne) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
-            throw new RuntimeException(ne);
-        }
-    }
-
     public class AVSVWrapper extends AbstractGradeWrapper {
 
         private final DocumentId zgnDoc;
@@ -645,10 +626,25 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         public boolean isAvReasonEnabled() {
+            final Grade grade = getArbeitsverhalten().getGrade();
+            final NdsReportBuilderFactory fac = PrimaryUnit.this.application.getReportBuilderFactory();
+            final AssessmentConvention cnv = fac.getAvConvention();
+            return isAVSVReasonEnabled(fac, grade, cnv);
+        }
+
+        private boolean isAVSVReasonEnabled(final NdsReportBuilderFactory fac, final Grade grade, final AssessmentConvention cnv) {
             final String p = application.getWebUIConfiguration().getProperty("avsv.reason.disabled");
-            final boolean disabled = Boolean.parseBoolean(p);
-            //TODO: use NdsReportBuilderFactory
-            return !disabled && ReportProvisionsUtil.requireAvSvReason(getArbeitsverhalten().getGrade());
+            if ("true".equals(p)) {
+                return false;
+            } else if (p == null || "default".equals(p)) {
+                return fac.requireAVSVReason(grade);
+            } else if ("false".equals(p)) {
+                return true;
+            } else {
+                return Arrays.stream(p.split(" "))
+                        .map(id -> cnv.find(id))
+                        .noneMatch(grade::equals);
+            }
         }
 
         public AVSVWrapper getSozialverhalten() {
@@ -668,10 +664,10 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         public boolean isSvReasonEnabled() {
-            final String p = application.getWebUIConfiguration().getProperty("avsv.reason.disabled");
-            final boolean disabled = Boolean.parseBoolean(p);
-            //TODO: use NdsReportBuilderFactory
-            return !disabled && ReportProvisionsUtil.requireAvSvReason(getSozialverhalten().getGrade());
+            final Grade grade = getSozialverhalten().getGrade();
+            final NdsReportBuilderFactory fac = PrimaryUnit.this.application.getReportBuilderFactory();
+            final AssessmentConvention cnv = fac.getSvConvention();
+            return isAVSVReasonEnabled(fac, grade, cnv);
         }
 
         public boolean isNotesEnabled() {

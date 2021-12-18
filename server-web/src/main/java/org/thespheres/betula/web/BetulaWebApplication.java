@@ -74,6 +74,7 @@ import org.thespheres.ical.VCard;
 import org.thespheres.betula.assess.AssessmentConvention;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
+import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 
 /**
@@ -143,6 +144,8 @@ public class BetulaWebApplication implements Serializable {
     private List<Grade> crossMarkGrade;
 //    private Optional<AssessmentConvention> crossMarksAssessmentConvention;    
 //    private Optional<String[]> crossMarksSubjectConvention;
+    @Inject
+    private NdsReportBuilderFactory reportBuilderFactory;
 
     public ApplicationUser getUser() {
         if (currentUser == null) {
@@ -227,6 +230,10 @@ public class BetulaWebApplication implements Serializable {
 //            return webConfig = SystemProperties.findWebUIConfiguration();
 //        }
         return webConfig;
+    }
+
+    public NdsReportBuilderFactory getReportBuilderFactory() {
+        return reportBuilderFactory;
     }
 
 //    public ZeugnisConfiguratorService getZeugnisConfiguratorService() {
