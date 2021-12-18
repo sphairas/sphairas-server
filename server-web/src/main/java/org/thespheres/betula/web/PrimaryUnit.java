@@ -636,14 +636,14 @@ public class PrimaryUnit extends AbstractData<Subject> {
             final String p = application.getWebUIConfiguration().getProperty("avsv.reason.disabled");
             if ("true".equals(p)) {
                 return false;
-            } else if (p == null || "default".equals(p)) {
-                return fac.requireAVSVReason(grade);
             } else if ("false".equals(p)) {
                 return true;
-            } else {
+            } else if (p != null) {
                 return Arrays.stream(p.split(" "))
-                        .map(id -> cnv.find(id))
+                        .map(cnv::find)
                         .noneMatch(grade::equals);
+            } else {
+                return fac.requireAVSVReason(grade);
             }
         }
 
