@@ -26,9 +26,10 @@ import org.apache.naming.resources.Resource;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.assess.AbstractGrade;
 import org.thespheres.betula.assess.Grade;
-import org.thespheres.betula.document.AbstractMarker;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.document.model.DocumentsModel;
+import org.thespheres.betula.niedersachsen.Unterricht;
 import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
@@ -69,8 +70,15 @@ public class ConfigurationPropertiesImpl {
 
     @Arbeitsgemeinschaft
     @Produces
-    public Marker getAGMarker() {
-        return new AbstractMarker("kgs.unterricht", "ag", null);
+    public Marker getAGMarker(final LocalConfigProperties config) {
+//        return vorlage.getProperty("ag.Markierung")
+//                .map(NdsZeugnisSchulvorlage.Property::getValue)
+//                .map(MarkerFactory::resolveAbstract)
+//                .orElse(new AbstractMarker("niedersachsen.unterricht.art", "ag", null));
+        final String m = config.getProperty("ag.marker", Unterricht.NAME + "#ag");
+        return MarkerFactory.resolveAbstract(m);
+//                return MarkerFactory.find(Unterricht.NAME, "ag", "null");
+//        return new AbstractMarker("kgs.unterricht", "ag", null);
     }
 
     @Arbeitsgemeinschaft
