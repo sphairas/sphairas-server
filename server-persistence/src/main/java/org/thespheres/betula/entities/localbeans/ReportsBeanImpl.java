@@ -20,6 +20,7 @@ import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceContext;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
+import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.services.jms.AbstractDocumentEvent;
 import org.thespheres.betula.document.DocumentId;
@@ -277,8 +278,18 @@ public class ReportsBeanImpl implements ReportsBean {
 //Filter manually
         final DocumentId cNames = cd.forName(CommonDocuments.COMMON_NAMES_DOCID);
         return l.stream().map(e -> {
-            final UnitDocumentEntity ue = e.getUnitDocs().stream().findAny().get();
-            return cNames != null ? unitFacade.getCommonName(cNames, ue.getUnitId()) : ue.getUnitId().getId();
+            final UnitId ue = e.getUnitDocs().stream()
+                    .findAny()
+                    .map(UnitDocumentEntity::getUnitId)
+                    .orElse(null);
+            if (cNames != null) {
+                return unitFacade.getCommonName(cNames, ue);
+            } else if (ue != null) {
+                return ue.getId();
+            } else {
+                return e.getDocumentId().getId();
+            }
+//            return cNames != null ? unitFacade.getCommonName(cNames, ue) : ue.getId();
         }).toArray(String[]::new);
     }
 
