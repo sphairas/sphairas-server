@@ -300,6 +300,7 @@ public class AdminUnitsProcessor extends AbstractAdminContainerProcessor {
             UnitDocumentEntity u;
             final Action action = uentry.getAction();
             if (unit != null && docId != null) {
+                Logger.getLogger("betula-admin-service").log(Level.INFO, "Processing Units Participants action {1} for Unit Entry {0}", new Object[]{docId, action});
                 if (action != null && action.equals(Action.REQUEST_COMPLETION)) {
                     u = udef.find(docId, LockModeType.OPTIMISTIC);
                     if (u == null || !u.getUnitId().equals(unit)) {
@@ -328,6 +329,7 @@ public class AdminUnitsProcessor extends AbstractAdminContainerProcessor {
                     DocumentId.Version ov = null;
                     if (u == null && file) {
                         u = udef.create(unit, "students", null);
+                        Logger.getLogger("betula-admin-service").log(Level.INFO, "Created UnitDocumentEntity {0}", u.getDocumentId());
                     } else if (u == null) {
                         throw ServiceUtils.createNotFoundException(docId);
                     } else {

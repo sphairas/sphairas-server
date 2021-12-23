@@ -9,6 +9,8 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
@@ -278,22 +280,32 @@ public class ReportsBeanImpl implements ReportsBean {
 //Filter manually
         final DocumentId cNames = cd.forName(CommonDocuments.COMMON_NAMES_DOCID);
         return l.stream().map(e -> {
-            final UnitId ue = e.getUnitDocs().stream()
-                    .findAny()
+            final List<UnitId> uel = e.getUnitDocs().stream()
                     .map(UnitDocumentEntity::getUnitId)
-                    .orElse(null);
-            if (cNames != null) {
-                return unitFacade.getCommonName(cNames, ue);
-            } else if (ue != null) {
-                return ue.getId();
+                    .collect(Collectors.toList());
+            if (uel.size() == 1) {
+                final UnitId ue = uel.get(0);
+                if (cNames != null) {
+                    return unitFacade.getCommonName(cNames, ue);
+                } else if (ue != null) {
+                    return ue.getId();
+                } else {
+                    Logger.getLogger(ReportsBeanImpl.class.getName()).log(Level.WARNING, "No unitId for {0}", e.getDocumentId().getId());
+                    return e.getDocumentId().getId();
+                }
+            } else if (uel.isEmpty()) {
+                return "unknown";
             } else {
-                return e.getDocumentId().getId();
+                return uel.stream()
+                        .map(UnitId::getId)
+                        .collect(Collectors.joining(" "));
             }
 //            return cNames != null ? unitFacade.getCommonName(cNames, ue) : ue.getId();
         }).toArray(String[]::new);
     }
 
     @Override
+
     public CustomNote[] getCustomNotes(DocumentId zeugnis) {
         TermReportDocumentEntity e = findReportEntity(zeugnis, LockModeType.OPTIMISTIC);
         if (e != null) {
