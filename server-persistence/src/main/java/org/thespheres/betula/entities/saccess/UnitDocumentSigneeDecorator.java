@@ -147,9 +147,13 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
 
     @Override
     public void setCommonName(DocumentId d, UnitId uid, String cn) {
+        if (!getDecoratedSessionContext().isCallerInRole("unitadmin")) {
+            final Signee current = login.getSigneePrincipal(true);
+            throw new SigneeEJBAccessException(d, current);
+        }
         final DocumentId cNames = cd.forName(CommonDocuments.COMMON_NAMES_DOCID);
-        if ((cNames != null && !d.equals(cNames)) || !uid.getId().startsWith("kgs-ag")) {
-            throw new IllegalArgumentException();
+        if (cNames != null && !d.equals(cNames)) {
+            throw new IllegalArgumentException("Document " + d + " does not match " + cNames);
         }
         delegate.setCommonName(d, uid, cn);
     }
