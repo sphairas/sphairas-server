@@ -209,7 +209,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
         return tags.stream()
                 .filter(t -> t.getConvention().equals("de.stufen"))
                 .map(Tag::getShortLabel)
-                .allMatch(t -> t.equals(getStufe()));
+                .anyMatch(t -> t.equals(getStufe()));
     }
 
     private String getStufe() {
