@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -206,8 +207,10 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
     }
 
     private boolean resolveShowLevel(final List<Tag> tags) {
-        return tags.stream()
+        final Set<Tag> s = tags.stream()
                 .filter(t -> t.getConvention().equals("de.stufen"))
+                .collect(Collectors.toSet());
+        return s.isEmpty() || s.stream()
                 .map(Tag::getShortLabel)
                 .anyMatch(t -> t.equals(getStufe()));
     }
