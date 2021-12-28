@@ -638,7 +638,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                 return false;
             } else if ("false".equals(p)) {
                 return true;
-            } else if (p != null) {
+            } else if (p != null && grade != null) {
                 return Arrays.stream(p.split(" "))
                         .map(cnv::find)
                         .noneMatch(grade::equals);
