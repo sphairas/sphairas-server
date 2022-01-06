@@ -103,7 +103,7 @@ public class ApplicationUser implements Serializable {
             final Map<DocumentId, Set<DocumentId>> map = application.getDocuments().stream()
                     .collect(Collectors.groupingBy(docModel::convert, Collectors.toSet()));
 
-            final Map<String, AvailableTarget> tabs = new HashMap<>();
+            final Map<DocumentId, AvailableTarget> tabs = new HashMap<>();
 
             for (Map.Entry<DocumentId, Set<DocumentId>> e : map.entrySet()) {
                 final Marker crossMarkSubject = getCrossMarkSubject(e.getValue());
@@ -119,7 +119,7 @@ public class ApplicationUser implements Serializable {
                         klasse = e.getKey().getId();
                     }
                     final String name = n + " " + klasse;
-                    AvailableTarget tab = createTab(tabs, name);
+                    AvailableTarget tab = createTab(tabs, e.getKey(), name);
                     tab.addCrossMarksDocument(e.getValue().iterator().next(), crossMarkSubject);
                 } else {
                     String name;
@@ -129,7 +129,7 @@ public class ApplicationUser implements Serializable {
                     } catch (IllegalAuthorityException ex) {
                         name = e.getKey().getId();
                     }
-                    AvailableTarget tab = createTab(tabs, name);
+                    AvailableTarget tab = createTab(tabs, e.getKey(), name);
                     tab.getDocuments().addAll(e.getValue());
                 }
             }
@@ -137,11 +137,10 @@ public class ApplicationUser implements Serializable {
         return units;
     }
 
-    private AvailableTarget createTab(final Map<String, AvailableTarget> tabs, final String name) {
-        final AvailableTarget tab = tabs.computeIfAbsent(name, cn -> {
-            final AvailableTarget at = new AvailableTarget(cn, application);
+    private AvailableTarget createTab(final Map<DocumentId, AvailableTarget> tabs, final DocumentId key, final String name) {
+        final AvailableTarget tab = tabs.computeIfAbsent(key, cn -> {
+            final AvailableTarget at = new AvailableTarget(name, application);
             units.getTabs().add(at);
-            tabs.put(cn, at);
             application.getEventDispatch().register(at);
             return at;
         });
