@@ -237,10 +237,15 @@ public class FormatListBean {
 //                    }
                 }
 //TODO WebUIConfiguration
-                final MultiSubject subject = e.getKey();
-                final int tier = builderFactory.tier(subject);
-
-                final ZensurenListe.Column val = list.setValue(l, tier, fach, g, msg);
+                // final MultiSubject subject = e.getKey();
+                final int tier = builderFactory.tier(e.getKey());
+                final String altSubjectName = fttd.get(d).getAltSubjectName();
+                final ZensurenListe.Column val;
+                if (altSubjectName != null) {
+                    val = list.setValue(l, tier, altSubjectName, g, msg);
+                } else {
+                    val = list.setValue(l, tier, fach, g, msg);
+                }
                 if (val != null) {
                     if (flk != null) {
                         val.setLevel(flk);

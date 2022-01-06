@@ -18,4 +18,6 @@ import org.thespheres.betula.document.Marker;
 public interface TargetDocumentsLocalBean {
 
     public Collection<Marker> getDocumentMarkers(DocumentId d);
+
+    public String getSubjectAlternativeName(final DocumentId d);
 }

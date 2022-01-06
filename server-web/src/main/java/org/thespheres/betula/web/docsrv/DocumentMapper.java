@@ -69,10 +69,10 @@ public class DocumentMapper {
 
     public MultiSubject getSubject(final DocumentId d) {
         final Collection<Marker> markerMap = mtad.getDocumentMarkers(d);
-        return markerMap != null ? getSubjectImpl(markerMap, false) : null;
+        return markerMap != null ? getSubjectImpl(markerMap, d, false) : null;
     }
 
-    private MultiSubject getSubjectImpl(final Collection<Marker> markerMap, final boolean ignoreWpk) {
+    private MultiSubject getSubjectImpl(final Collection<Marker> markerMap, final DocumentId dod, final boolean ignoreWpk) {
         final Set<Marker> fach = new HashSet<>();
         Marker realm = null;
         for (final Marker m : markerMap) {
@@ -87,10 +87,15 @@ public class DocumentMapper {
                 }
             }
         }
-        if (!fach.isEmpty() || realm != null) {
-            final MultiSubject ms = new MultiSubject(realm);
+        if (!fach.isEmpty()) {
+            final MultiSubject ms = new MultiSubjectExt(realm, null);
             ms.getSubjectMarkerSet().addAll(fach);
             return ms;
+        } else if (realm != null) {
+            final String alt = mtad.getSubjectAlternativeName(dod);
+            if (alt != null) {//TODO: Check properties if allowed
+                return new MultiSubjectExt(realm, alt);
+            }
         }
         return null;
     }
@@ -100,7 +105,7 @@ public class DocumentMapper {
         final HashMap<String, Map<MultiSubject, Set<DocumentId>>> docTypes = new HashMap<>();
         final HashMap<DocumentId, MultiSubject> smap = new HashMap<>();
         for (final DocumentId d : markerMap.keySet()) {
-            final MultiSubject ms = getSubjectImpl(markerMap.get(d), ignoreWpk);
+            final MultiSubject ms = getSubjectImpl(markerMap.get(d), d, ignoreWpk);
             if (ms != null) {
                 smap.put(d, ms);
             }
@@ -111,7 +116,7 @@ public class DocumentMapper {
                 continue;
             }
             final MultiSubject mar = smap.get(d);
-            if (mar == null || mar.getSubjectMarkerSet().isEmpty()) {
+            if (mar == null || (mar.getSubjectMarkerSet().isEmpty() && mar.getRealmMarker() == null)) {
                 continue;
             }
             final Map<MultiSubject, Set<DocumentId>> dm = docTypes.computeIfAbsent(type, t -> new HashMap<>());

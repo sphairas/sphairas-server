@@ -336,7 +336,8 @@ public class NdsFormatReportsBean {
                 zf.setSignee(td.getSignees().get("entitled.signee"));
             }
             //
-            if (zf.getSubject().stream().allMatch(s -> Arrays.stream(crossMarkSubjectConventions).anyMatch(cv -> cv.getName().equals(s.getConvention())))) {
+            if (!zf.getSubject().isEmpty() 
+                    && zf.getSubject().stream().allMatch(s -> Arrays.stream(crossMarkSubjectConventions).anyMatch(cv -> cv.getName().equals(s.getConvention())))) {
                 flcrossmark.add(zf);
                 continue;
             }
@@ -357,8 +358,8 @@ public class NdsFormatReportsBean {
             }
         }
         final Comparator<NdsReportBuilder.GradeEntry> cmp = (e1, e2) -> {
-            final Marker f1 = e1.getSubject().stream().min(comp).get();
-            final Marker f2 = e2.getSubject().stream().min(comp).get();
+            final Marker f1 = e1.getSubject().stream().min(comp).orElse(Marker.NULL);
+            final Marker f2 = e2.getSubject().stream().min(comp).orElse(Marker.NULL);
             return comp.compare(f1, f2);
         };
         Collections.sort(fl, cmp);

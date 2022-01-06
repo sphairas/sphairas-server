@@ -174,20 +174,20 @@ public class NdsFormatDetailsBean {
                 if (avg != null) {
                     avlbl = avg.getLongLabel();
 //                    if (factory.requireAVSVReason(avg)) {
-                        final String avReason = zeugnisBean.getNote(report, ASVAssessmentConvention.AV_NAME);
-                        if (avReason != null) {
-                            avlbl = String.join(" ", avlbl, avReason);
-                        }
+                    final String avReason = zeugnisBean.getNote(report, ASVAssessmentConvention.AV_NAME);
+                    if (avReason != null) {
+                        avlbl = String.join(" ", avlbl, avReason);
+                    }
 //                    }
                 }
                 String svlbl = null;
                 if (svg != null) {
                     svlbl = svg.getLongLabel();
 //                    if (factory.requireAVSVReason(svg)) {
-                        final String svReason = zeugnisBean.getNote(report, ASVAssessmentConvention.SV_NAME);
-                        if (svReason != null) {
-                            svlbl = String.join(" ", svlbl, svReason);
-                        }
+                    final String svReason = zeugnisBean.getNote(report, ASVAssessmentConvention.SV_NAME);
+                    if (svReason != null) {
+                        svlbl = String.join(" ", svlbl, svReason);
+                    }
 //                    }
                 }
                 final StringJoiner avsvlb = new StringJoiner(" / ");
@@ -473,7 +473,13 @@ public class NdsFormatDetailsBean {
 //TODO WebUIConfiguration
             final int tier = factory.tier(subject);
 
-            final StudentDetailsXml.ColumnValue val = details.setValue(l, tier, fach, g, msg);
+            final String subjectAltName = fttd.get(d).getAltSubjectName();
+            final StudentDetailsXml.ColumnValue val;
+            if (subjectAltName != null) {
+                val = details.setValue(l, tier, subjectAltName, g, msg);
+            } else {
+                val = details.setValue(l, tier, fach, g, msg);
+            }
 
             if (val != null) {
                 if (flk != null) {
