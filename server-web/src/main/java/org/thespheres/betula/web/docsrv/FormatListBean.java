@@ -166,10 +166,12 @@ public class FormatListBean {
                 String flk = null;
                 String msg = null;
                 GradeReference gradeReference = null;
+                String altSubjectName = null;
                 boolean vorschlag = false;
                 try {
                     d = documentMapper.find(fdocs, student, term.getScheduledItemId());
                     if (d != null) {
+                        altSubjectName = fttd.get(d).getAltSubjectName();
                         FastTermTargetDocument.Entry entry = fttd.get(d).selectEntry(student, term.getScheduledItemId());
                         g = entry != null ? entry.grade : null;
                         if (g != null && Uebertrag.NAME.equals(g.getConvention()) && !vorzensuren && before != null) {
@@ -239,7 +241,6 @@ public class FormatListBean {
 //TODO WebUIConfiguration
                 // final MultiSubject subject = e.getKey();
                 final int tier = builderFactory.tier(e.getKey());
-                final String altSubjectName = fttd.get(d).getAltSubjectName();
                 final ZensurenListe.Column val;
                 if (altSubjectName != null) {
                     val = list.setValue(l, tier, altSubjectName, g, msg);
