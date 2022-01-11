@@ -420,9 +420,11 @@ public class NdsFormatDetailsBean {
             String flk = null;
             String msg = null;
 //                    GradeReference reference = null;
+            String subjectAltName = null;
             try {
                 d = documentMapper.find(fdocs, student, t.getScheduledItemId());
                 if (d != null) {
+                    subjectAltName = fttd.get(d).getAltSubjectName();
                     FastTermTargetDocument.Entry entry = fttd.get(d).selectEntry(student, t.getScheduledItemId());
                     g = entry != null ? entry.grade : null;
                 }
@@ -473,7 +475,6 @@ public class NdsFormatDetailsBean {
 //TODO WebUIConfiguration
             final int tier = factory.tier(subject);
 
-            final String subjectAltName = fttd.get(d).getAltSubjectName();
             final StudentDetailsXml.ColumnValue val;
             if (subjectAltName != null) {
                 val = details.setValue(l, tier, subjectAltName, g, msg);
