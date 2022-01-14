@@ -22,6 +22,10 @@ class MultiSubjectExt extends MultiSubject {
         this.altSubject = alt;
     }
 
+    public String getAltSubject() {
+        return altSubject;
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;

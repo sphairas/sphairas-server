@@ -166,12 +166,11 @@ public class FormatListBean {
                 String flk = null;
                 String msg = null;
                 GradeReference gradeReference = null;
-                String altSubjectName = null;
                 boolean vorschlag = false;
                 try {
                     d = documentMapper.find(fdocs, student, term.getScheduledItemId());
                     if (d != null) {
-                        altSubjectName = fttd.get(d).getAltSubjectName();
+//                        altSubjectName = fttd.get(d).getAltSubjectName();
                         FastTermTargetDocument.Entry entry = fttd.get(d).selectEntry(student, term.getScheduledItemId());
                         g = entry != null ? entry.grade : null;
                         if (g != null && Uebertrag.NAME.equals(g.getConvention()) && !vorzensuren && before != null) {
@@ -242,10 +241,13 @@ public class FormatListBean {
                 // final MultiSubject subject = e.getKey();
                 final int tier = builderFactory.tier(e.getKey());
                 final ZensurenListe.Column val;
-                if (altSubjectName != null) {
+                final String altSubjectName;
+                if (e.getKey() instanceof MultiSubjectExt && (altSubjectName = ((MultiSubjectExt) e.getKey()).getAltSubject()) != null) {
                     val = list.setValue(l, tier, altSubjectName, g, msg);
-                } else {
+                } else if (!fach.isEmpty()) {
                     val = list.setValue(l, tier, fach, g, msg);
+                } else {//Value must be set in any case to this line
+                    val = list.setValue(l, tier, "No subject", g, msg);
                 }
                 if (val != null) {
                     if (flk != null) {
