@@ -106,6 +106,7 @@ import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.ws.CommonDocuments;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -189,6 +190,12 @@ public class NdsFormatter {
             listJaxb = JAXBContext.newInstance(ZensurenListenCollectionXml.class);
             detailsJaxb = JAXBContext.newInstance(DetailsListXml.class);
             fopFactory = FopFactory.newInstance();
+            final Path p = findAppResourcesBase().resolve("fop.xconf");
+            if (Files.exists(p)) {
+                fopFactory.setUserConfig(p.toFile());
+            }
+//        final URL base = p.toUri().toURL();
+//            fopFactory.setUserConfig(userConfig);.getFontManager().setFontBaseURL(p.toString());
 //            foUserAgent = fopFactory.newFOUserAgent();
             factory = TransformerFactory.newInstance();
             final String xslFoFile = builderFactory.getSchulvorlage().getXslFoFile();
@@ -210,7 +217,7 @@ public class NdsFormatter {
 //            set2 = zeugnisConfigService.createTermReportNoteSetTemplate();
             dFormat.setMaximumFractionDigits(2);
             //
-        } catch (JAXBException | TransformerConfigurationException | IOException ex) {
+        } catch (JAXBException | TransformerConfigurationException | IOException | SAXException ex) {
             throw new IllegalStateException(ex);
         }
     }
