@@ -85,7 +85,11 @@ public class BemerkungenBean {
             l.forEach(o -> {
                 if (o instanceof Marker) {
                     final Marker m = (Marker) o;
-                    bemerkungen.add(m.getLongLabel(args));
+                    String lbl = m.getLongLabel(args);
+                    if (bemerkungen.length() != 0 && lineBreakBefore(m)) {
+                        lbl = "\n" + lbl;
+                    }
+                    bemerkungen.add(lbl);
                 } else if (o instanceof CustomNote) {
                     final CustomNote cn = (CustomNote) o;
                     bemerkungen.add(cn.getValue());
@@ -140,5 +144,14 @@ public class BemerkungenBean {
                 //                .filter(Objects::nonNull)
                 .collect(CollectionUtil.singleton())
                 .orElse(Integer.MAX_VALUE);
+    }
+
+    private boolean lineBreakBefore(final Marker marker) {
+        return reportNoteTemplate.getElements().stream()
+                .flatMap(el -> el.getMarkers().stream())
+                .filter(m -> m.getMarker().equals(marker))
+                .map(e -> e.getDisplayHint().contains(Constants.NEUE_ZEILE))
+                .collect(CollectionUtil.singleton())
+                .orElse(false);
     }
 }
