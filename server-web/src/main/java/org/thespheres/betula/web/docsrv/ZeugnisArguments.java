@@ -25,7 +25,6 @@ import org.thespheres.betula.server.beans.CalendarsBean;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.services.scheme.spi.Term;
-import org.thespheres.ical.VCard;
 import org.thespheres.ical.util.VCardHolder;
 
 /**
@@ -55,13 +54,16 @@ public class ZeugnisArguments {
             final TermId termId = zeugnisBean.getTerm(zgn);
             Term term;
             String nSJ = "?";
+            String stufe = "?";
             String nStufe = "?";
             try {
                 term = NdsTerms.fromId(termId);
-                int nJahr = (int) term.getParameter(NdsTerms.JAHR) + 1;
+                int jahr = (int) term.getParameter(NdsTerms.JAHR);
+                int nJahr = jahr + 1;
                 nSJ = Integer.toString(nJahr) + "/" + Integer.toString(nJahr + 1).substring(2);
                 final NamingResolver.Result r = namingResolver.resolveDisplayNameResult(unit);
                 r.addResolverHint("naming.only.level");
+                stufe = r.getResolvedName(NdsTerms.getTerm(jahr, 1));
                 nStufe = r.getResolvedName(NdsTerms.getTerm(nJahr, 1));
             } catch (IllegalAuthorityException | NumberFormatException ex) {
             }
@@ -80,7 +82,7 @@ public class ZeugnisArguments {
                 } catch (AmbiguousDateException ex) {
                     zkDate = null;
                 }
-                return new Object[]{given, gen, possesiv, zkDate, nStufe, nSJ, gender, possesivGen};
+                return new Object[]{given, gen, possesiv, zkDate, nStufe, nSJ, gender, possesivGen, stufe};
             }
         }
         return new Object[]{};
