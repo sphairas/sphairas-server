@@ -41,6 +41,10 @@ class OneHistory implements History<VCardStudent, ReportDoc> {
         }
     }
 
+    public ReportDoc getReportDocument() {
+        return report;
+    }
+
     @Override
     public ReportDoc getReportDocument(DocumentId did) {
         if (did.equals(report.getDocumentId())) {

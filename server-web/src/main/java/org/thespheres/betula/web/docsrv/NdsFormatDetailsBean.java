@@ -115,7 +115,7 @@ public class NdsFormatDetailsBean {
 //        details.setListName(lname);
 //        details.setSortString(StudentComparator.sortStringFromDirectoryName(card.getDirectoryName()));
         //Subject-grade map for validation, keine fächerübergreifende Evaluierung ????
-        final Map<Subject, Grade> zeugnisnoten = new HashMap<>();
+        final Map<TermId, Map<Subject, Grade>> zeugnisnoten = new HashMap<>();
 //            final Map<String, <Grade, Integer>> avsvMap = new TreeMap((Comparator<Grade>) (g1, g2) -> collator.compare(g1.getShortLabel(), g2.getShortLabel()));
         int row = 0;
         for (int tc = -preTermsCount; tc <= -1; tc++) {
@@ -129,7 +129,7 @@ public class NdsFormatDetailsBean {
             final Map<MultiSubject, Set<DocumentId>> query = docMap.get(t.getScheduledItemId()).get("zeugnisnoten");
             if (query != null && !query.isEmpty()) {
                 StudentDetailsXml.TermDataLine l = details.addLine(row++, t.getDisplayName());
-                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, null, details, l);
+                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, zeugnisnoten, details, l);
             }
         }
         final Map<MultiSubject, Set<DocumentId>> q = docMap.get(current.getScheduledItemId()).get("quartalsnoten");
@@ -402,7 +402,7 @@ public class NdsFormatDetailsBean {
         }
     }
 
-    private Map<Grade, Integer> oneAssessLine(final String ltype, final Map<MultiSubject, Set<DocumentId>> byQuery, final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student, Term t, String sName, final Marker sgl, Term current, final Map<Subject, Grade> sm, StudentDetailsXml details, StudentDetailsXml.TermDataLine l) {
+    private Map<Grade, Integer> oneAssessLine(final String ltype, final Map<MultiSubject, Set<DocumentId>> byQuery, final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student, Term t, String sName, final Marker sgl, Term current, final Map<TermId, Map<Subject, Grade>> sm, StudentDetailsXml details, StudentDetailsXml.TermDataLine l) {
         final Map<Grade, Integer> ret = new HashMap<>();
         Grade avsvVorschlag = null;
         for (Map.Entry<MultiSubject, Set<DocumentId>> e : byQuery.entrySet()) {
@@ -469,7 +469,7 @@ public class NdsFormatDetailsBean {
 //                sm.put(subject, g);
                 final Grade fg = g;
                 final Marker realm = subject.getRealmMarker();
-                subject.getSubjectMarkerSet().stream().forEach(s -> sm.put(new Subject(s, realm), fg));
+                subject.getSubjectMarkerSet().stream().forEach(s -> sm.computeIfAbsent(t.getScheduledItemId(), tid -> new HashMap<>()).put(new Subject(s, realm), fg));
             }
 
 //TODO WebUIConfiguration

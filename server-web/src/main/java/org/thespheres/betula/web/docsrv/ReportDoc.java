@@ -22,8 +22,11 @@ import org.thespheres.betula.document.util.AbstractReportDocument;
  */
 class ReportDoc extends AbstractReportDocument {
 
-    ReportDoc(DocumentId report, TermId term, Map<Subject, Grade> map, Marker[] m, LocalDate reportDate) {
-        super(report, term, map, reportDate);
+    private final Map<TermId, Map<Subject, Grade>> grades;
+
+    ReportDoc(final DocumentId report, final TermId term, final Map<TermId, Map<Subject, Grade>> map, Marker[] m, LocalDate reportDate) {
+        super(report, term, map.get(term), reportDate);
+        this.grades = map;
         Arrays.stream(m).forEach(markers::add);
     }
 
@@ -34,6 +37,10 @@ class ReportDoc extends AbstractReportDocument {
 
     Set<Marker> getMarkerSet() {
         return markers;
+    }
+
+    Map<TermId, Map<Subject, Grade>> getBeforeGrades() {
+        return grades;
     }
 
 }
