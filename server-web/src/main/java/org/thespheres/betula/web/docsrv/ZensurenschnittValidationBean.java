@@ -6,6 +6,8 @@
 package org.thespheres.betula.web.docsrv;
 
 import java.io.FileNotFoundException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,7 +70,7 @@ public class ZensurenschnittValidationBean {
                     try {
                         final TermId btid = ((PrecedingTermGradeReference) g).findPrecedingTermId(r.getTerm());
                         if (btid != null) {
-                            final Grade beforeGrade = r.getBeforeGrades().get(btid).get(s);
+                            final Grade beforeGrade = r.getBeforeGrades().getOrDefault(btid, (Map<Subject, Grade>) Collections.EMPTY_MAP).get(s);
                             if (beforeGrade != null) {
                                 return super.adjustGrade(beforeGrade, r, s);
                             }
