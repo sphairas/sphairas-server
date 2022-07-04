@@ -464,7 +464,7 @@ public class NdsFormatDetailsBean {
                 ret.compute(g, (v, i) -> i == null ? 1 : i + 1);
             }
 
-            if (sm != null && g != null && t.getScheduledItemId().equals(current.getScheduledItemId())) {
+            if (sm != null && g != null) {
                 //Das muss geklärt werden, wie wird fächerübergreifender Unterricht im Zusammenhang mit den Versetzung, Notendurchschitt etc. gewertet?
 //                sm.put(subject, g);
                 final Grade fg = g;
