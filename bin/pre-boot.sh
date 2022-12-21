@@ -21,7 +21,8 @@ SERVER_PKCS12_FILE=${SECRETS_DIR}/server.p12
 SERVER_CERT=${SECRETS}/server.crt
 SERVER_CSR_TEMP=${SECRETS}/server-csr.csr
 SERVER_CERT_TEMP=${SECRETS}/server-new.crt
-SECONDS=$((60 * 60 * 24 * 90))
+#SECONDS=$((60 * 60 * 24 * 400))
+SECONDS=0
 
 set +x
 
@@ -48,19 +49,19 @@ else
 fi
 
 #Replace expiring server.crt
-#if ! openssl x509 -checkend $SECONDS -noout -in ${SERVER_CERT}
-#then
-#    n=0; while [ -f ${SECRETS}/_server$n.crt ]; do ((++n)); done; 
-#    BACKUP_FILE=_server$n.crt
+if ! openssl x509 -checkend $SECONDS -noout -in ${SERVER_CERT}
+then
+    echo "Replacing expired server certificate"
+    n=0; while [ -f ${SECRETS}/_server$n.crt ]; do ((++n)); done; 
+    BACKUP_FILE=_server$n.crt
 
-#    openssl x509 -x509toreq -in ${SERVER_CERT} -passin pass:${AS_ADMIN_MASTERPASSWORD} -signkey ${SERVER_KEY} -out ${SERVER_CSR_TEMP}
-#    openssl x509 -req -days 365 -in ${SERVER_CSR_TEMP} -signkey ${SERVER_KEY} -passin pass:${AS_ADMIN_MASTERPASSWORD} -out ${SERVER_CERT_TEMP}
-#    rm ${SERVER_CSR_TEMP}
-#    mv ${SERVER_CERT} ${SECRETS}/${BACKUP_FILE}
-#    mv ${SERVER_CERT_TEMP} ${SERVER_CERT} 
-#fi
-
-
+    openssl x509 -x509toreq -in ${SERVER_CERT} -passin pass:${AS_ADMIN_MASTERPASSWORD} -signkey ${SERVER_KEY} -out ${SERVER_CSR_TEMP}
+    openssl x509 -req -days 365 -in ${SERVER_CSR_TEMP} -signkey ${SERVER_KEY} -passin pass:${AS_ADMIN_MASTERPASSWORD} -out ${SERVER_CERT_TEMP}
+    rm ${SERVER_CSR_TEMP}
+    mv ${SERVER_CERT} ${SECRETS}/${BACKUP_FILE}
+    mv ${SERVER_CERT_TEMP} ${SERVER_CERT} 
+    echo "Replaced $SERVER_CERT, saved expired file to $BACKUP_FILE"
+fi
 
 openssl pkcs12 -export -in $SERVER_CERT -inkey $SERVER_KEY -passin pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_PKCS12_FILE -passout pass:${AS_ADMIN_MASTERPASSWORD} -name $ALIAS
 
