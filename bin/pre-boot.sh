@@ -19,6 +19,9 @@ SERVER_KEY=${SECRETS}/server.key
 #In futur, server.p12 should be provided in /run/secrets
 SERVER_PKCS12_FILE=${SECRETS_DIR}/server.p12
 SERVER_CERT=${SECRETS}/server.crt
+SERVER_CSR_TEMP=${SECRETS}/server-csr.csr
+SERVER_CERT_TEMP=${SECRETS}/server-new.crt
+SECONDS=$((60 * 60 * 24 * 90))
 
 set +x
 
@@ -43,6 +46,22 @@ if [ ! -f ${SERVER_KEY} ] || [ ! -f ${SERVER_CERT} ]; then
 else
     openssl x509 -in ${SERVER_CERT} -noout -subject | sed 's/^subject=//' | awk '{for (i = 1; i <= NF; i++) print $i}' FS="," OFS="\n" | sed 's/ //g' > ${SUBJECT}
 fi
+
+#Replace expiring server.crt
+#if ! openssl x509 -checkend $SECONDS -noout -in ${SERVER_CERT}
+#then
+#    n=0; while [ -f ${SECRETS}/_server$n.crt ]; do ((++n)); done; 
+#    BACKUP_FILE=_server$n.crt
+
+#    openssl x509 -x509toreq -in ${SERVER_CERT} -passin pass:${AS_ADMIN_MASTERPASSWORD} -signkey ${SERVER_KEY} -out ${SERVER_CSR_TEMP}
+#    openssl x509 -req -days 365 -in ${SERVER_CSR_TEMP} -signkey ${SERVER_KEY} -passin pass:${AS_ADMIN_MASTERPASSWORD} -out ${SERVER_CERT_TEMP}
+#    rm ${SERVER_CSR_TEMP}
+#    mv ${SERVER_CERT} ${SECRETS}/${BACKUP_FILE}
+#    mv ${SERVER_CERT_TEMP} ${SERVER_CERT} 
+#fi
+
+
+
 openssl pkcs12 -export -in $SERVER_CERT -inkey $SERVER_KEY -passin pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_PKCS12_FILE -passout pass:${AS_ADMIN_MASTERPASSWORD} -name $ALIAS
 
 #Import keys
