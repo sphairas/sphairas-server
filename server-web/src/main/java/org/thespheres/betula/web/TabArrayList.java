@@ -5,7 +5,11 @@
  */
 package org.thespheres.betula.web;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 
 /**
  *
@@ -43,5 +47,10 @@ public class TabArrayList<D extends AbstractData> {
             }
         }
     }
-    
+
+    public void sort() {
+        final Comparator<D> comparator = Comparator.comparing(d -> d.getDisplayTitle(), Collator.getInstance(Locale.getDefault()));
+        Collections.sort(tabs, comparator);
+    }
+
 }

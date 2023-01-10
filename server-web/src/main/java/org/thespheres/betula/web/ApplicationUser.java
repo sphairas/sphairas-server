@@ -133,6 +133,7 @@ public class ApplicationUser implements Serializable {
                     tab.getDocuments().addAll(e.getValue());
                 }
             }
+            units.sort();
         }
         return units;
     }
