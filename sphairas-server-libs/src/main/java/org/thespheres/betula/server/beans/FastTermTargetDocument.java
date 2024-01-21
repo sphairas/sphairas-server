@@ -23,12 +23,13 @@ import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.Timestamp;
+import org.thespheres.betula.document.model.UnitsModel;
 
 /**
  *
  * @author boris.heithecker
  */
-public final class FastTermTargetDocument implements TargetDocument, GradeTermTargetAssessment {
+public final class FastTermTargetDocument implements TargetDocument, GradeTermTargetAssessment, UnitsModel.UnitsModelDocument {
 
     private final Map<StudentId, Map<TermId, Entry>> values;
     private final Set<Marker> markers;
@@ -52,6 +53,11 @@ public final class FastTermTargetDocument implements TargetDocument, GradeTermTa
 
     public DocumentId getDocument() {
         return document;
+    }
+
+    @Override
+    public DocumentId getDocumentId() {
+        return getDocument();
     }
 
     @Override

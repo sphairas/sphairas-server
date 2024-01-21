@@ -8,6 +8,7 @@ package org.thespheres.betula.web.docsrv;
 import org.thespheres.betula.server.beans.AmbiguousResultException;
 import java.text.Collator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
+import org.thespheres.betula.document.model.UnitsModel;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.vorschlag.AVSVVorschlag;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
@@ -58,6 +60,7 @@ import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.scheme.spi.TermNotFoundException;
 import org.thespheres.betula.services.util.SigneeEntitlement;
+import org.thespheres.betula.services.vcard.VCardStudent;
 import org.thespheres.betula.util.CollectionUtil;
 import org.thespheres.betula.web.PrimaryUnit;
 import org.thespheres.betula.web.config.ExtraAnnotation;
@@ -70,6 +73,8 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
 @LocalBean
 public class NdsFormatDetailsBean {
 
+    @EJB
+    private ZensurensprungValidationBean zensurensprung;
     @EJB
     private VersetzungsValidationBean versetzung;
     @EJB
@@ -391,7 +396,39 @@ public class NdsFormatDetailsBean {
                         .map(text -> NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.VersetzungsValidation.message", text))
                         .forEach(validations::add);
             }
-//
+//Zensurensprünge
+            class OneUnitsModel implements UnitsModel<VCardStudent, FastTermTargetDocument> {
+
+                @Override
+                public List<VCardStudent> getStudents() {
+                    return Collections.singletonList(ms);
+                }
+
+                @Override
+                public FastTermTargetDocument getTarget(DocumentId did) {
+                    return targetData.get(did);
+                }
+
+                @Override
+                public Set<FastTermTargetDocument> getTargets() {
+                    return targetData.entrySet().stream()
+                            .map(e -> e.getValue())
+                            .collect(Collectors.toSet());
+                }
+
+                @Override
+                public Set<TermId> getTerms() {
+                    return targetData.values().stream()
+                            .flatMap(f -> f.getTerms().stream())
+                            .collect(Collectors.toSet());
+                }
+
+            }
+            final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel());
+            sprung.stream()
+                    .map(OneZensurensprungResult::getMessage)
+                    .forEach(validations::add);
+
             final String validationsText = validations.toString();
             if (!validationsText.isEmpty()) {
                 final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.validations.label");
