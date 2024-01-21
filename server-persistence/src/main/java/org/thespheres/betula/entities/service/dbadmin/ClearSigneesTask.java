@@ -67,7 +67,7 @@ public class ClearSigneesTask {
         final TermId term = task.getArg("term", TermId.class);
         final boolean onlyEmpty = task.getArg("if-target-empty", Boolean.class);
         if (!onlyEmpty) {
-            return new DBAdminTaskResult(false, "Not supported.");
+            return new DBAdminTaskResult(false, "Option if-target-empty must be set.");
         }
         final boolean dryRun = task.getArg("dry-run", Boolean.class);
         //TODO support effective Date
