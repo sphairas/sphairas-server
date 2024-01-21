@@ -15,11 +15,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>library</artifactId>
             <version>0.2.14</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>services</artifactId>
-            <version>0.2.20</version>
+            <version>0.2.22</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
