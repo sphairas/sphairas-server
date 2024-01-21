@@ -266,6 +266,9 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
             }
             final Date keepAfterDate = d;
 
+            final String hintKeepExisting = de.getHints().get("keep.existing.entries");
+            boolean keepExisting = hintKeepExisting != null && hintKeepExisting.equals("true");
+
             final Set<StudentId> updatePULinksSet = new HashSet<>();
             GradeTargetAssessmentEntity<I> tae = facade.find(docId, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
@@ -389,7 +392,7 @@ public class AdminTargetsProcessor extends AbstractAdminContainerProcessor {
                             currentEntries.remove(sfrid);
                         }
                     }
-                    if (!current.isEmpty()) {
+                    if (!current.isEmpty() && !keepExisting) {
                         current.forEach((sid, g) -> {
                             if (g.equals(PENDING) || g.equals(AVC) || g.equals(SVC)) {
                                 toClear.add(sid);
