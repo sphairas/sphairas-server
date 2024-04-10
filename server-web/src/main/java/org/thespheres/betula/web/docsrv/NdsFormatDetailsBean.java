@@ -72,7 +72,7 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
 @Stateless
 @LocalBean
 public class NdsFormatDetailsBean {
-
+    
     @EJB
     private ZensurensprungValidationBean zensurensprung;
     @EJB
@@ -255,7 +255,7 @@ public class NdsFormatDetailsBean {
                 }
                 tb.setValue(sj.toString());
             }
-
+            
             final Grade tg = new AbstractGrade("niedersachsen.teilnahme", "tg");
             final String agText = agTargetData.entrySet().stream()
                     .filter(e -> {
@@ -299,7 +299,7 @@ public class NdsFormatDetailsBean {
                 Logger.getLogger(NdsFormatDetailsBean.class.getName()).log(Level.WARNING, msg, ex);
                 stufe = pu.getId();
             }
-
+            
             boolean excludeAGs = false;
             final Map<String, String> extraTexts = new HashMap<>();
             try {
@@ -316,7 +316,7 @@ public class NdsFormatDetailsBean {
                 final String msg = "An exception has occurred parsing primary unit level " + stufe + " for " + pu.toString();
                 Logger.getLogger(NdsFormatDetailsBean.class.getName()).log(Level.WARNING, msg, nfex);
             }
-
+            
             for (final Map.Entry<String, String> e : extraTexts.entrySet()) {
                 final String lbl = ReportProvisionsUtil.getTextFieldLabel(e.getKey());
                 final int pos = ReportProvisionsUtil.getTextFieldPosition(e.getKey());
@@ -398,47 +398,48 @@ public class NdsFormatDetailsBean {
             }
 //Zensurensprünge
             class OneUnitsModel implements UnitsModel<VCardStudent, FastTermTargetDocument> {
-
+                
                 @Override
                 public List<VCardStudent> getStudents() {
                     return Collections.singletonList(ms);
                 }
-
+                
                 @Override
                 public FastTermTargetDocument getTarget(DocumentId did) {
                     return targetData.get(did);
                 }
-
+                
                 @Override
                 public Set<FastTermTargetDocument> getTargets() {
                     return targetData.entrySet().stream()
                             .map(e -> e.getValue())
                             .collect(Collectors.toSet());
                 }
-
+                
                 @Override
                 public Set<TermId> getTerms() {
                     return targetData.values().stream()
                             .flatMap(f -> f.getTerms().stream())
                             .collect(Collectors.toSet());
                 }
-
+                
             }
             final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel());
-            sprung.stream()
-                    .map(OneZensurensprungResult::getMessage)
-                    .forEach(validations::add);
-
+//            sprung.stream()
+//                    .filter(r -> r.getTerm().equals(current.getScheduledItemId()))
+//                    .map(OneZensurensprungResult::getMessage)
+//                    .forEach(validations::add);
+            
             final String validationsText = validations.toString();
             if (!validationsText.isEmpty()) {
                 final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.validations.label");
                 StudentDetailsXml.Text tv = details.addText(lbl, Integer.MAX_VALUE);
                 tv.setValue(validationsText);
             }
-
+            
         }
     }
-
+    
     private Map<Grade, Integer> oneAssessLine(final String ltype, final Map<MultiSubject, Set<DocumentId>> byQuery, final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student, Term t, String sName, final Marker sgl, Term current, final Map<TermId, Map<Subject, Grade>> sm, StudentDetailsXml details, StudentDetailsXml.TermDataLine l) {
         final Map<Grade, Integer> ret = new HashMap<>();
         Grade avsvVorschlag = null;
@@ -492,7 +493,7 @@ public class NdsFormatDetailsBean {
                     vorschlag = true;
                 }
             }
-
+            
             if (g != null) {
                 if (d != null) {
                     final Marker kurssgl = getDocumentSGL(fttd.get(d));
@@ -500,7 +501,7 @@ public class NdsFormatDetailsBean {
                 }
                 ret.compute(g, (v, i) -> i == null ? 1 : i + 1);
             }
-
+            
             if (sm != null && g != null) {
                 //Das muss geklärt werden, wie wird fächerübergreifender Unterricht im Zusammenhang mit den Versetzung, Notendurchschitt etc. gewertet?
 //                sm.put(subject, g);
@@ -511,14 +512,14 @@ public class NdsFormatDetailsBean {
 
 //TODO WebUIConfiguration
             final int tier = factory.tier(subject);
-
+            
             final StudentDetailsXml.ColumnValue val;
             if (subjectAltName != null) {
                 val = details.setValue(l, tier, subjectAltName, g, msg);
             } else {
                 val = details.setValue(l, tier, fach, g, msg);
             }
-
+            
             if (val != null) {
                 if (flk != null) {
                     val.setLabelLeft(flk);
@@ -540,7 +541,7 @@ public class NdsFormatDetailsBean {
         }
         return ret;
     }
-
+    
     private Marker getDocumentSGL(FastTermTargetDocument ftd) {
         if (ftd != null) {
             final String sglconv = fOPFormatter.getSglConvention();
@@ -550,7 +551,7 @@ public class NdsFormatDetailsBean {
         }
         return null;
     }
-
+    
     private String formatSignee(final Signee signee, final String entitlement) {
         final StringJoiner ret = new StringJoiner(": ");
         if (!"entitled.signee".equals(entitlement)) {
