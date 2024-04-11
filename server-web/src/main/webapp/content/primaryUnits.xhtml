@@ -3,15 +3,20 @@
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://java.sun.com/jsf/facelets">
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <h:form>
         <p:menubar styleClass="ui-menubar ui-active">  
             <p:submenu label="#{bundle['primaryUnits.menu.download']}" icon="ui-icon-document">  
                 <p:menuitem value="#{bundle['primaryUnits.menu.download.allelisten']}" url="#{app.user.currentPrimaryUnit.listenDownload}" target="_blank" >
                 </p:menuitem> 
-                <p:menuitem rendered="#{app.user.currentPrimaryUnit.enableDetails}" value="#{bundle['primaryUnits.menu.download.detailListen']}" url="#{app.user.currentPrimaryUnit.detailsDownload}" target="_blank" >
+                <p:menuitem rendered="#{app.user.currentPrimaryUnit.enableDetails}" value="#{bundle['primaryUnits.menu.download.detailListen']}" url="#{app.user.currentPrimaryUnit.getDetailsDownload(null)}" target="_blank" >
                 </p:menuitem> 
+                <c:forEach items="#{app.user.currentPrimaryUnit.detailsTemplates}" var="name">
+                    <p:menuitem value="#{name}" url="#{app.user.currentPrimaryUnit.getDetailsDownload(name)}" target="_blank" >
+                    </p:menuitem> 
+                </c:forEach>
                 <p:menuitem value="#{bundle['primaryUnits.menu.download.allezgn']}" url="#{app.user.currentPrimaryUnit.zgnDownload}" target="_blank" >
                 </p:menuitem> 
             </p:submenu>  

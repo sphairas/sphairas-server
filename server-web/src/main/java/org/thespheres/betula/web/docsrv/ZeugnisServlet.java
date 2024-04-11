@@ -286,7 +286,7 @@ public class ZeugnisServlet extends HttpServlet {
         //
 //        final FastTargetDocuments2 tgtae = lookupFastTargetDocumentsImplLocal();
         final String ptcprop = request.getParameter(WebAppProperties.FORMAT_DETAILS_LISTS_PRETERMS_COUNT_PROPERTY);
-        int preTermsCount = Integer.getInteger(WebAppProperties.FORMAT_DETAILS_LISTS_PRETERMS_COUNT_PROPERTY, 1);
+        int preTermsCount = Integer.getInteger(WebAppProperties.FORMAT_DETAILS_LISTS_PRETERMS_COUNT_PROPERTY, 3);
         if (ptcprop != null) {
             int parsed;
             try {
@@ -346,7 +346,8 @@ public class ZeugnisServlet extends HttpServlet {
         final Collection<StudentId> students = ftd2.getStudents(pu, null);
 
 //        final byte[] out = fOPFormatter.formatDetails(tgtae, map, ag, pu, term, mime, preTermsCount);
-        final byte[] out = fOPFormatter.formatDetails(students, targets, agTargets, map, pu, term, mime, preTermsCount, textDocMap, textData); //formatDetails(students, fttd, agTargets, pu, term, mime, preTermsCount);
+        final String template = request.getParameter(WebAppProperties.FORMAT_DETAILS_LISTS_TEMPLATE_NAME);
+        final byte[] out = fOPFormatter.formatDetails(students, targets, agTargets, map, pu, term, mime, preTermsCount, textDocMap, textData, template); //formatDetails(students, fttd, agTargets, pu, term, mime, preTermsCount);
         response.setContentType(mime);
         response.getOutputStream().write(out);
     }

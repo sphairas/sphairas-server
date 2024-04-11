@@ -43,12 +43,12 @@ import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
-import org.thespheres.betula.document.MarkerConvention;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.NdsTerms;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage.ListDefinition;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
@@ -101,7 +101,8 @@ public class PrimaryUnit extends AbstractData<Subject> {
     }
 
     public boolean isEnableDetails() {
-        return Boolean.getBoolean(WebAppProperties.BETULA_WEB_UI_ENABLE_DETAILSLIST_PROPERTY);
+        return getDetailsTemplates().isEmpty() 
+                && Boolean.getBoolean(WebAppProperties.BETULA_WEB_UI_ENABLE_DETAILSLIST_PROPERTY);
     }
 
     @Override
@@ -303,7 +304,14 @@ public class PrimaryUnit extends AbstractData<Subject> {
         return ret;
     }
 
-    public String getDetailsDownload() {
+    public List<String> getDetailsTemplates() {
+        List<String> ret = application.getReportBuilderFactory().getSchulvorlage().getListDefinitions().stream()
+                .map(ListDefinition::getName)
+                .collect(Collectors.toList());
+        return ret;
+    }
+
+    public String getDetailsDownload(String variant) {
         String kla = getResolvedPrimaryUnitDisplayName();
         if (kla == null) {
             kla = unit.getId();
@@ -311,7 +319,11 @@ public class PrimaryUnit extends AbstractData<Subject> {
         final String jahr = Integer.toString((Integer) term.getParameter(NdsTerms.JAHR));
         final int hj = (Integer) term.getParameter(NdsTerms.HALBJAHR);
         String file = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.menu.download.detailListen.filename", kla, jahr, hj, new Date());
-        return "zgnsrv/" + file + "?" + "document=betula.primaryUnit.details&unit.id=" + getUnitIdEncoded() + "&unit.authority=" + getUnitAuthorityEncoded();
+        String ret = "zgnsrv/" + file + "?" + "document=betula.primaryUnit.details&unit.id=" + getUnitIdEncoded() + "&unit.authority=" + getUnitAuthorityEncoded();
+        if (StringUtils.isNotBlank(variant)) {
+            ret += "&" + WebAppProperties.FORMAT_DETAILS_LISTS_TEMPLATE_NAME + "=" + variant;
+        }
+        return ret;
     }
 
     public String getZgnDownload() {

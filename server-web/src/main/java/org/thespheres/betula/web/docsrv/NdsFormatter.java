@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -444,7 +445,7 @@ public class NdsFormatter {
         return baos.toByteArray();
     }
 
-    public byte[] formatDetails(final Collection<StudentId> students, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTermTargetDocument> agTargets, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map, UnitId pu, Term current, String mime, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData) throws IOException {
+    public byte[] formatDetails(final Collection<StudentId> students, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTermTargetDocument> agTargets, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map, UnitId pu, Term current, String mime, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData, String templateName) throws IOException {
 
         final DetailsListXml collection = new DetailsListXml();
         collection.setFooterCenter(builderFactory.getSchulvorlage().getSchoolName());
@@ -469,7 +470,14 @@ public class NdsFormatter {
             details.setListDate(ldate);
             details.setListName(lname);
             details.setSortString(StudentComparator.sortStringFromDirectoryName(card.getDirectoryName()));
-            formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets, textDocMap, textData);
+            final NdsZeugnisSchulvorlage.ListDefinition listDef = builderFactory.getSchulvorlage().getListDefinitions().stream()
+                    .filter(d -> templateName != null && templateName.equals(d.getName()))
+                    .collect(CollectionUtil.singleOrNull());
+            Optional.ofNullable(listDef)
+                    .map(NdsZeugnisSchulvorlage.ListDefinition::getFontSize)
+                    .map(NdsZeugnisSchulvorlage.FontSizeValues::getTableCells)
+                    .ifPresent(details::setHeaderFontSize);
+            formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets, textDocMap, textData, listDef);
 
             collection.list.add(details);
         }

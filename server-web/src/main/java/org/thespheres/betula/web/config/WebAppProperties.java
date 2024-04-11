@@ -13,5 +13,5 @@ public class WebAppProperties {
 
     public static final String BETULA_WEB_UI_ENABLE_DETAILSLIST_PROPERTY = "betula.web.ui.enable.details-list";
     public static final String FORMAT_DETAILS_LISTS_PRETERMS_COUNT_PROPERTY = "format.details.lists.preterms.count";
-
+    public static final String FORMAT_DETAILS_LISTS_TEMPLATE_NAME = "format.details.lists.template.name";
 }

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.logging.Level;
@@ -46,6 +47,10 @@ import org.thespheres.betula.document.model.UnitsModel;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.vorschlag.AVSVVorschlag;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage.FontSizeValues;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage.ListDefinition;
+import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage.Property;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilder;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
@@ -103,7 +108,7 @@ public class NdsFormatDetailsBean {
 
 //    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
 //    @RolesAllowed({"signee", "unitadmin"})
-    public void oneStudent(final StudentDetailsXml details, final MappedStudent ms, UnitId pu, Term current, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap, final Map<DocumentId, FastTermTargetDocument> targetData, final Map<DocumentId, FastTermTargetDocument> agTargetData, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData) {
+    public void oneStudent(final StudentDetailsXml details, final MappedStudent ms, UnitId pu, Term current, int preTermsCountRequest, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap, final Map<DocumentId, FastTermTargetDocument> targetData, final Map<DocumentId, FastTermTargetDocument> agTargetData, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData, NdsZeugnisSchulvorlage.ListDefinition listDef) {
         final StudentId student = ms.getStudentId();
         final String sName = ms.getDisplayName();
         final Marker sgl = ms.getCareer();
@@ -117,12 +122,15 @@ public class NdsFormatDetailsBean {
 //        final String lname = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.download.details.title", sName, kla, jahr, hj);
 //        final StudentDetailsXml details = new StudentDetailsXml();
 //        details.setListDate(ldate);
-//        details.setListName(lname);
+//        details.setListName(lname); 
 //        details.setSortString(StudentComparator.sortStringFromDirectoryName(card.getDirectoryName()));
         //Subject-grade map for validation, keine fächerübergreifende Evaluierung ????
         final Map<TermId, Map<Subject, Grade>> zeugnisnoten = new HashMap<>();
 //            final Map<String, <Grade, Integer>> avsvMap = new TreeMap((Comparator<Grade>) (g1, g2) -> collator.compare(g1.getShortLabel(), g2.getShortLabel()));
         int row = 0;
+        int preTermsCount = Optional.ofNullable(listDef)
+                .map(ListDefinition::getPreTermsCount)
+                .orElse(preTermsCountRequest);
         for (int tc = -preTermsCount; tc <= -1; tc++) {
             final Term t;
             try {
@@ -134,33 +142,57 @@ public class NdsFormatDetailsBean {
             final Map<MultiSubject, Set<DocumentId>> query = docMap.get(t.getScheduledItemId()).get("zeugnisnoten");
             if (query != null && !query.isEmpty()) {
                 StudentDetailsXml.TermDataLine l = details.addLine(row++, t.getDisplayName());
-                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, zeugnisnoten, details, l);
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getText)
+                        .ifPresent(l::setLabelFontSize);
+                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, zeugnisnoten, details, l, listDef);
             }
         }
+        final List<String> targetTypes = Optional.ofNullable(listDef)
+                .map(ListDefinition::getTargetTypes)
+                .map(Arrays::asList)
+                .orElse(Arrays.asList(new String[]{"quartalsnoten", "zeugnisnoten", "arbeitsverhalten", "sozialverhalten"}));
         final Map<MultiSubject, Set<DocumentId>> q = docMap.get(current.getScheduledItemId()).get("quartalsnoten");
-        if (q != null && !q.isEmpty()) {
+        if (q != null && !q.isEmpty() && targetTypes.contains("quartalsnoten")) {
             String lbl = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.docTypes.quartalsnoten");
             StudentDetailsXml.TermDataLine lq = details.addLine(row++, lbl);
-            oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, current, null, details, lq);
+            Optional.ofNullable(listDef)
+                    .map(ListDefinition::getFontSize)
+                    .map(FontSizeValues::getText)
+                    .ifPresent(lq::setLabelFontSize);
+            oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, current, null, details, lq, listDef);
         }
         final Map<MultiSubject, Set<DocumentId>> query = docMap.get(current.getScheduledItemId()).get("zeugnisnoten");
-        if (query != null) {
+        if (query != null && targetTypes.contains("zeugnisnoten")) {
             StudentDetailsXml.TermDataLine l = details.addLine(row++, current.getDisplayName());
-            oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, current, zeugnisnoten, details, l);
+            Optional.ofNullable(listDef)
+                    .map(ListDefinition::getFontSize)
+                    .map(FontSizeValues::getText)
+                    .ifPresent(l::setLabelFontSize);
+            oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, current, zeugnisnoten, details, l, listDef);
         }
         final Map<MultiSubject, Set<DocumentId>> av = docMap.get(current.getScheduledItemId()).get("arbeitsverhalten");
         Map<Grade, Integer> avcount = null;
-        if (av != null && !av.isEmpty()) {
+        if (av != null && !av.isEmpty() && targetTypes.contains("arbeitsverhalten")) {
             String lblav = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.docTypes.arbeitsverhalten");
             StudentDetailsXml.TermDataLine lav = details.addLine(row++, lblav);
-            avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, current, null, details, lav);
+            Optional.ofNullable(listDef)
+                    .map(ListDefinition::getFontSize)
+                    .map(FontSizeValues::getText)
+                    .ifPresent(lav::setLabelFontSize);
+            avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, current, null, details, lav, listDef);
         }
         final Map<MultiSubject, Set<DocumentId>> sv = docMap.get(current.getScheduledItemId()).get("sozialverhalten");
         Map<Grade, Integer> svcount = null;
-        if (sv != null && !sv.isEmpty()) {
+        if (sv != null && !sv.isEmpty() && targetTypes.contains("sozialverhalten")) {
             String lblsv = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.docTypes.sozialverhalten");
             StudentDetailsXml.TermDataLine lsv = details.addLine(row++, lblsv);
-            svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, current, null, details, lsv);
+            Optional.ofNullable(listDef)
+                    .map(ListDefinition::getFontSize)
+                    .map(FontSizeValues::getText)
+                    .ifPresent(lsv::setLabelFontSize);
+            svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, current, null, details, lsv, listDef);
         }
         final DocumentId[] reports = zeugnisBean.findTermReports(student, current.getScheduledItemId(), true);
         if (reports.length == 1) {
@@ -174,6 +206,10 @@ public class NdsFormatDetailsBean {
                 final String pt = NbBundle.getMessage(NdsReportBuilder.class, "niedersachsen.arbeitsverhalten.position");
                 int pos = Integer.parseInt(pt);
                 final StudentDetailsXml.Text tb = details.addText(lbl, pos);
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getText)
+                        .ifPresent(tb::setFontSize);
                 final StringJoiner sj = new StringJoiner(" - ");
                 String avlbl = null;
                 if (avg != null) {
@@ -195,7 +231,7 @@ public class NdsFormatDetailsBean {
                     }
 //                    }
                 }
-                final StringJoiner avsvlb = new StringJoiner(" / ");
+                final StringJoiner avsvlb = new StringJoiner(" \n ");
                 if (avg != null) {
                     final String m = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.message",
                             GradeFactory.findConvention(ASVAssessmentConvention.AV_NAME).getDisplayName(),
@@ -276,6 +312,10 @@ public class NdsFormatDetailsBean {
                 final String pt = NbBundle.getMessage(NdsReportBuilder.class, "zeugnis.text.title.ag.position");
                 int pos = Integer.parseInt(pt);
                 final StudentDetailsXml.Text tb = details.addText(lbl, pos);
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getText)
+                        .ifPresent(tb::setFontSize);
                 tb.setValue(agText);
             }
 //Bemerkungen
@@ -285,6 +325,10 @@ public class NdsFormatDetailsBean {
                 final String pt = NbBundle.getMessage(NdsReportBuilder.class, "zeugnis.text.title.bemerkungen.position");
                 int pos = Integer.parseInt(pt);
                 final StudentDetailsXml.Text tb = details.addText(lbl, pos);
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getText)
+                        .ifPresent(tb::setFontSize);
                 tb.setValue(bemerkungen);
             }
 //Extra-Text
@@ -321,6 +365,10 @@ public class NdsFormatDetailsBean {
                 final String lbl = ReportProvisionsUtil.getTextFieldLabel(e.getKey());
                 final int pos = ReportProvisionsUtil.getTextFieldPosition(e.getKey());
                 final StudentDetailsXml.Text tb = details.addText(lbl, pos);
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getText)
+                        .ifPresent(tb::setFontSize);
                 tb.setValue(e.getValue());
             }
 
@@ -362,6 +410,10 @@ public class NdsFormatDetailsBean {
                 if (comment != null) {
                     final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.comments.label");
                     final StudentDetailsXml.Text cv = details.addText(lbl, Integer.MAX_VALUE - 1000);
+                    Optional.ofNullable(listDef)
+                            .map(ListDefinition::getFontSize)
+                            .map(FontSizeValues::getText)
+                            .ifPresent(cv::setFontSize);
                     cv.setValue(comment);
                 }
             }
@@ -430,16 +482,25 @@ public class NdsFormatDetailsBean {
                     .forEach(validations::add);
 
             final String validationsText = validations.toString();
-            if (!validationsText.isEmpty()) {
+            final boolean printValidations = Optional.ofNullable(listDef)
+                    .flatMap(ld -> ld.getProperty("Validierungen"))
+                    .map(Property::getValue)
+                    .map(p -> !"Nein".equalsIgnoreCase(p))
+                    .orElse(Boolean.TRUE);
+            if (!validationsText.isEmpty() && printValidations) {
                 final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.validations.label");
                 StudentDetailsXml.Text tv = details.addText(lbl, Integer.MAX_VALUE);
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getText)
+                        .ifPresent(tv::setFontSize);
                 tv.setValue(validationsText);
             }
 
         }
     }
 
-    private Map<Grade, Integer> oneAssessLine(final String ltype, final Map<MultiSubject, Set<DocumentId>> byQuery, final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student, Term t, String sName, final Marker sgl, Term current, final Map<TermId, Map<Subject, Grade>> sm, StudentDetailsXml details, StudentDetailsXml.TermDataLine l) {
+    private Map<Grade, Integer> oneAssessLine(final String ltype, final Map<MultiSubject, Set<DocumentId>> byQuery, final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student, Term t, String sName, final Marker sgl, Term current, final Map<TermId, Map<Subject, Grade>> sm, StudentDetailsXml details, StudentDetailsXml.TermDataLine l, NdsZeugnisSchulvorlage.ListDefinition listDef) {
         final Map<Grade, Integer> ret = new HashMap<>();
         Grade avsvVorschlag = null;
         for (Map.Entry<MultiSubject, Set<DocumentId>> e : byQuery.entrySet()) {
@@ -534,8 +595,14 @@ public class NdsFormatDetailsBean {
                     }
                     val.setLabelRight(vorschlagfn.getIndex());
                 }
+
                 final String color = factory.getSchulvorlage().getColoring(g);
                 val.setColor(color);
+
+                Optional.ofNullable(listDef)
+                        .map(ListDefinition::getFontSize)
+                        .map(FontSizeValues::getTableCells)
+                        .ifPresent(val::setFontSize);
             }
         }
         return ret;
