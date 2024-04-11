@@ -424,8 +424,9 @@ public class NdsFormatDetailsBean {
                 }
 
             }
-            final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel());
+            final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel(), current.getScheduledItemId());
             sprung.stream()
+                    .filter(r -> r.getTerm().equals(current.getScheduledItemId())) //Zur Sicherheit
                     .map(OneZensurensprungResult::getMessage)
                     .forEach(validations::add);
 
