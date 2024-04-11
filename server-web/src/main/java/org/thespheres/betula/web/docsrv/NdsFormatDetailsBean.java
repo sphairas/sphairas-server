@@ -424,12 +424,12 @@ public class NdsFormatDetailsBean {
                 }
                 
             }
-            final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel());
-//            sprung.stream()
-//                    .filter(r -> r.getTerm().equals(current.getScheduledItemId()))
-//                    .map(OneZensurensprungResult::getMessage)
-//                    .forEach(validations::add);
-            
+            final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel(), current.getScheduledItemId());
+            sprung.stream()
+                    .filter(r -> r.getTerm().equals(current.getScheduledItemId())) //Zur Sicherheit
+                    .map(OneZensurensprungResult::getMessage)
+                    .forEach(validations::add);
+
             final String validationsText = validations.toString();
             if (!validationsText.isEmpty()) {
                 final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.validations.label");
