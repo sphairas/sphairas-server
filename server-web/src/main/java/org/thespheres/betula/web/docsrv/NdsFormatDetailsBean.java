@@ -144,7 +144,7 @@ public class NdsFormatDetailsBean {
                 StudentDetailsXml.TermDataLine l = details.addLine(row++, t.getDisplayName());
                 Optional.ofNullable(listDef)
                         .map(ListDefinition::getFontSize)
-                        .map(FontSizeValues::getText)
+                        .map(FontSizeValues::getTableCells)
                         .ifPresent(l::setLabelFontSize);
                 oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, zeugnisnoten, details, l, listDef);
             }
@@ -159,16 +159,17 @@ public class NdsFormatDetailsBean {
             StudentDetailsXml.TermDataLine lq = details.addLine(row++, lbl);
             Optional.ofNullable(listDef)
                     .map(ListDefinition::getFontSize)
-                    .map(FontSizeValues::getText)
+                    .map(FontSizeValues::getTableCells)
                     .ifPresent(lq::setLabelFontSize);
             oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, current, null, details, lq, listDef);
         }
         final Map<MultiSubject, Set<DocumentId>> query = docMap.get(current.getScheduledItemId()).get("zeugnisnoten");
         if (query != null && targetTypes.contains("zeugnisnoten")) {
-            StudentDetailsXml.TermDataLine l = details.addLine(row++, current.getDisplayName());
+            final String rowName = preTermsCount == 0 ? "Zeugnisnoten" : current.getDisplayName();
+            StudentDetailsXml.TermDataLine l = details.addLine(row++, rowName);
             Optional.ofNullable(listDef)
                     .map(ListDefinition::getFontSize)
-                    .map(FontSizeValues::getText)
+                    .map(FontSizeValues::getTableCells)
                     .ifPresent(l::setLabelFontSize);
             oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, current, zeugnisnoten, details, l, listDef);
         }
@@ -179,7 +180,7 @@ public class NdsFormatDetailsBean {
             StudentDetailsXml.TermDataLine lav = details.addLine(row++, lblav);
             Optional.ofNullable(listDef)
                     .map(ListDefinition::getFontSize)
-                    .map(FontSizeValues::getText)
+                    .map(FontSizeValues::getTableCells)
                     .ifPresent(lav::setLabelFontSize);
             avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, current, null, details, lav, listDef);
         }
@@ -190,7 +191,7 @@ public class NdsFormatDetailsBean {
             StudentDetailsXml.TermDataLine lsv = details.addLine(row++, lblsv);
             Optional.ofNullable(listDef)
                     .map(ListDefinition::getFontSize)
-                    .map(FontSizeValues::getText)
+                    .map(FontSizeValues::getTableCells)
                     .ifPresent(lsv::setLabelFontSize);
             svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, current, null, details, lsv, listDef);
         }
