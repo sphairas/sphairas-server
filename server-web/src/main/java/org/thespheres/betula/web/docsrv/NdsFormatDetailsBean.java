@@ -44,6 +44,7 @@ import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
 import org.thespheres.betula.document.model.UnitsModel;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
+import org.thespheres.betula.niedersachsen.Uebertrag;
 import org.thespheres.betula.niedersachsen.vorschlag.AVSVVorschlag;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilder;
@@ -72,7 +73,7 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
 @Stateless
 @LocalBean
 public class NdsFormatDetailsBean {
-    
+
     @EJB
     private ZensurensprungValidationBean zensurensprung;
     @EJB
@@ -103,7 +104,17 @@ public class NdsFormatDetailsBean {
 
 //    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
 //    @RolesAllowed({"signee", "unitadmin"})
-    public void oneStudent(final StudentDetailsXml details, final MappedStudent ms, UnitId pu, Term current, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap, final Map<DocumentId, FastTermTargetDocument> targetData, final Map<DocumentId, FastTermTargetDocument> agTargetData, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData) {
+    public void oneStudent(final StudentDetailsXml details,
+            final MappedStudent ms,
+            UnitId pu,
+            Term current,
+            int preTermsCount,
+            final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap,
+            final Map<DocumentId, FastTermTargetDocument> targetData,
+            final Map<DocumentId, FastTermTargetDocument> agTargetData,
+            final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap,
+            final Map<DocumentId, FastTextTermTargetDocument> textData,
+            final String beforeTermLabel) {
         final StudentId student = ms.getStudentId();
         final String sName = ms.getDisplayName();
         final Marker sgl = ms.getCareer();
@@ -134,33 +145,33 @@ public class NdsFormatDetailsBean {
             final Map<MultiSubject, Set<DocumentId>> query = docMap.get(t.getScheduledItemId()).get("zeugnisnoten");
             if (query != null && !query.isEmpty()) {
                 StudentDetailsXml.TermDataLine l = details.addLine(row++, t.getDisplayName());
-                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, zeugnisnoten, details, l);
+                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, zeugnisnoten, details, l, beforeTermLabel);
             }
         }
         final Map<MultiSubject, Set<DocumentId>> q = docMap.get(current.getScheduledItemId()).get("quartalsnoten");
         if (q != null && !q.isEmpty()) {
             String lbl = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.docTypes.quartalsnoten");
             StudentDetailsXml.TermDataLine lq = details.addLine(row++, lbl);
-            oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, current, null, details, lq);
+            oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, null, details, lq, beforeTermLabel);
         }
         final Map<MultiSubject, Set<DocumentId>> query = docMap.get(current.getScheduledItemId()).get("zeugnisnoten");
         if (query != null) {
             StudentDetailsXml.TermDataLine l = details.addLine(row++, current.getDisplayName());
-            oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, current, zeugnisnoten, details, l);
+            oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, zeugnisnoten, details, l, beforeTermLabel);
         }
         final Map<MultiSubject, Set<DocumentId>> av = docMap.get(current.getScheduledItemId()).get("arbeitsverhalten");
         Map<Grade, Integer> avcount = null;
         if (av != null && !av.isEmpty()) {
             String lblav = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.docTypes.arbeitsverhalten");
             StudentDetailsXml.TermDataLine lav = details.addLine(row++, lblav);
-            avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, current, null, details, lav);
+            avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, null, details, lav, beforeTermLabel);
         }
         final Map<MultiSubject, Set<DocumentId>> sv = docMap.get(current.getScheduledItemId()).get("sozialverhalten");
         Map<Grade, Integer> svcount = null;
         if (sv != null && !sv.isEmpty()) {
             String lblsv = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.docTypes.sozialverhalten");
             StudentDetailsXml.TermDataLine lsv = details.addLine(row++, lblsv);
-            svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, current, null, details, lsv);
+            svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, null, details, lsv, beforeTermLabel);
         }
         final DocumentId[] reports = zeugnisBean.findTermReports(student, current.getScheduledItemId(), true);
         if (reports.length == 1) {
@@ -255,7 +266,7 @@ public class NdsFormatDetailsBean {
                 }
                 tb.setValue(sj.toString());
             }
-            
+
             final Grade tg = new AbstractGrade("niedersachsen.teilnahme", "tg");
             final String agText = agTargetData.entrySet().stream()
                     .filter(e -> {
@@ -299,7 +310,7 @@ public class NdsFormatDetailsBean {
                 Logger.getLogger(NdsFormatDetailsBean.class.getName()).log(Level.WARNING, msg, ex);
                 stufe = pu.getId();
             }
-            
+
             boolean excludeAGs = false;
             final Map<String, String> extraTexts = new HashMap<>();
             try {
@@ -316,7 +327,7 @@ public class NdsFormatDetailsBean {
                 final String msg = "An exception has occurred parsing primary unit level " + stufe + " for " + pu.toString();
                 Logger.getLogger(NdsFormatDetailsBean.class.getName()).log(Level.WARNING, msg, nfex);
             }
-            
+
             for (final Map.Entry<String, String> e : extraTexts.entrySet()) {
                 final String lbl = ReportProvisionsUtil.getTextFieldLabel(e.getKey());
                 final int pos = ReportProvisionsUtil.getTextFieldPosition(e.getKey());
@@ -398,31 +409,31 @@ public class NdsFormatDetailsBean {
             }
 //Zensurensprünge
             class OneUnitsModel implements UnitsModel<VCardStudent, FastTermTargetDocument> {
-                
+
                 @Override
                 public List<VCardStudent> getStudents() {
                     return Collections.singletonList(ms);
                 }
-                
+
                 @Override
                 public FastTermTargetDocument getTarget(DocumentId did) {
                     return targetData.get(did);
                 }
-                
+
                 @Override
                 public Set<FastTermTargetDocument> getTargets() {
                     return targetData.entrySet().stream()
                             .map(e -> e.getValue())
                             .collect(Collectors.toSet());
                 }
-                
+
                 @Override
                 public Set<TermId> getTerms() {
                     return targetData.values().stream()
                             .flatMap(f -> f.getTerms().stream())
                             .collect(Collectors.toSet());
                 }
-                
+
             }
             final Set<OneZensurensprungResult> sprung = zensurensprung.validate(new OneUnitsModel(), current.getScheduledItemId());
             sprung.stream()
@@ -436,11 +447,20 @@ public class NdsFormatDetailsBean {
                 StudentDetailsXml.Text tv = details.addText(lbl, Integer.MAX_VALUE);
                 tv.setValue(validationsText);
             }
-            
+
         }
     }
-    
-    private Map<Grade, Integer> oneAssessLine(final String ltype, final Map<MultiSubject, Set<DocumentId>> byQuery, final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student, Term t, String sName, final Marker sgl, Term current, final Map<TermId, Map<Subject, Grade>> sm, StudentDetailsXml details, StudentDetailsXml.TermDataLine l) {
+
+    private Map<Grade, Integer> oneAssessLine(final String ltype,
+            final Map<MultiSubject, Set<DocumentId>> byQuery,
+            final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student,
+            Term current,
+            String sName,
+            final Marker sgl,
+            final Map<TermId, Map<Subject, Grade>> sm,
+            StudentDetailsXml details,
+            StudentDetailsXml.TermDataLine l,
+            final String beforeTermLabel) {
         final Map<Grade, Integer> ret = new HashMap<>();
         Grade avsvVorschlag = null;
         for (Map.Entry<MultiSubject, Set<DocumentId>> e : byQuery.entrySet()) {
@@ -459,12 +479,20 @@ public class NdsFormatDetailsBean {
             String msg = null;
 //                    GradeReference reference = null;
             String subjectAltName = null;
+            GradeReference reference = null;
             try {
-                d = documentMapper.find(fdocs, student, t.getScheduledItemId());
+                d = documentMapper.find(fdocs, student, current.getScheduledItemId());
                 if (d != null) {
                     subjectAltName = fttd.get(d).getAltSubjectName();
-                    FastTermTargetDocument.Entry entry = fttd.get(d).selectEntry(student, t.getScheduledItemId());
+                    FastTermTargetDocument.Entry entry = fttd.get(d).selectEntry(student, current.getScheduledItemId());
                     g = entry != null ? entry.grade : null;
+
+                    if (g != null && Uebertrag.NAME.equals(g.getConvention())) {
+                        reference = (GradeReference) g;
+                        final TermId before = new TermId(current.getScheduledItemId().getAuthority(), current.getScheduledItemId().getId() - 1);
+                        entry = fttd.get(d).selectEntry(student, before);
+                        g = entry != null ? entry.grade : null;
+                    }
                 }
             } catch (AmbiguousResultException oex) {
                 final AmbiguousDocumentCollectionException ex = (AmbiguousDocumentCollectionException) oex;
@@ -478,7 +506,7 @@ public class NdsFormatDetailsBean {
                     final Instance<VorschlagDecoration> select = extraAssessment.select(new ExtraAnnotation(ltype));
                     if (!select.isUnsatisfied() && !select.isAmbiguous()) {
                         final GradeReference vr = (GradeReference) g;
-                        final Grade v = select.get().resolveReference(vr, student, t.getScheduledItemId(), null);
+                        final Grade v = select.get().resolveReference(vr, student, current.getScheduledItemId(), null);
                         if (v != null) {
                             avsvVorschlag = v;
                             vorschlag = true;
@@ -493,7 +521,7 @@ public class NdsFormatDetailsBean {
                     vorschlag = true;
                 }
             }
-            
+
             if (g != null) {
                 if (d != null) {
                     final Marker kurssgl = getDocumentSGL(fttd.get(d));
@@ -501,29 +529,30 @@ public class NdsFormatDetailsBean {
                 }
                 ret.compute(g, (v, i) -> i == null ? 1 : i + 1);
             }
-            
+
             if (sm != null && g != null) {
                 //Das muss geklärt werden, wie wird fächerübergreifender Unterricht im Zusammenhang mit den Versetzung, Notendurchschitt etc. gewertet?
 //                sm.put(subject, g);
                 final Grade fg = g;
                 final Marker realm = subject.getRealmMarker();
-                subject.getSubjectMarkerSet().stream().forEach(s -> sm.computeIfAbsent(t.getScheduledItemId(), tid -> new HashMap<>()).put(new Subject(s, realm), fg));
+                subject.getSubjectMarkerSet().stream().forEach(s -> sm.computeIfAbsent(current.getScheduledItemId(), tid -> new HashMap<>()).put(new Subject(s, realm), fg));
             }
 
 //TODO WebUIConfiguration
             final int tier = factory.tier(subject);
-            
+
             final StudentDetailsXml.ColumnValue val;
             if (subjectAltName != null) {
                 val = details.setValue(l, tier, subjectAltName, g, msg);
             } else {
                 val = details.setValue(l, tier, fach, g, msg);
             }
-            
+
             if (val != null) {
                 if (flk != null) {
                     val.setLabelLeft(flk);
                 }
+                StringJoiner sj = new StringJoiner(", ");
                 if (vorschlag) {
                     StudentDetailsXml.Footnote vorschlagfn = details.getFootnotes().stream()
                             .filter(fn -> Objects.equals(fn.getHint(), "vorschlag"))
@@ -533,7 +562,21 @@ public class NdsFormatDetailsBean {
                         vorschlagfn = details.addFootnote(lbl);
                         vorschlagfn.setHint("vorschlag");
                     }
-                    val.setLabelRight(vorschlagfn.getIndex());
+                    sj.add(vorschlagfn.getIndex());
+                }
+                if (reference != null) {
+                    StudentDetailsXml.Footnote uebertragfn = details.getFootnotes().stream()
+                            .filter(fn -> Objects.equals(fn.getHint(), "uebertrag"))
+                            .collect(CollectionUtil.singleOrNull());
+                    if (uebertragfn == null) {
+                        final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatListe.uebertrag.label");
+                        uebertragfn = details.addFootnote(lbl);//beforeTermLabel
+                        uebertragfn.setHint("uebertrag");
+                    }
+                    sj.add(uebertragfn.getIndex());
+                }
+                if (sj.length() != 0) {
+                    val.setLabelRight(sj.toString());
                 }
                 final String color = factory.getSchulvorlage().getColoring(g);
                 val.setColor(color);
@@ -541,7 +584,7 @@ public class NdsFormatDetailsBean {
         }
         return ret;
     }
-    
+
     private Marker getDocumentSGL(FastTermTargetDocument ftd) {
         if (ftd != null) {
             final String sglconv = fOPFormatter.getSglConvention();
@@ -551,7 +594,7 @@ public class NdsFormatDetailsBean {
         }
         return null;
     }
-    
+
     private String formatSignee(final Signee signee, final String entitlement) {
         final StringJoiner ret = new StringJoiner(": ");
         if (!"entitled.signee".equals(entitlement)) {
