@@ -569,8 +569,7 @@ public class NdsFormatDetailsBean {
                             .filter(fn -> Objects.equals(fn.getHint(), "uebertrag"))
                             .collect(CollectionUtil.singleOrNull());
                     if (uebertragfn == null) {
-                        final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatListe.uebertrag.label");
-                        uebertragfn = details.addFootnote(lbl);//beforeTermLabel
+                        uebertragfn = details.addFootnote(beforeTermLabel);
                         uebertragfn.setHint("uebertrag");
                     }
                     sj.add(uebertragfn.getIndex());
