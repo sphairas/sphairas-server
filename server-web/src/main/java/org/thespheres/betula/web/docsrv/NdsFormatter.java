@@ -446,7 +446,16 @@ public class NdsFormatter {
         return baos.toByteArray();
     }
 
-    public byte[] formatDetails(final Collection<StudentId> students, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTermTargetDocument> agTargets, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map, UnitId pu, Term current, String mime, int preTermsCount, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData, String templateName) throws IOException {
+    public byte[] formatDetails(final Collection<StudentId> students,
+            final Map<DocumentId, FastTermTargetDocument> targets,
+            final Map<DocumentId, FastTermTargetDocument> agTargets,
+            final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> map,
+            UnitId pu,
+            Term current,
+            String mime,
+            int preTermsCount,
+            final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap,
+            final Map<DocumentId, FastTextTermTargetDocument> textData) throws IOException {
 
         final DetailsListXml collection = new DetailsListXml();
         collection.setFooterCenter(builderFactory.getSchulvorlage().getSchoolName());
@@ -461,6 +470,7 @@ public class NdsFormatter {
         }
         final String ldate = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.download.details.date", new Date());
 
+        String beforeTermLabel = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.uebertrag.label");
         for (final StudentId student : students) {
 
             final Marker sgl = getStudentSGL(student, termEnd(current.getScheduledItemId()));

@@ -30,22 +30,30 @@ public class ZensurensprungValidationBean {
     @EJB
     DocumentMapper documentMapper;
 
-    public Set<OneZensurensprungResult> validate(final UnitsModel<VCardStudent, FastTermTargetDocument> oum) {
+    public Set<OneZensurensprungResult> validate(final UnitsModel<VCardStudent, FastTermTargetDocument> oum, TermId term) {
 
         class OneValidation extends ZensurensprungValidation<VCardStudent, FastTermTargetDocument, UnitsModel<VCardStudent, FastTermTargetDocument>, OneZensurensprungResult> {
 
-            public OneValidation(UnitsModel<VCardStudent, FastTermTargetDocument> model) {
+            private final TermId term;
+
+            OneValidation(UnitsModel<VCardStudent, FastTermTargetDocument> model, TermId term) {
                 super(model, null);
+                this.term = term;
             }
 
             @Override
             protected OneZensurensprungResult createResult(VCardStudent s, TermId termid, FastTermTargetDocument d, Grade grade, Grade before) {
-                final MultiSubject sub= documentMapper.getSubject(d.getDocument());
+                final MultiSubject sub = documentMapper.getSubject(d.getDocument());
                 return new OneZensurensprungResult(s, termid, grade, before, d.getDocument(), d, sub);
             }
 
+            @Override
+            protected void processOneDocument(FastTermTargetDocument rtad) {
+                processOneDocument(rtad, null, term);
+            }
+
         }
-        final OneValidation validation = new OneValidation(oum);
+        final OneValidation validation = new OneValidation(oum, term);
         validation.run();
         return validation;
     }
