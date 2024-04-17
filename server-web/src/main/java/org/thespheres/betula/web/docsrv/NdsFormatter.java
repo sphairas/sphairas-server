@@ -455,7 +455,8 @@ public class NdsFormatter {
             String mime,
             int preTermsCount,
             final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap,
-            final Map<DocumentId, FastTextTermTargetDocument> textData) throws IOException {
+            final Map<DocumentId, FastTextTermTargetDocument> textData,
+            final String templateName) throws IOException {
 
         final DetailsListXml collection = new DetailsListXml();
         collection.setFooterCenter(builderFactory.getSchulvorlage().getSchoolName());
@@ -488,7 +489,7 @@ public class NdsFormatter {
                     .map(NdsZeugnisSchulvorlage.ListDefinition::getFontSize)
                     .map(NdsZeugnisSchulvorlage.FontSizeValues::getTableCells)
                     .ifPresent(details::setTableFontSize);
-            formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets, textDocMap, textData, listDef);
+            formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets, textDocMap, textData, listDef, beforeTermLabel);
 
             collection.list.add(details);
         }

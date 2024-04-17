@@ -113,14 +113,14 @@ public class NdsFormatDetailsBean {
             final MappedStudent ms,
             UnitId pu,
             Term current,
-            int preTermsCount,
+            int preTermsCountRequest,
             final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap,
             final Map<DocumentId, FastTermTargetDocument> targetData,
             final Map<DocumentId, FastTermTargetDocument> agTargetData,
             final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap,
             final Map<DocumentId, FastTextTermTargetDocument> textData,
+            final NdsZeugnisSchulvorlage.ListDefinition listDef,
             final String beforeTermLabel) {
-    public void oneStudent(final StudentDetailsXml details, final MappedStudent ms, UnitId pu, Term current, int preTermsCountRequest, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> docMap, final Map<DocumentId, FastTermTargetDocument> targetData, final Map<DocumentId, FastTermTargetDocument> agTargetData, final Map<TermId, Map<String, Map<MultiSubject, Set<DocumentId>>>> textDocMap, final Map<DocumentId, FastTextTermTargetDocument> textData, NdsZeugnisSchulvorlage.ListDefinition listDef) {
         final StudentId student = ms.getStudentId();
         final String sName = ms.getDisplayName();
         final Marker sgl = ms.getCareer();
@@ -158,7 +158,7 @@ public class NdsFormatDetailsBean {
                         .map(ListDefinition::getFontSize)
                         .map(FontSizeValues::getTableCells)
                         .ifPresent(l::setLabelFontSize);
-                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, current, zeugnisnoten, details, l, listDef);
+                oneAssessLine("zeugnisnoten", query, targetData, student, t, sName, sgl, zeugnisnoten, details, l, listDef, beforeTermLabel);
             }
         }
         final List<String> targetTypes = Optional.ofNullable(listDef)
@@ -173,7 +173,7 @@ public class NdsFormatDetailsBean {
                     .map(ListDefinition::getFontSize)
                     .map(FontSizeValues::getTableCells)
                     .ifPresent(lq::setLabelFontSize);
-            oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, current, null, details, lq, listDef);
+            oneAssessLine("quartalsnoten", q, targetData, student, current, sName, sgl, null, details, lq, listDef, beforeTermLabel);
         }
         final Map<MultiSubject, Set<DocumentId>> query = docMap.get(current.getScheduledItemId()).get("zeugnisnoten");
         if (query != null && targetTypes.contains("zeugnisnoten")) {
@@ -183,7 +183,7 @@ public class NdsFormatDetailsBean {
                     .map(ListDefinition::getFontSize)
                     .map(FontSizeValues::getTableCells)
                     .ifPresent(l::setLabelFontSize);
-            oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, current, zeugnisnoten, details, l, listDef);
+            oneAssessLine("zeugnisnoten", query, targetData, student, current, sName, sgl, zeugnisnoten, details, l, listDef, beforeTermLabel);
         }
         final Map<MultiSubject, Set<DocumentId>> av = docMap.get(current.getScheduledItemId()).get("arbeitsverhalten");
         Map<Grade, Integer> avcount = null;
@@ -194,7 +194,7 @@ public class NdsFormatDetailsBean {
                     .map(ListDefinition::getFontSize)
                     .map(FontSizeValues::getTableCells)
                     .ifPresent(lav::setLabelFontSize);
-            avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, current, null, details, lav, listDef);
+            avcount = oneAssessLine("arbeitsverhalten", av, targetData, student, current, sName, sgl, null, details, lav, listDef, beforeTermLabel);
         }
         final Map<MultiSubject, Set<DocumentId>> sv = docMap.get(current.getScheduledItemId()).get("sozialverhalten");
         Map<Grade, Integer> svcount = null;
@@ -205,7 +205,7 @@ public class NdsFormatDetailsBean {
                     .map(ListDefinition::getFontSize)
                     .map(FontSizeValues::getTableCells)
                     .ifPresent(lsv::setLabelFontSize);
-            svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, current, null, details, lsv, listDef);
+            svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, null, details, lsv, listDef, beforeTermLabel);
         }
         final DocumentId[] reports = zeugnisBean.findTermReports(student, current.getScheduledItemId(), true);
         if (reports.length == 1) {
@@ -523,6 +523,7 @@ public class NdsFormatDetailsBean {
             final Map<TermId, Map<Subject, Grade>> sm,
             StudentDetailsXml details,
             StudentDetailsXml.TermDataLine l,
+            final NdsZeugnisSchulvorlage.ListDefinition listDef,
             final String beforeTermLabel) {
         final Map<Grade, Integer> ret = new HashMap<>();
         Grade avsvVorschlag = null;
