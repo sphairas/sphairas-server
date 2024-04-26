@@ -63,7 +63,6 @@ import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
 import org.apache.fop.apps.FopFactory;
 import org.openide.util.NbBundle;
-import org.openide.xml.XMLUtil;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -489,6 +488,15 @@ public class NdsFormatter {
                     .map(NdsZeugnisSchulvorlage.ListDefinition::getFontSize)
                     .map(NdsZeugnisSchulvorlage.FontSizeValues::getTableCells)
                     .ifPresent(details::setTableFontSize);
+            Optional.ofNullable(listDef)
+                    .flatMap(ld -> ld.getProperty("Spaltenköpfe.Breite"))
+                    .map(NdsZeugnisSchulvorlage.Property::getValue)
+                    .ifPresent(details::setSubjectColumnWidth);
+            Optional.ofNullable(listDef)
+                    .flatMap(ld -> ld.getProperty("Fächer.Kurznamen"))
+                    .map(NdsZeugnisSchulvorlage.Property::getValue)
+                    .map("Ja"::equalsIgnoreCase)
+                    .ifPresent(details::setUseShortLabel);
             formatDetailsBean.oneStudent(details, card, pu, current, preTermsCount, map, targets, agTargets, textDocMap, textData, listDef, beforeTermLabel);
 
             collection.list.add(details);
@@ -525,7 +533,6 @@ public class NdsFormatter {
             //Dump XSL-FO to System.out
 //            org.w3c.dom.Document doc = (org.w3c.dom.Document) res.getNode();
 //            XMLUtil.write(doc, System.out, "utf-8");
-
             transformer = factory.newTransformer();
             src = new DOMSource(res.getNode());
             SAXResult finalres = new SAXResult(fop.getDefaultHandler());
