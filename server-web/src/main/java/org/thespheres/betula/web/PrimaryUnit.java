@@ -101,7 +101,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
     }
 
     public boolean isEnableDetails() {
-        return getDetailsTemplates().isEmpty() 
+        return getDetailsTemplates().isEmpty()
                 && Boolean.getBoolean(WebAppProperties.BETULA_WEB_UI_ENABLE_DETAILSLIST_PROPERTY);
     }
 
@@ -318,7 +318,12 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
         final String jahr = Integer.toString((Integer) term.getParameter(NdsTerms.JAHR));
         final int hj = (Integer) term.getParameter(NdsTerms.HALBJAHR);
-        String file = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.menu.download.detailListen.filename", kla, jahr, hj, new Date());
+        String file;
+        if (StringUtils.isBlank(variant)) {
+            file = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.menu.download.detailListen.filename", kla, jahr, hj, new Date());
+        } else {
+            file = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.menu.download.detailListen.custom.filename", kla, jahr, hj, new Date(), variant);
+        }
         String ret = "zgnsrv/" + file + "?" + "document=betula.primaryUnit.details&unit.id=" + getUnitIdEncoded() + "&unit.authority=" + getUnitAuthorityEncoded();
         if (StringUtils.isNotBlank(variant)) {
             ret += "&" + WebAppProperties.FORMAT_DETAILS_LISTS_TEMPLATE_NAME + "=" + variant;

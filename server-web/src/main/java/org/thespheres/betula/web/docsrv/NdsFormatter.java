@@ -493,6 +493,10 @@ public class NdsFormatter {
                     .map(NdsZeugnisSchulvorlage.Property::getValue)
                     .ifPresent(details::setSubjectColumnWidth);
             Optional.ofNullable(listDef)
+                    .flatMap(ld -> ld.getProperty("Spaltenköpfe.Höhe"))
+                    .map(NdsZeugnisSchulvorlage.Property::getValue)
+                    .ifPresent(details::setSubjectColumnHeight);
+            Optional.ofNullable(listDef)
                     .flatMap(ld -> ld.getProperty("Fächer.Kurznamen"))
                     .map(NdsZeugnisSchulvorlage.Property::getValue)
                     .map("Ja"::equalsIgnoreCase)
