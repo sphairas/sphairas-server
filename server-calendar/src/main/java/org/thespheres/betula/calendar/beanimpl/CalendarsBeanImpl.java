@@ -65,14 +65,17 @@ public class CalendarsBeanImpl implements CalendarsBean {
                         }
                         final TermId term;
                         if ((term = parseTermId(ccp)) != null && term.equals(termId)) {
+//                            Logger.getLogger(CalendarsBeanImpl.class.getName()).log(Level.INFO, "Found calendar component for {0}, unit {1}, term {2}: {3}", new Object[]{category, unit, termId, ccp});
                             return IComponentUtilities.parseDateProperty(ccp, CalendarComponentProperty.DTSTART);
                         }
                     } catch (InvalidComponentException ex) {
                         Logger.getLogger(CalendarsBeanImpl.class.getName()).log(Level.SEVERE, ex.getLocalizedMessage(), ex);
                     }
                 }
+                Logger.getLogger(CalendarsBeanImpl.class.getName()).log(Level.INFO, "No calendar component found for {0}, unit {1}, term {2} in calendar {3}", new Object[]{category, unit, termId, calResource.getCalendar()});
             }
         }
+        Logger.getLogger(CalendarsBeanImpl.class.getName()).log(Level.INFO, "No date found for {0}, unit {1}, term {2}", new Object[]{category, unit, termId});
         return null;
     }
 
