@@ -151,7 +151,9 @@ public class NdsFormatDetailsBean {
                 Logger.getLogger(NdsFormatter.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
                 continue;
             }
-            final Map<MultiSubject, Set<DocumentId>> query = docMap.get(t.getScheduledItemId()).get("zeugnisnoten");
+            final Map<MultiSubject, Set<DocumentId>> query = Optional.ofNullable(docMap.get(t.getScheduledItemId()))
+                    .map(l -> l.get("zeugnisnoten"))
+                    .orElse(null); 
             if (query != null && !query.isEmpty()) {
                 StudentDetailsXml.TermDataLine l = details.addLine(row++, t.getDisplayName());
                 Optional.ofNullable(listDef)
