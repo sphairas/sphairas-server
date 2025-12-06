@@ -153,7 +153,7 @@ public class NdsFormatDetailsBean {
             }
             final Map<MultiSubject, Set<DocumentId>> query = Optional.ofNullable(docMap.get(t.getScheduledItemId()))
                     .map(l -> l.get("zeugnisnoten"))
-                    .orElse(null); 
+                    .orElse(null);
             if (query != null && !query.isEmpty()) {
                 StudentDetailsXml.TermDataLine l = details.addLine(row++, t.getDisplayName());
                 Optional.ofNullable(listDef)
@@ -518,7 +518,8 @@ public class NdsFormatDetailsBean {
 
     private Map<Grade, Integer> oneAssessLine(final String ltype,
             final Map<MultiSubject, Set<DocumentId>> byQuery,
-            final Map<DocumentId, FastTermTargetDocument> fttd, StudentId student,
+            final Map<DocumentId, FastTermTargetDocument> fttd,
+            StudentId student,
             Term current,
             String sName,
             final Marker sgl,
@@ -610,8 +611,12 @@ public class NdsFormatDetailsBean {
             final StudentDetailsXml.ColumnValue val;
             if (subjectAltName != null) {
                 val = details.setValue(l, tier, subjectAltName, g, msg);
-            } else {
+            } else if (!fach.isEmpty()) {
                 val = details.setValue(l, tier, fach, g, msg);
+            } else {
+                final String mesg = "No fach or subjectAltName for " + student.toString() + " in " + ltype + " " + current.getScheduledItemId().toString();
+                Logger.getLogger(NdsFormatDetailsBean.class.getCanonicalName()).log(Level.INFO, mesg);
+                continue;
             }
 
             if (val != null) {
