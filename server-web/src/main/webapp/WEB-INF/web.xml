@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
     version="6.0" >
-<!--    jakarta.faces.PROJECT_STAGE
+    <!--    jakarta.faces.PROJECT_STAGE
     Controls JSF's operational mode and affects debugging, error handling, and performance optimizations.
     Values:
 
@@ -15,6 +15,12 @@
     <context-param>
         <param-name>jakarta.faces.PROJECT_STAGE</param-name>
         <param-value>Development</param-value>
+    </context-param>
+    <!-- Faster startup -->
+    <context-param>
+        <param-name>jakarta.faces.FACELETS_REFRESH_PERIOD</param-name>
+        <param-value>-1</param-value> <!-- In production -->
+        <!-- <param-value>2</param-value> --> <!-- In development -->
     </context-param>
     <!--    <context-param>
         <param-name>primefaces.THEME</param-name>
@@ -27,6 +33,36 @@
     <context-param>
         <param-name>primefaces.CLIENT_SIDE_VALIDATION</param-name>
         <param-value>true</param-value>
+    </context-param>
+    <!-- Other useful JSF parameters you might want to add: -->
+    <!-- Disable deprecated features -->
+    <context-param>
+        <param-name>jakarta.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <!-- Better error handling in development -->
+    <context-param>
+        <param-name>jakarta.faces.FACELETS_SKIP_COMMENTS</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <!-- View state configuration -->
+    <context-param>
+        <param-name>jakarta.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value> <!-- or 'client' for stateless -->
+    </context-param>
+    <!-- Useful for debugging -->
+    <context-param>
+        <param-name>primefaces.FONT_AWESOME</param-name>
+        <param-value>false</param-value> <!-- Using PrimeIcons instead -->
+    </context-param><!-- Enable GZIP compression for resources -->
+    <context-param>
+        <param-name>primefaces.GZIP</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <!-- Cache resources for better performance -->
+    <context-param>
+        <param-name>primefaces.CACHE_PROVIDER</param-name>
+        <param-value>org.primefaces.cache.DefaultCacheProvider</param-value>
     </context-param>
     <servlet>
         <servlet-name>BetulaWebApplication</servlet-name>
