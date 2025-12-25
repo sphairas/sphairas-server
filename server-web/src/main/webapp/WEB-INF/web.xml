@@ -4,14 +4,18 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
     version="6.0" >
-    <!--    <context-param>
+<!--    jakarta.faces.PROJECT_STAGE
+    Controls JSF's operational mode and affects debugging, error handling, and performance optimizations.
+    Values:
+
+    Development - Detailed error messages, no caching, debugging enabled
+    Production - Minimal error messages, aggressive caching, optimized performance
+    SystemTest - For integration testing
+    UnitTest - For unit testing-->
+    <context-param>
         <param-name>jakarta.faces.PROJECT_STAGE</param-name>
-        <param-value>Production</param-value>
-    </context-param>-->
-    <!--    <context-param>
-        <param-name>jakarta.faces.PARTIAL_STATE_SAVING</param-name>
-        <param-value>true</param-value>
-    </context-param>-->
+        <param-value>Development</param-value>
+    </context-param>
     <!--    <context-param>
         <param-name>primefaces.THEME</param-name>
         <param-value>#{bundle['application.theme']}</param-value>
@@ -175,34 +179,27 @@
         <description>Default logged in user.</description>
         <role-name>signee</role-name>
     </security-role>
-    
-    
     <!-- Error Pages -->
-    
     <!-- 404 Not Found -->
     <error-page>
         <error-code>404</error-code>
         <location>/notFound.xhtml</location>
     </error-page>
-    
     <!-- 500 Internal Server Error -->
     <error-page>
         <error-code>500</error-code>
         <location>/error.xhtml</location>
     </error-page>
-    
     <!-- Session Expired (ViewExpiredException) -->
     <error-page>
         <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
         <location>/sessionExpired.xhtml</location>
     </error-page>
-    
     <!-- General Exception -->
     <error-page>
         <exception-type>java.lang.Exception</exception-type>
         <location>/error.xhtml</location>
     </error-page>
-    
     <!-- Throwable (catches everything) -->
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>
