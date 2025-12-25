@@ -60,8 +60,6 @@ public interface FastTargetDocuments2 {
 
     public StudentId[] getIntersection(StudentId[] student);
 
-    public Collection<String> getPatternChannels();
-
 //    public JoinedUnitsEntry getJoinedUnits(DocumentId base);
     public Grade[] findSingleChecked(UnitId unit, TermId term, StudentId student, Collection<DocumentId> selectFrom);
 

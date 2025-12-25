@@ -6,12 +6,10 @@
 package org.thespheres.betula.web;
 
 import java.io.Serializable;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Singleton;
-import org.thespheres.acer.beans.MessageEvent;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
 import org.thespheres.betula.services.jms.TicketEvent;
@@ -25,7 +23,7 @@ import org.thespheres.betula.services.jms.TicketEvent;
 public class EventDispatch implements Serializable {
 
     private final WeakHashMap<AbstractData, Object> listenerMap = new WeakHashMap();
-    private WeakReference<Messages> messages;
+//    private WeakReference<Messages> messages;
 
     public void onDocumentEvent(MultiTargetAssessmentEvent<TermId> event) {
         synchronized (listenerMap) {
@@ -50,12 +48,12 @@ public class EventDispatch implements Serializable {
         }
     }
 
-    public void onMessageEvent(MessageEvent event) {
-        Messages msg;
-        if (messages != null && (msg = messages.get()) != null) {
-            msg.onMessageEvent(event);
-        }
-    }
+//    public void onMessageEvent(MessageEvent event) {
+//        Messages msg;
+//        if (messages != null && (msg = messages.get()) != null) {
+//            msg.onMessageEvent(event);
+//        }
+//    }
 
     public void register(AbstractData l) {
         synchronized (listenerMap) {
@@ -69,11 +67,11 @@ public class EventDispatch implements Serializable {
         }
     }
 
-    public void register(Messages messages) {
-        this.messages = new WeakReference(messages);
-    }
-
-    public void unregister(Messages messages) {
-        this.messages = null;
-    }
+//    public void register(Messages messages) {
+//        this.messages = new WeakReference(messages);
+//    }
+//
+//    public void unregister(Messages messages) {
+//        this.messages = null;
+//    }
 }

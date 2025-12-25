@@ -25,7 +25,6 @@ import org.thespheres.betula.document.MarkerConvention;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.document.model.MultiSubject;
-import org.thespheres.betula.server.beans.FastMessage;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.document.MarkerFactory;

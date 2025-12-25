@@ -46,12 +46,12 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>server-messenger</artifactId>
             <version>${project.version}</version>
             <type>war</type>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>server-web</artifactId>
@@ -87,11 +87,11 @@
                             <artifactId>server-calendar</artifactId>
                             <contextRoot>/calendar</contextRoot>
                         </webModule>
-                        <webModule>
+<!--                        <webModule>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>server-messenger</artifactId>
                             <contextRoot>/messenger</contextRoot>
-                        </webModule>
+                        </webModule>-->
                         <webModule>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>server-web</artifactId>

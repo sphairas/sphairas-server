@@ -56,7 +56,6 @@ import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.TicketFacade;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.entities.facade.impl.SigneeFacadeImpl;
-import org.thespheres.betula.entities.messaging.ChannelsLocalImpl;
 import org.thespheres.betula.entities.saccess.SigneeEJBAccessException;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
@@ -82,8 +81,6 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     protected TicketFacade tickets;
     @EJB
     protected TextTargetDocumentFacade textFacade;
-    @EJB
-    protected ChannelsLocalImpl channels;
     protected transient Set<DocumentId> targets;
     protected transient List<TermGradeTargetAssessmentEntity> resultList; //transient: not serializable named query result list
     protected transient List<TermTextTargetAssessmentEntity> textResultList; //transient: not serializable named query result list
@@ -443,11 +440,6 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
         return set;
     }
 
-    @Override
-    public Collection<String> getPatternChannels() {
-        String[] ids = getTargetAssessmentDocumentResultList().stream().map(TermGradeTargetAssessmentEntity::getDocumentId).distinct().map(DocumentId::getId).toArray(String[]::new);
-        return channels.getPatternChannels(ids);
-    }
 
 //    //TODO: check access permission
 //    @Override

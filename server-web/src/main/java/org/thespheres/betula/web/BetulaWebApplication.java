@@ -96,8 +96,6 @@ public class BetulaWebApplication implements Serializable {
     @DocumentsSession
     @Inject
     private FastTargetDocuments2 bean;
-//    @EJB(beanName = "FastMessagesImpl")
-//    private FastMessages fastMessages;
     @Any
     @Inject
     private Instance<VorschlagDecoration> extraAssessment;
@@ -128,7 +126,6 @@ public class BetulaWebApplication implements Serializable {
     private String activePage = "";
 //    private String currentPrimaryUnit;
     private ApplicationUser currentUser;
-//    private Messages messages;
     @Inject
     private WebUIConfiguration webConfig;
 //    @Inject

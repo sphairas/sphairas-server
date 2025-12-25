@@ -12,7 +12,6 @@
         <module>server-ear</module>
         <module>server-persistence</module>
         <module>server-calendar</module>
-        <module>server-messenger</module>
         <module>server-web</module>
         <module>sphairas-server-libs</module>
         <module>server-application-clients-module</module>
