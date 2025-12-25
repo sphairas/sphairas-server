@@ -14,7 +14,7 @@
         <module>server-calendar</module>
         <module>server-web</module>
         <module>sphairas-server-libs</module>
-        <module>server-application-clients-module</module>
+        <!--<module>server-application-clients-module</module>-->
     </modules>
     
     <properties>
