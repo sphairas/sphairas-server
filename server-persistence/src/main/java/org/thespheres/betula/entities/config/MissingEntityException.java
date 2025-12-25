@@ -5,8 +5,8 @@
  */
 package org.thespheres.betula.entities.config;
 
-import javax.ejb.ApplicationException;
-import javax.ejb.EJBAccessException;
+import jakarta.ejb.ApplicationException;
+import jakarta.ejb.EJBAccessException;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.thespheres.betula.Identity;

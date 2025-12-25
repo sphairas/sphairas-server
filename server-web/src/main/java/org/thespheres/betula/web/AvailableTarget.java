@@ -22,14 +22,19 @@ import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.convert.Converter;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
-import org.primefaces.push.EventBus;
-import org.primefaces.push.EventBusFactory;
+import org.primefaces.component.datatable.DataTable;
+import org.primefaces.event.CellEditEvent;
+import org.primefaces.model.menu.DefaultMenuItem;
+import org.primefaces.model.menu.DefaultMenuModel;
+import org.primefaces.model.menu.DefaultSubMenu;
+import org.primefaces.model.menu.MenuModel;
+//import org.primefaces.push.EventBus;
+//import org.primefaces.push.EventBusFactory;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -73,11 +78,12 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 //    private boolean dirty;
     private DocumentId[] target;
     private boolean joinTargets = true;
-    private String csvEncoding;
+//    private String csvEncoding;
     private List<CrossMarkSubject> crossMarkSubjects = new ArrayList<>();
     private String entitlementTitle = null;
     private String signeeTypeTitle;
     private DocumentId commentsDoc;
+    private MenuModel menu;
 
     AvailableTarget(final String displayName, final BetulaWebApplication app) {
         super(app, displayName);
@@ -149,15 +155,40 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         return target.length != 0 ? target[0] : null;
     }
 
+    public MenuModel getMenu() {
+        if (menu == null) {
+            menu = new DefaultMenuModel();
+            final DefaultSubMenu downloadMenu = DefaultSubMenu.builder()
+                    .label(BetulaWebApplication.getBundleValue("availableTarget.downloadOption.label"))
+                    .icon("pi pi-download")
+                    .expanded(true)
+                    .build();
+            if (getTargetDocument() != null) {
+                addUrlToSubmenu(downloadMenu, "availableTarget.downloadOption.pdf", "pi pi-file", getPdfUrl());
+                addUrlToSubmenu(downloadMenu, "availableTarget.downloadOption.csv.utf8", "pi pi-file", getCsvUrl("utf-8"));
+                addUrlToSubmenu(downloadMenu, "availableTarget.downloadOption.csv.cp1252", "pi pi-file", getCsvUrl("windows-1252"));
+            }
+            menu.getElements().add(downloadMenu);
+        }
+        return menu;
+    }
+
+    private void addUrlToSubmenu(final DefaultSubMenu downloadMenu, String value, String icon, String url) {
+        DefaultMenuItem item = DefaultMenuItem.builder()
+                .value(BetulaWebApplication.getBundleValue(value))
+                .icon(icon)
+                .url(url)
+                .target("_blank")
+                .build();
+        downloadMenu.getElements().add(item);
+    }
+
     public String getPdfUrl() {
         final DocumentId tid = getTargetDocument();
-        if (tid == null) {
-            return null;
-        }
         String jahr = Integer.toString((Integer) getEditTerm().getParameter(NdsTerms.JAHR));
         int hj = (Integer) getEditTerm().getParameter(NdsTerms.HALBJAHR);
         String file = NbBundle.getMessage(PrimaryUnit.class, "availableTarget.download.target.filename.pdf", getDisplayTitle(), jahr, hj, new Date());
-        String ret = "/zgnsrv/" + file + "?"
+        String ret = "zgnsrv/" + file + "?"
                 + "document=betula.target&term.id=" + getTermIdEncoded() + "&term.authority=" + getTermAuthorityEncoded()
                 + "&document.id=" + getDocumentIdEncoded(tid) + "&document.authority=" + getDocumentAuthorityEncoded(tid) + "&document.version=" + getDocumentVersionEncoded(tid)
                 //                + "&unit.id=" + getUnitIdEncoded() + "&unit.authority=" + getUnitAuthorityEncoded()
@@ -175,11 +206,8 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         return ret;
     }
 
-    public String getCsvUrl() {
+    public String getCsvUrl(final String enc) {
         final DocumentId tid = getTargetDocument();
-        if (tid == null) {
-            return null;
-        }
         String jahr = Integer.toString((Integer) getEditTerm().getParameter(NdsTerms.JAHR));
         int hj = (Integer) getEditTerm().getParameter(NdsTerms.HALBJAHR);
         String file = NbBundle.getMessage(PrimaryUnit.class, "availableTarget.download.target.filename.csv", getDisplayTitle(), jahr, hj, new Date());
@@ -187,8 +215,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 + "document=betula.target&term.id=" + getTermIdEncoded() + "&term.authority=" + getTermAuthorityEncoded()
                 + "&document.id=" + getDocumentIdEncoded(tid) + "&document.authority=" + getDocumentAuthorityEncoded(tid) + "&document.version=" + getDocumentVersionEncoded(tid);
 //                + "&unit.id=" + getUnitIdEncoded() + "&unit.authority=" + getUnitAuthorityEncoded();
-        final String enc;
-        if ((enc = getCsvEncoding()) != null) {
+        if (enc != null) {
             ret += "&encoding=" + enc;
         }
         ret += "&mime=text/csv";
@@ -198,14 +225,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         return ret;
     }
 
-    public String getCsvEncoding() {
-        return csvEncoding;
-    }
-
-    public void setCsvEncoding(String value) {
-        csvEncoding = value;
-    }
-
+//    public String getCsvEncoding() {
+//        return csvEncoding;
+//    }
+//
+//    public void setCsvEncoding(String value) {
+//        csvEncoding = value;
+//    }
     public boolean hasJoinedTargets() {
         final DocumentId t = getTargetDocument();
         return t != null && false; //application.getJoinedUnits(t) != null;
@@ -421,11 +447,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                     .forEach(TargetStudent::invalidateTickets);
         }
         if (dirty && shouldUpdate()) {
-            EventBus eventBus = EventBusFactory.getDefault().eventBus();
-            BetulaPushMessage message = new BetulaPushMessage();
-            message.setSource(dataTableClientId);
-            message.setUpdate(dataTableClientId);
-            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
+
+            //Removed for Jakarta
+//            EventBus eventBus = EventBusFactory.getDefault().eventBus();
+//            BetulaPushMessage message = new BetulaPushMessage();
+//            message.setSource(dataTableClientId);
+//            message.setUpdate(dataTableClientId);
+//            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
         }
     }
 
@@ -435,11 +463,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             //The whole document has changed, been removed --> we have to update the whole view
             //TODO: consider a newly created document---?
             if (docs.contains(evt.getSource()) && shouldUpdate()) {
-                EventBus eventBus = EventBusFactory.getDefault().eventBus();
-                BetulaPushMessage message = new BetulaPushMessage();
-                message.setSource(dataTableClientId);
-                message.setUpdate(dataTableClientId);
-                eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
+
+                //Removed for Jakarta
+//                EventBus eventBus = EventBusFactory.getDefault().eventBus();
+//                BetulaPushMessage message = new BetulaPushMessage();
+//                message.setSource(dataTableClientId);
+//                message.setUpdate(dataTableClientId);
+//                eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
             } else {
                 return;
             }
@@ -472,11 +502,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                     String n = as != null ? as.getFullname() : null;
                     String msg = NbBundle.getMessage(AvailableTarget.class, "target.update.message");
                     String det = NbBundle.getMessage(AvailableTarget.class, "target.update.message.detail", g, n, termDN);
-                    EventBus eventBus = EventBusFactory.getDefault().eventBus();
-                    BetulaPushMessage message = new BetulaPushMessage(FacesMessage.SEVERITY_INFO, msg, det);
-                    message.setSource(dataTableClientId);
-                    message.setUpdate(dataTableClientId);
-                    eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
+
+                    //Removed for Jakarta
+//                    EventBus eventBus = EventBusFactory.getDefault().eventBus();
+//                    BetulaPushMessage message = new BetulaPushMessage(FacesMessage.SEVERITY_INFO, msg, det);
+//                    message.setSource(dataTableClientId);
+//                    message.setUpdate(dataTableClientId);
+//                    eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
                 }
             }
         }
@@ -484,7 +516,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     protected boolean shouldUpdate() {
 //        return dirty && application.getCurrentPage().equals("terms") && isActiveTab() && dataTableClientId != null;
-        return application.getCurrentPage().equals("terms") && isActiveTab() && dataTableClientId != null;
+        return application.getActivePage().equals("terms") && isActiveTab() && dataTableClientId != null;
 
     }
 
@@ -510,6 +542,31 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     void addCrossMarksDocument(final DocumentId doc, final Marker sub) {
         crossMarkSubjects.add(new CrossMarkSubject(doc, sub));
+    }
+
+    public void onCellEdit(final CellEditEvent event) {
+        System.out.println("=== onCellEdit called ===");
+
+        Object oldValue = event.getOldValue();
+        Object newValue = event.getNewValue();
+
+        System.out.println("Old value: " + oldValue);
+        System.out.println("New value: " + newValue);
+
+        if (newValue != null && !newValue.equals(oldValue)) {
+            DataTable table = (DataTable) event.getSource();
+            AvailableStudent student = (AvailableStudent) table.getRowData();
+
+            System.out.println("Student: " + student);
+            System.out.println("Column index: " + event.getColumn().getColumnKey());
+
+            // The value binding should have already updated the GradeValue
+            // But you can add additional logic here if needed
+//            FacesContext.getCurrentInstance().addMessage(null,
+//                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+//                            "Grade Updated",
+//                            "Grade changed from " + oldValue + " to " + newValue));
+        }
     }
 
     public class TargetStudent extends AvailableStudent {

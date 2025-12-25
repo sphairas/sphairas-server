@@ -6,11 +6,11 @@
 package org.thespheres.acer.entities.facade.impl;
 
 import java.sql.Timestamp;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.acer.MessageId;
 import org.thespheres.acer.entities.facade.CommonTrackers;
 import org.thespheres.acer.entities.facade.MessageTrackingException;

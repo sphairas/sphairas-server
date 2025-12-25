@@ -10,7 +10,8 @@ import java.util.logging.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import org.apache.naming.resources.ProxyDirContext;
+import javax.naming.directory.DirContext;
+//import org.apache.naming.resources.ProxyDirContext;
 
 /**
  *
@@ -20,17 +21,17 @@ public class CommonAppProperties {
 
     private static final String SYSTEM_PROP_PROVIDER = "providerURL";
     public static final String PROP_SIGNEES_EXTRA_CONVENTIONS_PERMITTED = "signees.extra.conventions.permitted";
-    
+
     private CommonAppProperties() {
     }
 
-    public static ProxyDirContext lookupAppResourcesContext() {
+    public static DirContext lookupAppResourcesContext() {
         try {
             final Context c = new InitialContext();
-            return (ProxyDirContext) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesContext");
+            return (DirContext) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesContext");
         } catch (NamingException ne) {
             Logger.getLogger(CommonAppProperties.class.getName()).log(Level.SEVERE, "exception caught", ne);
-            throw new RuntimeException(ne);
+            throw new RuntimeException("Resource AppResourcesContext not found.", ne);
         }
     }
 

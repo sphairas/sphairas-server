@@ -13,14 +13,17 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+//import javax.naming.NamingException;
+//import jakarta.xml.bind.JAXBContext;
+//import jakarta.xml.bind.JAXBException;
 import javax.naming.NamingException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import org.apache.naming.resources.ProxyDirContext;
-import org.apache.naming.resources.Resource;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+//import org.openide.util.Exceptions;
+//import org.apache.naming.resources.ProxyDirContext;
+//import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.openide.util.lookup.ServiceProvider;
-import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.util.AbstractReloadableAssessmentConvention;
 import org.thespheres.betula.xmldefinitions.XmlAssessmentConventionDefintion;
@@ -34,8 +37,8 @@ public class ServerReloadableAssessmentConvention extends AbstractReloadableAsse
     protected final String resource;
     private final AtomicReference<XmlAssessmentConventionDefintion> definition = new AtomicReference<>();
     protected Date resourceLastModified;
-    protected ResourceAttributes resAttr;
-    private static JAXBContext jaxb;
+    protected Attributes resAttr;
+    private static javax.xml.bind.JAXBContext jaxb;
 
     ServerReloadableAssessmentConvention(final String provider, final String name, final String resource) {
         super(provider, name);
@@ -55,7 +58,7 @@ public class ServerReloadableAssessmentConvention extends AbstractReloadableAsse
     }
 
     protected Date getModified() {
-        return resAttr.getCreationOrLastModifiedDate();
+        return ((ResourceAttributes) resAttr).getCreationOrLastModifiedDate();
     }
 
     @Override
@@ -63,7 +66,7 @@ public class ServerReloadableAssessmentConvention extends AbstractReloadableAsse
         resourceLastModified = null;
     }
 
-    protected void reload() {        
+    protected void reload() {
         final XmlAssessmentConventionDefintion result;
         try {
             result = fetchResourceBundle();
@@ -80,40 +83,44 @@ public class ServerReloadableAssessmentConvention extends AbstractReloadableAsse
     }
 
     XmlAssessmentConventionDefintion fetchResourceBundle() throws IOException {
-        final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
-        final Resource res;
-        try {
-            res = (Resource) dc.lookup(resource);
-        } catch (final NamingException ex) {
-            Logger.getLogger(ServerReloadableAssessmentConvention.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-            throw new MissingConfigurationResourceException(resource);
-        }
-        try {
-            final ResourceAttributes attr = (ResourceAttributes) dc.getAttributes(resource);
-            if (attr != null) {
-                resAttr = attr;
-                resourceLastModified = attr.getCreationOrLastModifiedDate();
-            }
-        } catch (final NamingException | ClassCastException ex) {
-            resourceLastModified = null;
-            Logger.getLogger(ServerReloadableAssessmentConvention.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-        }
-        try (final InputStream is = res.streamContent()) {
+        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
+//        final Resource res;
+//        try {
+//            res = (Resource) dc.lookup(resource);
+//        } catch (final NamingException ex) {
+//            Logger.getLogger(ServerReloadableAssessmentConvention.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+//            throw new MissingConfigurationResourceException(resource);
+//        }
+//        try {
+//            final ResourceAttributes attr = (ResourceAttributes) dc.getAttributes(resource);
+//            if (attr != null) {
+//                resAttr = attr;
+//                resourceLastModified = attr.getCreationOrLastModifiedDate();
+//            }
+//        } catch (final NamingException | ClassCastException ex) {
+//            resourceLastModified = null;
+//            Logger.getLogger(ServerReloadableAssessmentConvention.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+//        }
+        try (final InputStream is = (InputStream) dc.lookup(resource)) { // res.streamContent()) {
             final BufferedInputStream bis = new BufferedInputStream(is); //? BufferedEntity?
             try {
                 return (XmlAssessmentConventionDefintion) getJAXB().createUnmarshaller().unmarshal(bis);
-            } catch (final JAXBException ex) {
+            } catch (javax.xml.bind.JAXBException ex) {
+                Logger.getLogger(ServerReloadableAssessmentConvention.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
                 throw new IOException(ex);
             }
+        } catch (NamingException ex) {
+            Logger.getLogger(ServerReloadableAssessmentConvention.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+            throw new IOException(ex);
         }
     }
 
-    private static JAXBContext getJAXB() {
+    private static javax.xml.bind.JAXBContext getJAXB() {
         synchronized (ServerReloadableAssessmentConvention.class) {
             if (jaxb == null) {
                 try {
-                    jaxb = JAXBContext.newInstance(XmlAssessmentConventionDefintion.class);
-                } catch (JAXBException ex) {
+                    jaxb = javax.xml.bind.JAXBContext.newInstance(XmlAssessmentConventionDefintion.class);
+                } catch (javax.xml.bind.JAXBException ex) {
                     throw new IllegalStateException(ex);
                 }
             }

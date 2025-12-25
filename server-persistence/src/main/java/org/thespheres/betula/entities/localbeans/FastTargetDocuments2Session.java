@@ -5,12 +5,13 @@
  */
 package org.thespheres.betula.entities.localbeans;
 
-import javax.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.Dependent;
+//import jakarta.enterprise.context.SessionScoped;
 
 /**
  *
  * @author boris.heithecker
  */
-@SessionScoped
+@Dependent //Vor Jakarta @SessionScoped
 public class FastTargetDocuments2Session extends FastTargetDocuments2Impl {
 }

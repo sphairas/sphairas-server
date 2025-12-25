@@ -2,7 +2,18 @@ version: '3.3'
 services:
   app:
     build: .
-    image: "sphairas/server:dev"
+    image: "sphairas/server2:dev"
+    deploy:
+      resources:
+        limits:
+          # Set a hard limit (e.g., 4 CPU cores)
+          cpus: '4.0'
+          # Set a hard limit for memory (recommended)
+          memory: 4096M 
+        reservations:
+          # Reserve a minimum number of CPU cores (e.g., 2 cores)
+          cpus: '2.0'
+          memory: 2048M
     ports:
       - "8080:8080"
       - "7781:7781"
@@ -22,6 +33,7 @@ services:
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "PAYARA_ARGS=--debug"
       - "TZ=Europe/Berlin"
+#      - "JVM_ARGS=-Djavax.net.debug=all"
     env_file:
       - "docker.env"
     logging:

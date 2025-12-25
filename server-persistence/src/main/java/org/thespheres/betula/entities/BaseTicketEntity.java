@@ -6,16 +6,16 @@
 package org.thespheres.betula.entities;
 
 import java.io.Serializable;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.Table;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.entities.config.AppProperties;
 
@@ -33,7 +33,7 @@ public abstract class BaseTicketEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected long id;
-    @javax.persistence.Version
+    @jakarta.persistence.Version
     @Column(name = "BASETICKETENTITY_VERSION")
     private long version;
 

@@ -1,12 +1,12 @@
 package org.thespheres.betula.entities.localbeans;
 
-import javax.annotation.Resource;
-import javax.ejb.EJBAccessException;
-import javax.ejb.SessionContext;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.validation.constraints.NotNull;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.SessionContext;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.validation.constraints.NotNull;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.config.ConfiguredModelException;

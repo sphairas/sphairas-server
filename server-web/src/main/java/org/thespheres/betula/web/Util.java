@@ -7,12 +7,13 @@ package org.thespheres.betula.web;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
+import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 
 /**
  *
@@ -23,11 +24,11 @@ import org.thespheres.betula.document.model.Subject;
 public class Util {
 
     @Inject
-    private Comparator<Subject> comp;
+    private NdsReportBuilderFactory reportBuilderFactory;
 
     public String label(MultiSubject ms) {
 //        final Comparator<Subject> comp = zgnConfig.getSubjectComparator();
-        final Comparator<Marker> mComp = Comparator.comparing(fm -> new Subject(fm, ms.getRealmMarker()), comp);
+        final Comparator<Marker> mComp = Comparator.comparing(fm -> new Subject(fm, ms.getRealmMarker()), getSubjectComparator());
         String ret = ms.getSubjectMarkerSet().stream()
                 .sorted(mComp)
                 .map(Marker::getShortLabel)
@@ -40,7 +41,7 @@ public class Util {
 
     public String tooltip(MultiSubject ms) {
 //        final Comparator<Subject> comp = zgnConfig.getSubjectComparator();
-        final Comparator<Marker> mComp = Comparator.comparing(fm -> new Subject(fm, ms.getRealmMarker()), comp);
+        final Comparator<Marker> mComp = Comparator.comparing(fm -> new Subject(fm, ms.getRealmMarker()), getSubjectComparator());
         String ret = ms.getSubjectMarkerSet().stream()
                 .sorted(mComp)
                 .map(Marker::getLongLabel)
@@ -55,4 +56,9 @@ public class Util {
         final String ts = str == null ? null : str.trim();
         return ts == null || ts.length() == 0 ? null : ts;
     }
+
+    private Comparator<Subject> getSubjectComparator() {
+        return (s1, s2) -> reportBuilderFactory.forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
+    }
+
 }

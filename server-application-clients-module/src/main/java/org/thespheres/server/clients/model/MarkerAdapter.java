@@ -5,7 +5,7 @@
  */
 package org.thespheres.server.clients.model;
 
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.MarkerFactory;
 

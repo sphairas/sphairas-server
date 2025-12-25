@@ -7,18 +7,18 @@ package org.thespheres.betula.entities.messaging;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import org.thespheres.betula.entities.BaseTargetAssessmentEntity;
 
 /**
@@ -60,7 +60,7 @@ public class ChannelPatternEntity implements Serializable {
     private String name;
     @Column(name = "PATTERN")
     private String regex;
-    @javax.persistence.Version
+    @jakarta.persistence.Version
     @Column(name = "CHANNEL_VERSION")
     private long entityVersion;
     @Transient

@@ -7,7 +7,7 @@ package org.thespheres.betula.calendar.facade;
 
 import java.util.Arrays;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  *

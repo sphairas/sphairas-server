@@ -6,11 +6,11 @@
 package org.thespheres.betula.calendar.saccess;
 
 import java.util.Collection;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.ejb.SessionContext;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.ejb.SessionContext;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.thespheres.betula.StudentId;

@@ -7,22 +7,25 @@ package org.thespheres.betula.web;
 
 import java.io.IOException;
 import java.io.Serializable;
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.PostConstruct;
+//import jakarta.faces.bean.ManagedBean;
+//import jakarta.faces.bean.ViewScoped;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Named;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
  * @author boris.heithecker
  */
-@ManagedBean(name = "register")
-@ViewScoped
+//@ManagedBean(name = "register")
+@Named("register")
+//@ViewScoped //Vor Jakarta javax.faces.bean.ViewScoped;
 public class ProviderRegister implements Serializable {
 
     private String errorMessage = null;

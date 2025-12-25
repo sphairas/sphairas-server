@@ -1,0 +1,21 @@
+.p-datatable .even-row {
+    background-color: var(--surface-50);
+}
+
+.p-datatable .odd-row {
+    background-color: white;
+}
+
+.p-rowexpansion > td {
+    padding: 1.5rem !important;
+    background-color: var(--surface-100);
+}
+
+.ui-editable-column .p-cell-editor-input {
+    width: 100%;
+}
+
+/* Better focus states for editable cells */
+.ui-editable-column:hover {
+    background-color: var(--primary-50) !important;
+}

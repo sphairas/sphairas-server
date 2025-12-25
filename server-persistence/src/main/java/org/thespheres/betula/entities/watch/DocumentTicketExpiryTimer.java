@@ -6,12 +6,12 @@
 package org.thespheres.betula.entities.watch;
 
 import java.util.Date;
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ejb.Timeout;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.Timeout;
+import jakarta.ejb.Timer;
+import jakarta.ejb.TimerService;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.server.beans.TicketsLocal;
 

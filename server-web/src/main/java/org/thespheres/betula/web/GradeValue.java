@@ -128,11 +128,10 @@ public class GradeValue extends AbstractGradeWrapper {
                 return deco.resolveReference(proxy, studId, term, null);
             }
         } else if (Uebertrag.NAME.equals(proxy.getConvention()) && subject != null) {
-            final PrimaryUnit pu = application.getUser().getCurrentPrimaryUnit();
-            final GradeValue gvref = pu.gradeValueForDocType(studId, subject, "vorzensuren");//TODO: get for TermId
-            if (gvref != null) {
-                return gvref.getGrade();
-            }
+            return application.getActivePrimaryUnit()
+                    .map(pu -> pu.gradeValueForDocType(studId, subject, "vorzensuren")) //TODO: get for TermId
+                    .map(gvref -> gvref.getGrade())
+                    .orElse(proxy);
         }
         return proxy;
     }

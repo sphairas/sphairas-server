@@ -5,7 +5,7 @@
  */
 package org.thespheres.acer.entities;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.thespheres.acer.MessageId;

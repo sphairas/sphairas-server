@@ -6,7 +6,7 @@
 package org.thespheres.betula.calendar.facade;
 
 import java.util.Collection;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.ical.CardComponentProperty;

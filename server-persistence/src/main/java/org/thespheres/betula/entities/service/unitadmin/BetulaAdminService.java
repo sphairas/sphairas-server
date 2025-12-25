@@ -4,22 +4,27 @@
  */
 package org.thespheres.betula.entities.service.unitadmin;
 
+import jakarta.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.security.DeclareRoles;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJBException;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
+import jakarta.annotation.security.DeclareRoles;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.EJBException;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.jws.HandlerChain;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.ws.WebServiceContext;
+import javax.xml.bind.JAXBException;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.Container;
 import org.thespheres.betula.document.DocumentId;
@@ -36,6 +41,7 @@ import org.thespheres.betula.services.ws.NotFoundException;
 import org.thespheres.betula.services.ws.Paths;
 import org.thespheres.betula.services.ws.SyntaxException;
 import org.thespheres.betula.services.ws.UnauthorizedException;
+import org.w3c.dom.DOMException;
 
 /**
  *
@@ -46,6 +52,7 @@ import org.thespheres.betula.services.ws.UnauthorizedException;
 @Stateless
 @DeclareRoles({"unitadmin"})
 @RolesAllowed({"unitadmin"})
+@HandlerChain(file = "handlers.xml")
 public class BetulaAdminService implements BetulaWebService {
 
     @PersistenceContext(unitName = "betula0")
@@ -66,12 +73,17 @@ public class BetulaAdminService implements BetulaWebService {
     private AdminReportsProcessor reportsProcessor;
     @Inject
     private AdminDocumentsProcessor documentsProcessor;
+    @Resource
+    private WebServiceContext wsContext;
+//    @Resource
+//    private SOAPMessageContext soapContext; //Funktioniert nicht
 
     public BetulaAdminService() {
     }
 
     @WebMethod(operationName = "fetch")
     @WebResult(targetNamespace = "http://www.thespheres.org/xsd/betula/container.xsd")
+    @Override
     public Container fetch(@WebParam(name = "ticket") DocumentId ticket) {
         return new Container();
     }
@@ -79,7 +91,9 @@ public class BetulaAdminService implements BetulaWebService {
     @WebMethod(operationName = "solicit")
     @WebResult(targetNamespace = "http://www.thespheres.org/xsd/betula/container.xsd")
     @RolesAllowed({"unitadmin"})
+    @Override
     public Container solicit(@WebParam(name = "container", targetNamespace = "http://www.thespheres.org/xsd/betula/container.xsd") Container container) throws UnauthorizedException, NotFoundException, SyntaxException {
+        container = legacyGetContainer();
         //Must (!) be processed BEFORE  targetsProcessor !
         for (String[] p : unitsProcessor.getPaths()) {
             final List<Envelope> l = DocumentUtilities.findEnvelope(container, p);
@@ -93,7 +107,7 @@ public class BetulaAdminService implements BetulaWebService {
                 }
             }
         }
-        
+
         for (String[] p : signeesProcessor.getPaths()) {
             final List<Envelope> l = DocumentUtilities.findEnvelope(container, p);
             for (final Envelope t : l) {
@@ -192,7 +206,18 @@ public class BetulaAdminService implements BetulaWebService {
         }
 
         processPrimaryUnitsTermgradeDocuments(container);
+        legacyReturnContainer(container);
         return container;
+    }
+
+    private Container legacyGetContainer() {
+        final HttpServletRequest req = (HttpServletRequest) wsContext.getMessageContext().get("jakarta.xml.ws.servlet.request");
+        return (Container) req.getAttribute(JAXBLegacyHandler.ATTR_CONTAINER_GET);
+    }
+
+    private void legacyReturnContainer(Container container) {
+        final HttpServletRequest req = (HttpServletRequest) wsContext.getMessageContext().get("jakarta.xml.ws.servlet.request");
+        req.setAttribute(JAXBLegacyHandler.ATTR_CONTAINER_RETURN, container);
     }
 
     //gehört wohl in den UnitsProcessor, später

@@ -5,8 +5,8 @@
  */
 package org.thespheres.betula.entities.localbeans;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.server.beans.SigneeLocal;
 

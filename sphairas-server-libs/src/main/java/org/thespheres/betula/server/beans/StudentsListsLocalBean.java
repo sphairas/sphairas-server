@@ -6,7 +6,7 @@
 package org.thespheres.betula.server.beans;
 
 import java.util.Date;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;

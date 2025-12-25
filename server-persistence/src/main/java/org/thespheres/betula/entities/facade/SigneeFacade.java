@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.entities.facade;
 
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 

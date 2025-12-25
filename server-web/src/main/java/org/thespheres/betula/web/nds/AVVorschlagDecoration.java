@@ -6,7 +6,7 @@
 package org.thespheres.betula.web.nds;
 
 import java.io.Serializable;
-import javax.ejb.Stateless;
+import jakarta.ejb.Stateless;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.web.config.Extra;

@@ -5,12 +5,12 @@
  */
 package org.thespheres.betula.entities.beanimpl;
 
-import javax.annotation.security.PermitAll;
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Remote;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.security.iservlogin.IservLogin;

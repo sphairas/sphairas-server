@@ -19,15 +19,16 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.ejb.EJB;
-import javax.enterprise.inject.Default;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.inject.Default;
+import jakarta.faces.view.ViewScoped;
+//import jakarta.faces.bean.ManagedBean;
+//import jakarta.faces.bean.ManagedProperty;
+//import jakarta.faces.bean.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.openide.util.WeakListeners;
-import org.thespheres.betula.StudentId;
+import org.primefaces.component.panel.Panel;
 import org.thespheres.betula.Tag;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
@@ -38,7 +39,6 @@ import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
-import org.thespheres.betula.util.CollectionUtil;
 import org.thespheres.betula.web.PrimaryUnit.AvailableStudentExt;
 import org.thespheres.betula.web.docsrv.ZeugnisArguments;
 
@@ -46,9 +46,9 @@ import org.thespheres.betula.web.docsrv.ZeugnisArguments;
  *
  * @author boris.heithecker
  */
-@ManagedBean(name = "reportNotes2")
-@Named
-@SessionScoped
+//@ManagedBean(name = "reportNotes2")
+@Named("reportNotes2")
+@ViewScoped //Vor Jakarta: javax.faces.bean.SessionScoped;
 public class ConfigureReportNotes2 implements VetoableChangeListener, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -56,8 +56,10 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
     private ReportsBean zeugnisBean;
     @EJB
     private ZeugnisArguments zeugnisArguments;
-    @ManagedProperty("#{app}")
-    private BetulaWebApplication application;
+//    @ManagedProperty("#{app}")
+//    @Inject
+//    @Named("app")
+//    private BetulaWebApplication application;
     @Current
     @Inject
     private Term currentTerm;
@@ -68,32 +70,43 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
     @Inject
     private NamingResolver namingResolver;
     private transient CurrentStudentsNotesSelection current;
+    private Panel panel;
 
-    public BetulaWebApplication getApplication() {
-        return application;
+//    public BetulaWebApplication getApplication() {
+//        return application;
+//    }
+//
+//    //Setter requiered (!) for injection!
+//    public void setApplication(BetulaWebApplication application) {
+//        this.application = application;
+//    }
+    public Panel getPanel() {
+        return panel;
     }
 
-    //Setter requiered (!) for injection!
-    public void setApplication(BetulaWebApplication application) {
-        this.application = application;
+    public void setPanel(Panel panel) {
+        this.panel = panel;
     }
 
+    //TODO: check @PostConstruct, or initialize when panel is set
     private void initialize() {
-        final PrimaryUnit pu = application.getUser().getCurrentPrimaryUnit();
-        if (pu == null) {
-            return;
-        }
-        final StudentId cs = pu.getSelectedStudent();
-        if (cs == null || pu == null) {
-            //c
-        } else if (current == null || !cs.equals(current.getStudent())) {
-            final AvailableStudentExt as = (AvailableStudentExt) pu.getStudents().stream()
-                    .filter(s -> s.getId().equals(cs))
-                    .collect(CollectionUtil.requireSingleOrNull());
+//        final PrimaryUnit pu = (PrimaryUnit) panel.getAttributes().get("primaryUnit"); //application.getUser().getCurrentPrimaryUnit();
+        final AvailableStudentExt as = (AvailableStudentExt) panel.getAttributes().get("student"); //application.getUser().getCurrentPrimaryUnit();
+//        if (pu == null) {
+//            return;
+//        }
+//        final StudentId cs = pu.getSelectedStudent();
+//        if (cs == null) {
+//            //c
+//        } else 
+        if (current == null || !as.getId().equals(current.getStudent())) {
+//            final AvailableStudentExt as = (AvailableStudentExt) pu.getStudents().stream()
+//                    .filter(s -> s.getId().equals(cs))
+//                    .collect(CollectionUtil.requireSingleOrNull());
 
             final DocumentId zgn = as.getZeugnisId();
             final UnitId unit = as.getPrimaryUnit().getUnitId();
-            final CurrentStudentsNotesSelection ns = new CurrentStudentsNotesSelection(cs, zgn, unit);
+            final CurrentStudentsNotesSelection ns = new CurrentStudentsNotesSelection(as.getId(), zgn, unit);
 
             if (zgn != null) {
                 final Marker[] markers = zeugnisBean.getMarkers(zgn);

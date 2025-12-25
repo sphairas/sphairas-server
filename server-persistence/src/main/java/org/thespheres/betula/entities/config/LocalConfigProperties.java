@@ -9,9 +9,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import java.io.Serializable;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.LocalFileProperties;
 import org.thespheres.betula.services.LocalProperties;
@@ -22,7 +23,7 @@ import org.thespheres.betula.services.NoProviderException;
  * @author boris.heithecker
  */
 @Dependent
-public class LocalConfigProperties implements LocalProperties {
+public class LocalConfigProperties implements Serializable, LocalProperties {
 
     private String parentProvider;
     private LocalFileProperties parentProperties;

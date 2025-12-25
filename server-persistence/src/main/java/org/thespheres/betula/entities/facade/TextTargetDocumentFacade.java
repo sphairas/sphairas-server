@@ -7,8 +7,8 @@ package org.thespheres.betula.entities.facade;
 
 import java.util.Collection;
 import java.util.List;
-import javax.ejb.Local;
-import javax.persistence.LockModeType;
+import jakarta.ejb.Local;
+import jakarta.persistence.LockModeType;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;

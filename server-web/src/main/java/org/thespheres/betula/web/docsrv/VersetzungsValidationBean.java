@@ -8,12 +8,10 @@ package org.thespheres.betula.web.docsrv;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.LocalBean;
-import javax.ejb.Startup;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Startup;
 import org.openide.filesystems.FileObject;
 import org.thespheres.betula.server.beans.config.LayerConfigUtilities;
 import org.thespheres.betula.validation.impl.CareerAwareGradeCondition;
@@ -36,9 +34,9 @@ public class VersetzungsValidationBean {
     void init() {
         final FileObject configFo = LayerConfigUtilities.findLastConfigFile("/ValidationEngine/Configuration/org-thespheres-betula-niedersachsen-admin-ui-validate-VersetzungsValidation/");
         try {
-            final JAXBContext ctx = JAXBContext.newInstance(VersetzungsValidationConfiguration.class, CareerAwareGradeCondition.class);
+            final javax.xml.bind.JAXBContext ctx = javax.xml.bind.JAXBContext.newInstance(VersetzungsValidationConfiguration.class, CareerAwareGradeCondition.class);
             config = (VersetzungsValidationConfiguration) ctx.createUnmarshaller().unmarshal(configFo.getInputStream());
-        } catch (JAXBException | FileNotFoundException ex) {
+        } catch (javax.xml.bind.JAXBException | FileNotFoundException ex) {
             throw new IllegalStateException(ex);
         }
     }

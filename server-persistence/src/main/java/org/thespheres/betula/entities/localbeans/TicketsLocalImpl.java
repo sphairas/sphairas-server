@@ -7,12 +7,12 @@ package org.thespheres.betula.entities.localbeans;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.services.jms.TicketEvent;
 import org.thespheres.betula.entities.BaseTicketEntity;
@@ -55,7 +55,7 @@ public class TicketsLocalImpl implements TicketsLocal {
 
     @Override
     public Ticket[] activeTickets() {
-        final javax.persistence.criteria.CriteriaQuery<BaseTicketEntity> cq = em.getCriteriaBuilder().createQuery(BaseTicketEntity.class);
+        final jakarta.persistence.criteria.CriteriaQuery<BaseTicketEntity> cq = em.getCriteriaBuilder().createQuery(BaseTicketEntity.class);
         cq.select(cq.from(BaseTicketEntity.class)).distinct(true);
         return em.createQuery(cq).setLockMode(LockModeType.OPTIMISTIC).getResultList().stream().map(BaseTicketEntity::getTicket).toArray(Ticket[]::new);
     }

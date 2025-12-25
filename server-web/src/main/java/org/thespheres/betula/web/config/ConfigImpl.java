@@ -21,11 +21,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.Typed;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Typed;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.InvalidNameException;
@@ -34,9 +34,10 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import org.apache.naming.resources.ProxyDirContext;
+//import jakarta.xml.bind.JAXBContext;
+//import jakarta.xml.bind.JAXBException;
+import javax.naming.directory.DirContext;
+//import org.apache.naming.resources.ProxyDirContext;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.openide.util.Lookup;
@@ -60,39 +61,39 @@ import org.thespheres.betula.util.CollectionUtil;
 public class ConfigImpl implements Serializable {
 
     private static final String SERVER_CRT_FILE = "server.crt";
-    private JAXBContext notesTemplateJAXB;
-    private JAXBContext vorlageJAXB;
-    private JAXBContext webUIJAXB;
-    private JAXBContext crossmarkSettingsJAXB;
+    private javax.xml.bind.JAXBContext notesTemplateJAXB;
+    private javax.xml.bind.JAXBContext vorlageJAXB;
+    private javax.xml.bind.JAXBContext webUIJAXB;
+    private javax.xml.bind.JAXBContext crossmarkSettingsJAXB;
 //    private Date noteSetFileLastModified;
     private TermReportNoteSetTemplate noteSetTemplate;
 
     @PostConstruct
     public void initialize() {
         try {
-            notesTemplateJAXB = JAXBContext.newInstance(TermReportNoteSetTemplate.class);
-        } catch (JAXBException ex) {
+            notesTemplateJAXB = javax.xml.bind.JAXBContext.newInstance(TermReportNoteSetTemplate.class);
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IllegalStateException(ex);
         }
         try {
-            vorlageJAXB = JAXBContext.newInstance(NdsZeugnisSchulvorlage.class);
-        } catch (JAXBException ex) {
+            vorlageJAXB = javax.xml.bind.JAXBContext.newInstance(NdsZeugnisSchulvorlage.class);
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IllegalStateException(ex);
         }
         try {
-            webUIJAXB = JAXBContext.newInstance(XmlWebUIConfiguration.class);
-        } catch (JAXBException ex) {
+            webUIJAXB = javax.xml.bind.JAXBContext.newInstance(XmlWebUIConfiguration.class);
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IllegalStateException(ex);
         }
         try {
-            crossmarkSettingsJAXB = JAXBContext.newInstance(CrossmarkSettings.class);
-        } catch (JAXBException ex) {
+            crossmarkSettingsJAXB = javax.xml.bind.JAXBContext.newInstance(CrossmarkSettings.class);
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IllegalStateException(ex);
         }
     }
 
     @Produces
-    public WebUIConfiguration findWebUIConfiguration() {
+    public XmlWebUIConfiguration findWebUIConfiguration() {
         final String bp = null; //getProvider();
         if (bp != null) {
             final WebUIConfiguration swc = Lookup.getDefault().lookupAll(WebUIConfiguration.class).stream()
@@ -100,11 +101,11 @@ public class ConfigImpl implements Serializable {
                     .filter(wc -> wc.getName().equals(bp))
                     .collect(CollectionUtil.singleOrNull());
             if (swc != null) {
-                return swc;
+                return (XmlWebUIConfiguration) swc;
             }
         }
 //        throw new ConfigurationException(WebUIConfiguration.class.getName(), WebAppProperties.BETULA_WEB_UI_SERVICE_PROVIDER_PROPERTY);
-        final ProxyDirContext dc = lookupAppResourcesContext();
+        final DirContext dc = lookupAppResourcesContext();
         final String file = "web-ui-configuration.xml";
         final Resource res;
         try {
@@ -115,7 +116,7 @@ public class ConfigImpl implements Serializable {
         }
         try (final InputStream is = res.streamContent()) {
             return (XmlWebUIConfiguration) webUIJAXB.createUnmarshaller().unmarshal(is);
-        } catch (IOException | JAXBException ex) {
+        } catch (IOException | javax.xml.bind.JAXBException ex) {
             final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
             th.initCause(ex);
             throw th;
@@ -142,15 +143,15 @@ public class ConfigImpl implements Serializable {
         throw new MissingConfigurationResourceException(SERVER_CRT_FILE);
     }
 
-    @Produces
-    public Comparator<Subject> findSubjectComparator(NdsReportBuilderFactory fac) {
-        return (s1, s2) -> fac.forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
-    }
+//    @Produces
+//    public Comparator<Subject> findSubjectComparator(NdsReportBuilderFactory fac) {
+//        return (s1, s2) -> fac.forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
+//    }
 
     @Typed(NdsReportBuilderFactory.class)
     @Produces
     public NdsReportBuilderFactory findZeugnisConfiguratorService() {
-        final ProxyDirContext dc = lookupAppResourcesContext();
+        final DirContext dc = lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
         final NdsZeugnisSchulvorlage vorlage;
         if (hasResource(dc, NdsReportBuilderFactory.SCHULVORLAGE_FILE)) {
@@ -163,7 +164,7 @@ public class ConfigImpl implements Serializable {
             }
             try (final InputStream is = res.streamContent()) {
                 vorlage = (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
-            } catch (IOException | JAXBException ex) {
+            } catch (IOException | javax.xml.bind.JAXBException ex) {
                 final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
                 th.initCause(ex);
                 throw th;
@@ -199,13 +200,13 @@ public class ConfigImpl implements Serializable {
     }
 
 //    @SessionScoped
-//    @javax.faces.view.ViewScoped
+//    @jakarta.faces.view.ViewScoped
 //    @RequestScoped
     @Dependent  //soll sessionscoped, aber funktioniert nicht;TermReportNoteSetTemplate muss serializable sein
     @Produces
     //Do not cache!!!
     public TermReportNoteSetTemplate findTermReportNoteSetTemplate() throws NamingException {
-        final ProxyDirContext dc = lookupAppResourcesContext();
+        final DirContext dc = lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SIGNEE_BEMERKUNGEN_FILE;
         try {
             dc.lookup(file);
@@ -236,7 +237,7 @@ public class ConfigImpl implements Serializable {
         }
         try (final InputStream is = res.streamContent()) {
             noteSetTemplate = (TermReportNoteSetTemplate) notesTemplateJAXB.createUnmarshaller().unmarshal(is);
-        } catch (IOException | JAXBException ex) {
+        } catch (IOException | javax.xml.bind.JAXBException ex) {
             final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
             th.initCause(ex);
             throw th;
@@ -248,7 +249,7 @@ public class ConfigImpl implements Serializable {
     @Dependent
     @Produces
     public CrossmarkSettings createCrossmarkSettings() {
-        final ProxyDirContext dc = lookupAppResourcesContext();
+        final DirContext dc = lookupAppResourcesContext();
         final String file = NdsCommonConstants.ANKREUZZEUGNISSE_FILE;
         final Resource res;
         try {
@@ -258,24 +259,24 @@ public class ConfigImpl implements Serializable {
         }
         try (final InputStream is = res.streamContent()) {
             return (CrossmarkSettings) crossmarkSettingsJAXB.createUnmarshaller().unmarshal(is);
-        } catch (IOException | JAXBException ex) {
+        } catch (IOException | javax.xml.bind.JAXBException ex) {
             final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
             th.initCause(ex);
             throw th;
         }
     }
 
-    private ProxyDirContext lookupAppResourcesContext() {
+    private DirContext lookupAppResourcesContext() {
         try {
             final Context c = new InitialContext();
-            return (ProxyDirContext) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesContext");
+            return (DirContext) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesContext");
         } catch (NamingException ne) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
             throw new RuntimeException(ne);
         }
     }
 
-    public static boolean hasResource(final ProxyDirContext dc, final String res) {
+    public static boolean hasResource(final DirContext dc, final String res) {
         try {
             final NamingEnumeration<NameClassPair> l = dc.list("");
             while (l.hasMore()) {
@@ -284,7 +285,7 @@ public class ConfigImpl implements Serializable {
                 }
             }
         } catch (NamingException ex) {
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, "An exception occured listing resources in " + dc.getContextName(), ex);
+            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, "An exception occured listing resources in " + dc.toString(), ex); //Vor Jakarta dc.getContextName()
         }
         return false;
     }

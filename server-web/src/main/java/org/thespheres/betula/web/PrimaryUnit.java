@@ -31,8 +31,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.primefaces.event.ToggleEvent;
 import org.primefaces.model.Visibility;
-import org.primefaces.push.EventBus;
-import org.primefaces.push.EventBusFactory;
+import org.primefaces.model.menu.DefaultMenuItem;
+import org.primefaces.model.menu.DefaultMenuModel;
+import org.primefaces.model.menu.DefaultSubMenu;
+import org.primefaces.model.menu.MenuModel;
+//import org.primefaces.event.ToggleEvent;
+//import org.primefaces.model.Visibility;
+//import org.primefaces.push.EventBus;
+//import org.primefaces.push.EventBusFactory;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -83,6 +89,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
     public static final int WEB_UI_EDITABLE_REPORT_NOTE_POSITION = 1000;
     private Integer level;
     private final Term termBefore;
+    private MenuModel menu;
 
     PrimaryUnit(final String docIdName, final UnitId unit, final Term term, final Term before, final BetulaWebApplication app) {
         super(app, unit.getId());
@@ -191,16 +198,18 @@ public class PrimaryUnit extends AbstractData<Subject> {
 //            Grade evtGrade = evt.getNewValue();
                     if (gv.invalidateGrade(u.getValue(), evt.getTimestamp().getValue())) {
 //                gv.invalidateGrade();
-                        if (application.getCurrentPage().equals("primaryUnits") && dataTableClientId != null) {
+                        if (application.getActivePage().equals("primaryUnits") && dataTableClientId != null) {
 //                    String g = evtGrade.getShortLabel();
 //                    String n = as.getFullname();
 //                    String msg = NbBundle.getMessage(AvailableTarget.class, "target.update.message");
 //                    String det = NbBundle.getMessage(AvailableTarget.class, "target.update.message.detail", g, n, termDN);
-                            final EventBus eventBus = EventBusFactory.getDefault().eventBus();
-                            final BetulaPushMessage message = new BetulaPushMessage();
-                            message.setSource(dataTableClientId);
-                            message.setUpdate(dataTableClientId);
-                            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
+
+                            //Removed Jakarta
+//                            final EventBus eventBus = EventBusFactory.getDefault().eventBus();
+//                            final BetulaPushMessage message = new BetulaPushMessage();
+//                            message.setSource(dataTableClientId);
+//                            message.setUpdate(dataTableClientId);
+//                            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
                         }
                     }
 
@@ -276,6 +285,38 @@ public class PrimaryUnit extends AbstractData<Subject> {
         } catch (MissingResourceException ex) {
         }
         return getDisplayTitle();
+    }
+
+    public MenuModel getMenu() {
+        if (menu == null) {
+            menu = new DefaultMenuModel();
+            final DefaultSubMenu downloadMenu = DefaultSubMenu.builder()
+                    .label(BetulaWebApplication.getBundleValue("primaryUnits.menu.download"))
+                    .icon("pi pi-download")
+                    .expanded(true)
+                    .build();
+            addUrlToSubmenu(downloadMenu, "primaryUnits.menu.download.allelisten", "pi pi-file", getListenDownload());
+            if (isEnableDetails()) {
+                addUrlToSubmenu(downloadMenu, "primaryUnits.menu.download.detailListen", "pi pi-file-excel", getDetailsDownload(null));
+            }
+            for (final String template : getDetailsTemplates()) {
+                addUrlToSubmenu(downloadMenu, template, "pi pi-file", getDetailsDownload(template));
+            }
+            addUrlToSubmenu(downloadMenu, "primaryUnits.menu.download.allezgn", "pi pi-file", getZgnDownload());
+
+            menu.getElements().add(downloadMenu);
+        }
+        return menu;
+    }
+
+    private void addUrlToSubmenu(final DefaultSubMenu downloadMenu, String value, String icon, String url) {
+        DefaultMenuItem item = DefaultMenuItem.builder()
+                .value(BetulaWebApplication.getBundleValue(value))
+                .icon(icon)
+                .url(url)
+                .target("_blank")
+                .build();
+        downloadMenu.getElements().add(item);
     }
 
     public String getListenDownload() {
@@ -423,6 +464,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         return selectedStudent;
     }
 
+    //NUR TESTWEISE JAKARTA
     public void onRowToggle(final ToggleEvent event) {
         final AvailableStudent s = (AvailableStudent) event.getData();
         if (event.getVisibility() == Visibility.VISIBLE) {

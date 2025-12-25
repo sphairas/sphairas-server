@@ -10,12 +10,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.faces.context.FacesContext;
-import org.primefaces.context.RequestContext;
-import org.primefaces.event.ToggleEvent;
-import org.primefaces.model.Visibility;
-import org.primefaces.push.EventBus;
-import org.primefaces.push.EventBusFactory;
+import jakarta.faces.context.FacesContext;
+//import org.primefaces.PrimeFaces;
+//import org.primefaces.context.RequestContext;
+//import org.primefaces.event.ToggleEvent;
+//import org.primefaces.model.Visibility;
+//import org.primefaces.push.EventBus;
+//import org.primefaces.push.EventBusFactory;
 import org.thespheres.acer.MessageId;
 import org.thespheres.acer.beans.MessageEvent;
 import org.thespheres.betula.server.beans.FastMessage;
@@ -35,21 +36,21 @@ public class Messages implements Serializable {
     public void onClose(MessageId message) {
         message.toString();
     }
-
-    public void onToggle(ToggleEvent toggle) {
-        boolean read = toggle.getVisibility().equals(Visibility.HIDDEN);
-        FacesContext context = FacesContext.getCurrentInstance();
-//        FastMessage message = context.getApplication().evaluateExpressionGet(context, "#{app.user.fastMessages}", FastMessage.class);
-        try {
-            FastMessage message = context.getApplication().evaluateExpressionGet(context, "#{message}", FastMessage.class);
-            if (message != null) {
-                application.getFastMessages().markRead(message.getMessageId(), read);
-            }
-        } catch (IllegalArgumentException illex) {
-        }
-//         MyBean2 myBean2 = (MyBean2) FacesContext.getCurrentInstance().getExternalContext()
-//            .getRequestMap().get("myBean2");
-    }
+      //NUR TESTWEISE -> JAKARTA
+//    public void onToggle(ToggleEvent toggle) {
+//        boolean read = toggle.getVisibility().equals(Visibility.HIDDEN);
+//        FacesContext context = FacesContext.getCurrentInstance();
+////        FastMessage message = context.getApplication().evaluateExpressionGet(context, "#{app.user.fastMessages}", FastMessage.class);
+//        try {
+//            FastMessage message = context.getApplication().evaluateExpressionGet(context, "#{message}", FastMessage.class);
+//            if (message != null) {
+//                application.getFastMessages().markRead(message.getMessageId(), read);
+//            }
+//        } catch (IllegalArgumentException illex) {
+//        }
+////         MyBean2 myBean2 = (MyBean2) FacesContext.getCurrentInstance().getExternalContext()
+////            .getRequestMap().get("myBean2");
+//    }
 
     public void edit(MessageId message) {
         Map<String, List<String>> params = new HashMap<>();
@@ -58,9 +59,9 @@ public class Messages implements Serializable {
         openDialog(params);
     }
 
-    public String getChannelDisplayName(String channel) {
-        return application.getFastMessages().getChannels().get(channel);
-    }
+//    public String getChannelDisplayName(String channel) {
+//        return application.getFastMessages().getChannels().get(channel);
+//    }
 
     public void create() {
         openDialog(null);
@@ -70,24 +71,33 @@ public class Messages implements Serializable {
         Map<String, Object> options = new HashMap<>();
         options.put("modal", true);
         options.put("contentHeight", 320);
-        options.put("contentWidth", 640); ////hint: available options are modal, draggable, resizable, width, height, contentWidth and contentHeight
-        RequestContext.getCurrentInstance().openDialog("content/editMessage", options, params);
+        options.put("contentWidth", 640);
+        ////hint: available options are modal, draggable, resizable, width, height, contentWidth and contentHeight
+        ///
+        //NUR TESTWEISE -> JAKARTA
+//        PrimeFaces.current().dialog().openDynamic("content/editMessage", options, params);
+//        RequestContext.getCurrentInstance().openDialog("content/editMessage", options, params);
     }
 
-    public void delete(MessageId message) {
-        application.getMessages().delete(message);
-    }
+//    public void delete(MessageId message) {
+//        application.getMessages().delete(message);
+//    }
 
     void onMessageEvent(MessageEvent event) {
         application.getUser().invalidateMessages();
-        if (application.getCurrentPage().equals("messages")) { // && fm.affects(event.getSource())) { //application.getFastMessages().affects(event.getSource())) {//Does not work, we dont have a valid sessionscoped context
-            EventBus eventBus = EventBusFactory.getDefault().eventBus();
-            BetulaPushMessage bpm = new BetulaPushMessage();
-//            bpm.setSource("main:content_content");
-//            bpm.setUpdate("main:content_content");
-            bpm.setSource("main:message-panels");
-            bpm.setUpdate("main:message-panels");
-            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), bpm);
+        if (application.getActivePage().equals("messages")) { // && fm.affects(event.getSource())) { //application.getFastMessages().affects(event.getSource())) {//Does not work, we dont have a valid sessionscoped context
+
+            //Removed for Jakarta
+//            EventBus eventBus = EventBusFactory.getDefault().eventBus();
+//            BetulaPushMessage bpm = new BetulaPushMessage();
+        
+    
+
+////            bpm.setSource("main:content_content");
+////            bpm.setUpdate("main:content_content");
+//            bpm.setSource("main:message-panels");
+//            bpm.setUpdate("main:message-panels");
+//            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), bpm);
         }
     }
 

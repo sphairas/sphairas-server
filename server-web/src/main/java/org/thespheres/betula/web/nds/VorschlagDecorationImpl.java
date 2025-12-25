@@ -5,9 +5,9 @@
  */
 package org.thespheres.betula.web.nds;
 
-import javax.ejb.EJB;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import jakarta.ejb.EJB;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;

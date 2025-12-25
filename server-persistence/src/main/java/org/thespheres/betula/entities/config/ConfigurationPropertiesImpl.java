@@ -12,17 +12,21 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Produces;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Produces;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import org.apache.naming.resources.ProxyDirContext;
+//import jakarta.xml.bind.JAXBContext;
+//import jakarta.xml.bind.JAXBException;
+import javax.naming.directory.DirContext;
 import org.apache.naming.resources.Resource;
+//import org.apache.naming.resources.ProxyDirContext;
+//import org.apache.naming.resources.Resource;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.assess.AbstractGrade;
 import org.thespheres.betula.assess.Grade;
@@ -57,13 +61,13 @@ import org.thespheres.betula.services.ws.CommonDocuments;
 public class ConfigurationPropertiesImpl {
 
     static final Logger LOGGER = Logger.getLogger(AppProperties.LOGGER);
-    private JAXBContext vorlageJAXB;
+    private javax.xml.bind.JAXBContext vorlageJAXB;
 
     @PostConstruct
     public void initialize() {
         try {
-            vorlageJAXB = JAXBContext.newInstance(NdsZeugnisSchulvorlage.class);
-        } catch (JAXBException ex) {
+            vorlageJAXB = javax.xml.bind.JAXBContext.newInstance(NdsZeugnisSchulvorlage.class);
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IllegalStateException(ex);
         }
     }
@@ -157,11 +161,16 @@ public class ConfigurationPropertiesImpl {
     @Produces
     public DocumentsModel createDocumentModel(final LocalConfigProperties properties) {
         final DocumentsModel dm = new DocumentsModel();
+        final Map<String, String> p = properties.getProperties();
         try {
-            dm.initialize(properties.getProperties());
-        } catch (IllegalStateException e) {
+            dm.initialize(p);
+        } catch (IllegalStateException ex) {
             //DocumentsModel not properly initialized.
-            throw new ConfiguredModelException("DocumentsModel", e);
+            final String props = "Properties: [\n" 
+                    + p.entrySet().stream().map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("\n"))
+                    + "]";
+            Logger.getLogger(ConfigurationPropertiesImpl.class.getPackage().getName()).log(Level.INFO, props);
+            throw new ConfiguredModelException("DocumentsModel not initialized: " + ex.getLocalizedMessage(), ex);
         }
         return dm;
     }
@@ -179,7 +188,7 @@ public class ConfigurationPropertiesImpl {
 
     @Produces
     public CommonDocuments commonDocuments() {
-        final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
+        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
 //        final Resource res;
 //        try {
@@ -205,7 +214,7 @@ public class ConfigurationPropertiesImpl {
             }
             try (final InputStream is = res.streamContent()) {
                 return (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
-            } catch (IOException | JAXBException ex) {
+            } catch (IOException | javax.xml.bind.JAXBException ex) {
                 final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
                 th.initCause(ex);
                 throw th;
@@ -225,7 +234,7 @@ public class ConfigurationPropertiesImpl {
 //    @Dependent
     public Properties properties() {
         final Properties p = new Properties();
-        final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
+        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
         if (hasResource(dc, AppProperties.INSTANCE_PROPERTIES_FILE)) {
             final Resource res;
             try {
@@ -250,7 +259,7 @@ public class ConfigurationPropertiesImpl {
         return LOGGER;
     }
 
-    public static boolean hasResource(final ProxyDirContext dc, final String res) {
+    public static boolean hasResource(final DirContext dc, final String res) {
         try {
             final NamingEnumeration<NameClassPair> l = dc.list("");
             while (l.hasMore()) {
@@ -259,7 +268,7 @@ public class ConfigurationPropertiesImpl {
                 }
             }
         } catch (NamingException ex) {
-            LOGGER.log(Level.WARNING, "An exception occured listing resources in " + dc.getContextName(), ex);
+            LOGGER.log(Level.WARNING, "An exception occured listing resources in " + dc.toString(), ex); //dc.getContextName()
         }
         return false;
     }

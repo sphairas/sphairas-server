@@ -20,7 +20,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sphairas-server-libs</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
@@ -32,25 +32,53 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>10.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+<!--        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.0</version> 
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.4</version> 
+            <scope>runtime</scope> 
+        </dependency>-->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version> 
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.6</version> 
+            <scope>runtime</scope>
+        </dependency>
+        <!--        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>${jakartaee}</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
-            <groupId>org.glassfish.main.web</groupId>
+            <groupId>fish.payara.server.internal.web</groupId>
             <artifactId>web-naming</artifactId>
-            <version>4.1</version>
+            <version>6.2025.11</version>
             <scope>provided</scope>
-            <type>jar</type>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>org.glassfish.main.security</groupId>
             <artifactId>security</artifactId>
             <version>4.1</version>
             <type>jar</type>
             <scope>provided</scope>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -76,6 +104,13 @@
             <version>5.3.1</version>
             <scope>test</scope>
         </dependency>
+        <!--Wegen org.thespheres.betula.entities.service.ProxyGrade-->
+<!--        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.4.0-b180830.0359</version>
+            <type>jar</type>
+        </dependency>-->
     </dependencies>
     
     <build>

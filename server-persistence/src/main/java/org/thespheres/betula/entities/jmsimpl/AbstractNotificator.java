@@ -5,11 +5,11 @@
  */
 package org.thespheres.betula.entities.jmsimpl;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.jms.JMSContext;
-import javax.jms.JMSProducer;
-import javax.jms.Topic;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.Topic;
 import org.thespheres.betula.services.jms.AbstractJMSEvent;
 
 /**

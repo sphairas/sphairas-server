@@ -9,26 +9,26 @@ import java.util.ArrayList;
 import org.thespheres.betula.calendar.LayeredUpdate;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OrderColumn;
-import javax.persistence.QueryHint;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.AttributeOverrides;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.QueryHint;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import org.thespheres.betula.calendar.EmbeddableComponentProperty;
 import org.thespheres.betula.calendar.util.EmbeddableSignee;
 import org.thespheres.ical.CalendarComponent;
@@ -62,7 +62,7 @@ public class LessonUpdate extends LayeredUpdate<WeeklyLessonComponent> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @javax.persistence.Version
+    @jakarta.persistence.Version
     @Column(name = "VERSION")
     private long version;
     @Column(name = "VENDOR_COVER_ID", length = 64)//z.B. Vertretungsnummer

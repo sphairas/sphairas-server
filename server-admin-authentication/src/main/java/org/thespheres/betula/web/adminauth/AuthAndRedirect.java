@@ -5,22 +5,22 @@
  */
 package org.thespheres.betula.web.adminauth;
 
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.SessionScoped;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.faces.bean.SessionScoped;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+//import jakarta.faces.bean.SessionScoped;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
  * @author boris.heithecker
  */
-@SessionScoped
+@Dependent //Vor Jakarta: javax.faces.bean.SessionScoped
 public class AuthAndRedirect extends HttpServlet {
 
     @Override

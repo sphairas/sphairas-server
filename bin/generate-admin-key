@@ -35,12 +35,13 @@ fi
 
 source ${SUBJECT}
 
-openssl req -newkey rsa:4096 -keyout ${HOME_DIR}/admin.key -nodes -out ${HOME_DIR}/admin.csr -days 365 -subj "/CN=${CNAME}/C=${C}/ST=${ST}/L=${L}/O=${O}" 
+openssl req -newkey rsa:4096 -keyout ${HOME_DIR}/admin.key -nodes -out ${HOME_DIR}/admin.csr -subj "/CN=${CNAME}/C=${C}/ST=${ST}/L=${L}/O=${O}" 
 #Sign the key
 openssl x509 -req -CA $SERVER_CERT -CAkey $SERVER_KEY -in ${HOME_DIR}/admin.csr -passin pass:$AS_ADMIN_MASTERPASSWORD -out ${HOME_DIR}/admin.cer -days 365 -CAcreateserial
 #Create PKCS12
 #openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${SECRETS}/admin.p12 -passout pass:'changeit' -chain -CAfile $SERVER_CERT -name $SPHAIRAS_PROVIDER
-openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${HOME_DIR}/admin.p12 -passout pass:$PASSWORD -chain -CAfile $SERVER_CERT -name ${SPHAIRAS_PROVIDER}
+#TODO: Verschlüsslungsalgorithmen anpassen, Java-kompatibel machen; macalg SHA1 ist offenbar erforderlich für Java 11
+openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${HOME_DIR}/admin.p12 -passout pass:$PASSWORD -chain -CAfile $SERVER_CERT -name ${SPHAIRAS_PROVIDER} -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg SHA1
 rm ${HOME_DIR}/admin.key
 rm ${HOME_DIR}/admin.csr
 rm ${HOME_DIR}/admin.cer

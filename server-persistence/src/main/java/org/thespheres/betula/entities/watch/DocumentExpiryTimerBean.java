@@ -10,11 +10,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.annotation.security.DeclareRoles;
-import javax.ejb.EJB;
-import javax.ejb.Schedule;
-import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
+import jakarta.annotation.security.DeclareRoles;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.LocalBean;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.entities.facade.DocumentsFacade;
 

@@ -6,9 +6,9 @@
 package org.thespheres.betula.entities.config;
 
 import java.util.Hashtable;
-import javax.annotation.PostConstruct;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Singleton;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.naming.resources.ProxyDirContext;
 import org.thespheres.betula.services.ServiceConstants;

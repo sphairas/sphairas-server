@@ -8,12 +8,12 @@ package org.thespheres.betula.entities;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Objects;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import org.thespheres.betula.document.Signee;
 
 /**

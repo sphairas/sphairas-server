@@ -7,12 +7,12 @@ package org.thespheres.acer.entities.facade.impl;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-import javax.ejb.EJB;
-import javax.ejb.EJBException;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBException;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.acer.MessageId;
 import org.thespheres.acer.beans.ChannelEvent;
 import org.thespheres.acer.beans.MessageEvent;

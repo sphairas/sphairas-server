@@ -5,12 +5,12 @@
  */
 package org.thespheres.acer.entities.facade.impl;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.acer.MessageId;
 import org.thespheres.acer.entities.facade.ChannelFacade;
 import org.thespheres.acer.entities.facade.MailMessageFacade;

@@ -9,15 +9,20 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.Dependent;
+//import jakarta.faces.bean.ManagedBean;
+//import jakarta.faces.bean.ManagedProperty;
+//import jakarta.faces.bean.ViewScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.openide.util.NbBundle;
-import org.primefaces.context.RequestContext;
+//import org.primefaces.PrimeFaces;
+//import org.primefaces.context.RequestContext;
 import org.thespheres.acer.MessageId;
 import org.thespheres.acer.MessageId.Version;
 import org.thespheres.betula.server.beans.FastMessages;
@@ -27,30 +32,36 @@ import org.thespheres.betula.util.CollectionUtil;
  *
  * @author boris.heithecker
  */
-@ManagedBean(name = "messageEdit")
-@ViewScoped
+//@ManagedBean(name = "messageEdit")
+@Named("messageEdit")
+//Exception while loading the app : CDI definition failure:WELD-000082: Scope interface jakarta.faces.view.ViewScoped is not allowed on stateless session beans for class org.thespheres.betula.web.MessageEdit. Only @Dependent is allowed. -- WELD-000082: Scope interface jakarta.faces.view.ViewScoped is not allowed on stateless session beans for class org.thespheres.betula.web.MessageEdit. Only @Dependent is allowed.|#]
+//@ViewScoped //Vor Jakarta javax.faces.bean.ViewScoped;
+@Dependent
 @Stateless
 public class MessageEdit implements Serializable {
-
+    
     public static final String PARAMETER_MESSAGE_ID = "message-id";
     @EJB(beanName = "FastMessagesImpl")
     private FastMessages messages;
-    @ManagedProperty("#{app}")
+//    @ManagedProperty("#{app}")
+    @Inject
+//    @FacesConfig
+    @Named("app")
     private BetulaWebApplication application;
 //    private Map<String, String> channels;
     private List<String> channels;
     private String inputTextareaErrorMessage;
     private String selectOneMenuErrorMessage;
     private Msg msg;
-
+    
     public BetulaWebApplication getApplication() {
         return application;
     }
-
+    
     public void setApplication(BetulaWebApplication application) {
         this.application = application;
     }
-
+    
     private synchronized Msg getMsg() {
         if (msg == null) {
             msg = new Msg();
@@ -64,19 +75,23 @@ public class MessageEdit implements Serializable {
                             msg.editChannel = fastmsg.getChannel();
                             msg.confidential = fastmsg.isConfidential();
                         });
-
+                
             }
         }
         return msg;
     }
-
+    
     public void editOK(ActionEvent actionEvent) {
         if (isValidMessage()) {
             getMsg().message = messages.publish(getMsg().message, getEditChannel(), getEditMessageText(), isConfidential(), isSendEmail());
-            RequestContext.getCurrentInstance().closeDialog(null);
+            
+            
+                  //NUR TESTWEISE -> JAKARTA
+//            PrimeFaces.current().dialog().closeDynamic(null);
+//            RequestContext.getCurrentInstance().closeDialog(null);
         }
     }
-
+    
     public boolean isValidMessage() {
         boolean ret = true;
         if (getEditChannel() == null) {
@@ -93,15 +108,15 @@ public class MessageEdit implements Serializable {
         }
         return ret;
     }
-
+    
     public String getInputTextareaErrorMessage() {
         return inputTextareaErrorMessage;
     }
-
+    
     public String getSelectOneMenuErrorMessage() {
         return selectOneMenuErrorMessage;
     }
-
+    
     public List<String> getChannels() {
         if (channels == null) {
             channels = new ArrayList<>(messages.getChannels().keySet());
@@ -109,7 +124,7 @@ public class MessageEdit implements Serializable {
         return channels;
 //        return getChannelsMap().keySet().stream().sorted((s1, s2) -> collator.compare(getChannelDisplayName(s1), getChannelDisplayName(s2))).collect(Collectors.toList());
     }
-
+    
     public String getChannelDisplayName(String channel) {
 //        return channel != null ? getChannelsMap().get(channel) : "";
         return messages.getChannels().get(channel);
@@ -124,35 +139,35 @@ public class MessageEdit implements Serializable {
     public String getEditMessageText() {
         return getMsg().editMessageText;
     }
-
+    
     public void setEditMessageText(String editMessageText) {
         getMsg().editMessageText = editMessageText;
     }
-
+    
     public String getEditChannel() {
         return getMsg().editChannel;
     }
-
+    
     public void setEditChannel(String name) {
         getMsg().editChannel = name;
     }
-
+    
     public boolean isSendEmail() {
         return getMsg().sendEmail;
     }
-
+    
     public void setSendEmail(boolean send) {
         getMsg().sendEmail = send;
     }
-
+    
     public boolean isConfidential() {
         return getMsg().confidential;
     }
-
+    
     public void setConfidential(boolean confidential) {
         getMsg().confidential = confidential;
     }
-
+    
     private MessageId getMessageId() {
         String[] p = getParameter(PARAMETER_MESSAGE_ID);
         if (p != null && p.length == 3) {
@@ -160,14 +175,14 @@ public class MessageEdit implements Serializable {
         }
         return null;
     }
-
+    
     private String[] getParameter(String name) {
         Map<String, String[]> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap();
         return params.get(name);
     }
-
+    
     private final class Msg implements Serializable {
-
+        
         private String editChannel;
         private String editMessageText = "";
         private MessageId message;

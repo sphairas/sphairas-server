@@ -35,20 +35,20 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
-import javax.ejb.EJBContext;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBContext;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+//import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
+//import jakarta.xml.bind.JAXBContext;
+//import jakarta.xml.bind.JAXBException;
+//import jakarta.xml.bind.Marshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -152,19 +152,19 @@ public class NdsFormatter {
 //    @SessionScoped
     private WebUIConfiguration webConfig;
     @Inject
-    @SessionScoped
+//    @SessionScoped
     private NdsReportBuilderFactory builderFactory;
     @Inject
-    @SessionScoped
+//    @SessionScoped
     private LocalProperties properties;
     @Inject
     private DocumentsModel docModel;
-    private JAXBContext jaxb;
+    private javax.xml.bind.JAXBContext jaxb;
     private Templates template;
     private FopFactory fopFactory;
     private TransformerFactory factory;
-    private JAXBContext listJaxb;
-    private JAXBContext detailsJaxb;
+    private javax.xml.bind.JAXBContext listJaxb;
+    private javax.xml.bind.JAXBContext detailsJaxb;
     private Templates listTemplate;
     private String sglConvention;
     private final NumberFormat dFormat = NumberFormat.getNumberInstance(Locale.GERMANY);
@@ -187,9 +187,9 @@ public class NdsFormatter {
         defaultEditingTargetType = webConfig.getDefaultCommitTargetType();
         try {
 //                Context c = new InitialContext();
-            jaxb = JAXBContext.newInstance(ZeugnisMappe.class);
-            listJaxb = JAXBContext.newInstance(ZensurenListenCollectionXml.class);
-            detailsJaxb = JAXBContext.newInstance(DetailsListXml.class);
+            jaxb = javax.xml.bind.JAXBContext.newInstance(ZeugnisMappe.class);
+            listJaxb = javax.xml.bind.JAXBContext.newInstance(ZensurenListenCollectionXml.class);
+            detailsJaxb = javax.xml.bind.JAXBContext.newInstance(DetailsListXml.class);
             fopFactory = FopFactory.newInstance();
             final Path p = findAppResourcesBase().resolve("fop.xconf");
             if (Files.exists(p)) {
@@ -218,7 +218,7 @@ public class NdsFormatter {
 //            set2 = zeugnisConfigService.createTermReportNoteSetTemplate();
             dFormat.setMaximumFractionDigits(2);
             //
-        } catch (JAXBException | TransformerConfigurationException | IOException | SAXException ex) {
+        } catch (javax.xml.bind.JAXBException | TransformerConfigurationException | IOException | SAXException ex) {
             throw new IllegalStateException(ex);
         }
     }
@@ -295,10 +295,10 @@ public class NdsFormatter {
 
             try {
                 // marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-                Marshaller marshaller = jaxb.createMarshaller();
+                javax.xml.bind.Marshaller marshaller = jaxb.createMarshaller();
                 marshaller.setProperty("jaxb.formatted.output", Boolean.TRUE);
                 marshaller.marshal(collection, out);
-            } catch (JAXBException ex) {
+            } catch (javax.xml.bind.JAXBException ex) {
                 throw new IOException(ex);
             } finally {
                 try {
@@ -312,7 +312,7 @@ public class NdsFormatter {
             final DOMResult result = new DOMResult();
             try {
                 jaxb.createMarshaller().marshal(collection, result);
-            } catch (JAXBException ex) {
+            } catch (javax.xml.bind.JAXBException ex) {
                 throw new IOException(ex);
             }
 
@@ -381,7 +381,7 @@ public class NdsFormatter {
         final DOMResult result = new DOMResult();
         try {
             listJaxb.createMarshaller().marshal(collection, result);
-        } catch (JAXBException ex) {
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IOException(ex);
         }
 
@@ -512,7 +512,7 @@ public class NdsFormatter {
 
         try {
             detailsJaxb.createMarshaller().marshal(collection, result);
-        } catch (JAXBException ex) {
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IOException(ex);
         }
 
@@ -807,7 +807,7 @@ public class NdsFormatter {
         DOMResult result = new DOMResult();
         try {
             listJaxb.createMarshaller().marshal(collection, result);
-        } catch (JAXBException ex) {
+        } catch (javax.xml.bind.JAXBException ex) {
             throw new IOException(ex);
         }
 

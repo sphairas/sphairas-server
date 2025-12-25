@@ -1,0 +1,260 @@
+/* Common Error Pages Stylesheet */
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.error-page {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Container Styles */
+.error-page-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    padding: 3rem;
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Icon Styles */
+.error-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.error-icon.danger {
+    color: #f44336;
+}
+
+.error-icon.warning {
+    color: #ff9800;
+}
+
+.error-icon.info {
+    color: #2196F3;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Error Code Display (for 404, 500, etc.) */
+.error-code {
+    font-size: 6rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 0;
+    line-height: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Title Styles */
+.error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 1rem 0;
+}
+
+.error-title.small {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Message Styles */
+.error-message {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.error-message.compact {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Error Details Panel (Development Mode) */
+.error-details {
+    background: #f5f5f5;
+    border-left: 4px solid #f44336;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    text-align: left;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #d32f2f;
+    overflow-x: auto;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.error-details strong {
+    color: #333;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.error-details:first-child strong {
+    margin-top: 0;
+}
+
+/* Action Buttons Container */
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+/* Info Text */
+.error-info {
+    margin-top: 2rem;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.error-info a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.error-info a:hover {
+    text-decoration: underline;
+}
+
+/* Divider */
+.error-divider {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 1.5rem auto;
+    border-radius: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .error-page-container {
+        padding: 2rem;
+    }
+    
+    .error-icon {
+        font-size: 4rem;
+    }
+    
+    .error-code {
+        font-size: 4.5rem;
+    }
+    
+    .error-title {
+        font-size: 1.5rem;
+    }
+    
+    .error-message {
+        font-size: 1rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+    }
+    
+    .error-actions .p-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .error-page-container {
+        padding: 1.5rem;
+    }
+    
+    .error-icon {
+        font-size: 3rem;
+    }
+    
+    .error-code {
+        font-size: 3.5rem;
+    }
+    
+    .error-title {
+        font-size: 1.25rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body.error-page {
+        background: white;
+    }
+    
+    .error-page-container {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .error-actions {
+        display: none;
+    }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+    .error-page-container {
+        background: #1e1e1e;
+        color: #e0e0e0;
+    }
+    
+    .error-title {
+        color: #ffffff;
+    }
+    
+    .error-message {
+        color: #b0b0b0;
+    }
+    
+    .error-details {
+        background: #2d2d2d;
+        border-left-color: #f44336;
+        color: #ff6b6b;
+    }
+    
+    .error-details strong {
+        color: #ffffff;
+    }
+}

@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.web.config;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 

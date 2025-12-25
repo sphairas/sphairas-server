@@ -72,11 +72,11 @@ public class ApplicationUser implements Serializable {
         return dashboard;
     }
 
-    public synchronized List<FastMessage> getFastMessages() {
-        List<FastMessage> ret = application.getFastMessages().getFastMessages(!isInitMessages);
-        isInitMessages = true;
-        return ret;
-    }
+//    public synchronized List<FastMessage> getFastMessages() {
+//        List<FastMessage> ret = application.getFastMessages().getFastMessages(!isInitMessages);
+//        isInitMessages = true;
+//        return ret;
+//    }
 
     void invalidateMessages() {
         isInitMessages = false;
@@ -196,16 +196,16 @@ public class ApplicationUser implements Serializable {
         return null;
     }
 
-    public PrimaryUnit getCurrentPrimaryUnit() {
-        final String page = application.getCurrentPrimaryUnit();
-        if (page != null) {
-            return Arrays.stream(getPrimaryUnits())
-                    .filter(u -> page.equals(u.getDocumentIdName()))
-                    .findAny()
-                    .orElse(null);
-        }
-        return null;
-    }
+//    public PrimaryUnit getCurrentPrimaryUnit() {
+//        final String page = application.getCurrentPrimaryUnit();
+//        if (page != null) {
+//            return Arrays.stream(getPrimaryUnits())
+//                    .filter(u -> page.equals(u.getDocumentIdName()))
+//                    .findAny()
+//                    .orElse(null);
+//        }
+//        return null;
+//    }
 
     void logout() {
         dashboard = null;

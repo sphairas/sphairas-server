@@ -8,7 +8,7 @@ package org.thespheres.betula.server.beans;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;

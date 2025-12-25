@@ -6,7 +6,7 @@
 package org.thespheres.betula.entities.facade;
 
 import java.util.Set;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.document.DocumentId;
 
 /**

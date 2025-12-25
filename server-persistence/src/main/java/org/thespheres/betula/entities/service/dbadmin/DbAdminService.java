@@ -5,13 +5,13 @@
  */
 package org.thespheres.betula.entities.service.dbadmin;
 
-import javax.annotation.security.DeclareRoles;
-import javax.annotation.security.RolesAllowed;
-import javax.jws.WebService;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
+import jakarta.annotation.security.DeclareRoles;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.jws.WebService;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import org.thespheres.betula.database.DBAdminTask;
 import org.thespheres.betula.database.DBAdminTaskResult;
 

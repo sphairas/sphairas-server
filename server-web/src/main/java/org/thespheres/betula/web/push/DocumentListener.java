@@ -7,13 +7,11 @@ package org.thespheres.betula.web.push;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import org.primefaces.push.EventBus;
-import org.primefaces.push.EventBusFactory;
+import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.MessageDriven;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
 import org.thespheres.betula.services.jms.AbstractDocumentEvent;
 
 /**
@@ -21,7 +19,7 @@ import org.thespheres.betula.services.jms.AbstractDocumentEvent;
  * @author boris.heithecker
  */
 @MessageDriven(mappedName = "jms/documentsMessages", activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
+    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Topic"),
     @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/documents-topic"),
 //    @ActivationConfigProperty(propertyName = "clientId", propertyValue = "jms/documents-topic"),
     @ActivationConfigProperty(propertyName = "subscriptionName", propertyValue = "jms/documents-topic"),
@@ -39,8 +37,8 @@ public class DocumentListener implements MessageListener {
             try {
                 if (msg.isBodyAssignableTo(AbstractDocumentEvent.class)) {
                     final AbstractDocumentEvent event = msg.getBody(AbstractDocumentEvent.class);
-                    final EventBus eventBus = EventBusFactory.getDefault().eventBus();
-                    eventBus.publish(DocumentMessagesResource.CHANNEL_BASE, event);
+//                    final EventBus eventBus = EventBusFactory.getDefault().eventBus();
+//                    eventBus.publish(DocumentMessagesResource.CHANNEL_BASE, event);
                 }
             } catch (JMSException | ClassCastException ex) {
                 Logger.getLogger(DocumentListener.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);

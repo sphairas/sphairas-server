@@ -63,6 +63,10 @@ then
     echo "Replaced $SERVER_CERT, saved expired file to $BACKUP_FILE"
 fi
 
+#The JKS keystore uses a proprietary format. It is recommended to migrate to PKCS12 which is an industry standard format 
+#using "keytool -importkeystore -srckeystore /opt/payara/app-secrets/keystore.jks -destkeystore /opt/payara/app-secrets/keystore.jks 
+#-deststoretype pkcs12".
+#Evtl -caname ${SPHAIRAS_HOSTNAME} ergänzen.
 openssl pkcs12 -export -in $SERVER_CERT -inkey $SERVER_KEY -passin pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_PKCS12_FILE -passout pass:${AS_ADMIN_MASTERPASSWORD} -name $ALIAS
 
 #Import keys
@@ -77,6 +81,7 @@ if [ -f ${SECRETS_DIR}/cacerts.jks ]; then
 fi
 keytool -import -file ${SERVER_CERT} -trustcacerts -noprompt -alias ${ALIAS} -storepass ${AS_ADMIN_MASTERPASSWORD} -keystore ${SECRETS_DIR}/cacerts.jks -storetype jks
 
+#Remove for Jakarta?
 echo "imq.keystore.password=${AS_ADMIN_MASTERPASSWORD}" > /tmp/imqpwdfile
 
 #Create folders

@@ -6,7 +6,7 @@
 package org.thespheres.betula.calendar.facade;
 
 import java.util.List;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.calendar.tickets.TicketEntity;
 import org.thespheres.ical.CalendarComponent;

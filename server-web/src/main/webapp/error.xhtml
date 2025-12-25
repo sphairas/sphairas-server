@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Error - #{app.appName}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="context-path" content="#{request.contextPath}/"/>
+        <link rel="icon" type="image/x-icon" href="#{request.contextPath}/resources/images/favicon.ico"/>
+        <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.css"/>
+        <h:outputStylesheet library="css" name="error-pages.css"/>
+    </h:head>
+
+    <h:body styleClass="error-page">
+        <div class="error-page-container">
+            <i class="pi pi-exclamation-triangle error-icon danger"></i>
+
+            <h1 class="error-title">Oops! Something went wrong</h1>
+
+            <div class="error-divider"></div>
+
+            <p class="error-message">
+                We're sorry, but an unexpected error has occurred. 
+                Our team has been notified and is working to fix the issue.
+            </p>
+
+            <!-- Show error details only in development mode -->
+            <h:panelGroup rendered="#{facesContext.application.projectStage eq 'Development'}">
+                <div class="error-details">
+                    <strong>Error Details (Development Mode Only):</strong>
+                    <h:outputText value="#{requestScope['jakarta.servlet.error.exception']}" />
+
+                    <strong>Message:</strong>
+                    <h:outputText value="#{requestScope['jakarta.servlet.error.message']}" />
+
+                    <strong>Status Code:</strong>
+                    <h:outputText value="#{requestScope['jakarta.servlet.error.status_code']}" />
+
+                    <strong>Request URI:</strong>
+                    <h:outputText value="#{requestScope['jakarta.servlet.error.request_uri']}" />
+                </div>
+            </h:panelGroup>
+
+            <div class="error-actions">
+                <p:button value="Go to Home" 
+                          icon="pi pi-home" 
+                          href="#{request.contextPath}/main.xhtml"
+                          styleClass="p-button-lg"/>
+
+                <p:button value="Contact Support" 
+                          icon="pi pi-envelope" 
+                          href="mailto:support@yourapp.com"
+                          styleClass="p-button-lg p-button-outlined"/>
+            </div>
+
+            <p class="error-info">
+                If this problem persists, please contact our support team.
+            </p>
+        </div>
+
+        <f:event type="preRenderView" listener="#{errors.logError}"/>
+        <h:outputText value="#{errors.errorMessage}"/>
+
+    </h:body>
+</html>

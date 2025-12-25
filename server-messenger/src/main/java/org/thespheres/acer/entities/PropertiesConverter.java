@@ -7,8 +7,8 @@ package org.thespheres.acer.entities;
 
 import java.util.Properties;
 import java.util.StringJoiner;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 /**
  *

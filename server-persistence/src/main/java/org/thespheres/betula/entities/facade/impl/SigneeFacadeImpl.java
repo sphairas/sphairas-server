@@ -5,8 +5,8 @@
  */
 package org.thespheres.betula.entities.facade.impl;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.facade.SigneeFacade;

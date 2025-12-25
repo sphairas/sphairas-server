@@ -2,13 +2,13 @@ package org.thespheres.clientauth;
 
 import org.thespheres.server.clients.RemoteServiceClient;
 import java.util.Set;
-import javax.annotation.security.DeclareRoles;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import jakarta.annotation.security.DeclareRoles;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 import org.thespheres.betula.services.ws.BetulaWebService;
 
 /**

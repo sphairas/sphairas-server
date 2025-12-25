@@ -7,8 +7,8 @@ package org.thespheres.betula.entities.config;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
-import javax.ejb.ApplicationException;
-import javax.ejb.EJBException;
+import jakarta.ejb.ApplicationException;
+import jakarta.ejb.EJBException;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 

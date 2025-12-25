@@ -5,7 +5,7 @@
  */
 package org.thespheres.clientauth;
 
-import javax.security.enterprise.CallerPrincipal;
+import jakarta.security.enterprise.CallerPrincipal;
 
 /**
  *

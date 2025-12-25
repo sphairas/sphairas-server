@@ -1,4 +1,4 @@
-FROM payara/server-full:5.201
+FROM payara/server-full:6.2025.11
 
 MAINTAINER boris.heithecer "b.heithecker@gmail.com"
 
@@ -40,16 +40,26 @@ ENV DOMAIN_DIR=${PAYARA_DIR}/glassfish/domains/${DOMAIN_NAME}\
 #Connector/J 8 not working.... use 5.1.45 series
 COPY --chown=payara:payara target/lib/mysql-connector-java-*.jar ${PAYARA_DIR}/glassfish/lib
 
-COPY --chown=payara:payara server-application-clients-module/target/server-application-clients-module-0.9-SNAPSHOT.war $DEPLOY_DIR/ApplicationClients.war
-COPY --chown=payara:payara server-admin-authentication/target/server-admin-authentication-0.9-SNAPSHOT.war $DEPLOY_DIR/AdminAuthentication.war
-COPY --chown=payara:payara server-ear/target/server-ear-0.9-SNAPSHOT.ear $DEPLOY_DIR/Betula_Server.ear
+#COPY --chown=payara:payara server-application-clients-module/target/server-application-clients-module-2.0-SNAPSHOT.war $DEPLOY_DIR/ApplicationClients.war
+COPY --chown=payara:payara server-admin-authentication/target/server-admin-authentication-2.0-SNAPSHOT.war $DEPLOY_DIR/AdminAuthentication.war
+COPY --chown=payara:payara server-ear/target/server-ear-2.0-SNAPSHOT.ear $DEPLOY_DIR/Betula_Server.ear
 
 COPY --chown=payara:payara target/lib/* ${DOMAIN_DIR}/lib/
 
+#Jakarta: -passfile /tmp/imqpwdfile erst einmal weggenommen, evtl. später wieder gebraucht
+#RUN rm ${DOMAIN_DIR}/lib/mysql-connector-java-*.jar && \
+#    ln -s /app-resources/ $APP_RESOURCES && \
+#    mkdir -p ${SECRETS_DIR} && \
+#    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.jks -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.jks"#' ${DOMAIN_DIR}/config/domain.xml && \
+#    printf "iservRealm { \n\
+#	org.thespheres.betula.security.iservlogin.IservLoginModule required; \n\
+#    };" >> ${DOMAIN_DIR}/config/login.conf
+
+#TODO use JAVA_HOME for /usr/lib/jvm/zulu11-ca-amd64/ 
 RUN rm ${DOMAIN_DIR}/lib/mysql-connector-java-*.jar && \
     ln -s /app-resources/ $APP_RESOURCES && \
     mkdir -p ${SECRETS_DIR} && \
-    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.jks -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.jks"#' ${DOMAIN_DIR}/config/domain.xml && \
+    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-jrehome /usr/lib/jvm/zulu11-ca-amd64/ -Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.jks -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.jks"#' ${DOMAIN_DIR}/config/domain.xml && \
     printf "iservRealm { \n\
 	org.thespheres.betula.security.iservlogin.IservLoginModule required; \n\
     };" >> ${DOMAIN_DIR}/config/login.conf
@@ -58,7 +68,7 @@ COPY --chown=payara:payara bin/pre-boot-commands.asadmin bin/post-boot-commands.
 
 COPY --chown=payara:payara bin/templates ${HOME_DIR}/templates
 
-COPY bin/pre-boot.sh ${SCRIPT_DIR}/init_0_pre-boot.sh
+COPY --chown=payara:payara --chmod=555 bin/pre-boot.sh ${SCRIPT_DIR}/init_0_pre-boot.sh
 
 #RUN echo "imq.keystore.password=changeit" > $PAYARA_PATH/passfile
 #RUN ${PAYARA_PATH}/mq/bin/imqusermgr encode -src /passfile -target ${DOMAIN_DIR}/passfile

@@ -15,25 +15,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderColumn;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderColumn;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import org.thespheres.betula.document.Document;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.DocumentId.Version;
@@ -68,7 +68,7 @@ public class BaseDocumentEntity implements Serializable, Document, Document.Vali
     @Size(max = 32)
     @Column(name = "CURRENTVERSION", length = 32)
     private String currentVersion;
-    @javax.persistence.Version
+    @jakarta.persistence.Version
     @Column(name = "BASE_DOCUMENT_VERSION")
     private long entityVersion;
     @JoinColumns({

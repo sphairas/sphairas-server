@@ -6,8 +6,8 @@
 package org.thespheres.acer.entities.facade;
 
 import java.util.Collection;
-import javax.ejb.Local;
-import javax.persistence.LockModeType;
+import jakarta.ejb.Local;
+import jakarta.persistence.LockModeType;
 import org.thespheres.acer.MessageId;
 import org.thespheres.acer.entities.BaseChannel;
 import org.thespheres.acer.entities.BaseMessage;

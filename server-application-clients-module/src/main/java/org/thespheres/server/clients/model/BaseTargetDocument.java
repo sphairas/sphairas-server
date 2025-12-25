@@ -7,8 +7,8 @@ package org.thespheres.server.clients.model;
 
 import java.util.Map;
 import java.util.Set;
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.server.clients.ClientConfiguration;

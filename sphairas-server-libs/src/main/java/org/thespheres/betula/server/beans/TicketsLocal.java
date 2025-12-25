@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.server.beans;
 
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.Ticket;
 
 /**

@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.entities.service;
 
-import javax.ejb.SessionContext;
+import jakarta.ejb.SessionContext;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.thespheres.betula.Identity;

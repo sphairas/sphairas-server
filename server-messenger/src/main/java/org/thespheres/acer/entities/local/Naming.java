@@ -5,14 +5,14 @@
  */
 package org.thespheres.acer.entities.local;
 
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.ejb.LocalBean;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
-import javax.persistence.LockModeType;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Lock;
+import jakarta.ejb.LockType;
+import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import org.thespheres.acer.entities.facade.ChannelFacade;
 import org.thespheres.acer.entities.BaseChannel;
 import org.thespheres.acer.entities.DynamicChannel;

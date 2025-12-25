@@ -6,12 +6,12 @@
 package org.thespheres.betula.entities.localbeans;
 
 import java.util.Date;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.EJB;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;

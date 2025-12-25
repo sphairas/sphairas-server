@@ -6,14 +6,14 @@
 package org.thespheres.betula.entities.facade.impl;
 
 import java.util.List;
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.EJBAccessException;
-import javax.ejb.SessionContext;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.SessionContext;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.entities.BaseDocumentEntity;
@@ -66,7 +66,7 @@ abstract class BaseDocumentFacade<T extends BaseDocumentEntity> {
         if (!entityClass.isAssignableFrom(type)) {
             throw new IllegalArgumentException("Type mismatch");
         }
-        javax.persistence.criteria.CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+        jakarta.persistence.criteria.CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
         cq.select(cq.from(type));
         return em.createQuery(cq).setLockMode(lmt).getResultList();
     }

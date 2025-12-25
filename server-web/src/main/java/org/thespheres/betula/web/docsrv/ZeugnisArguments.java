@@ -6,11 +6,11 @@
 package org.thespheres.betula.web.docsrv;
 
 import java.util.Date;
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.LocalBean;
+import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;

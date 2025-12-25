@@ -5,14 +5,14 @@
  */
 package org.thespheres.betula.entities.config;
 
-import javax.annotation.Resource;
-import javax.ejb.Stateless;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.jms.JMSConnectionFactory;
-import javax.jms.JMSContext;
-import javax.jms.JMSProducer;
-import javax.jms.Topic;
+import jakarta.annotation.Resource;
+import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.jms.JMSConnectionFactory;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.Topic;
 import org.thespheres.betula.services.jms.AppResourceEvent;
 
 /**

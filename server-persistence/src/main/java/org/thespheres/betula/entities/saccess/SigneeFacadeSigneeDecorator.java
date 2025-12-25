@@ -5,10 +5,10 @@
  */
 package org.thespheres.betula.entities.saccess;
 
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.ejb.SessionContext;
-import javax.inject.Inject;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.ejb.SessionContext;
+import jakarta.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.thespheres.betula.document.Signee;

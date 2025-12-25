@@ -10,18 +10,21 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
-import javax.inject.Inject;
-//import javax.faces.view.ViewScoped;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.Dependent;
+//import jakarta.faces.bean.ManagedBean;
+//import jakarta.faces.bean.ViewScoped;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+//import jakarta.faces.view.ViewScoped;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.openide.util.NbBundle;
 import org.thespheres.betula.services.web.WebUIConfiguration;
 
@@ -29,9 +32,10 @@ import org.thespheres.betula.services.web.WebUIConfiguration;
  *
  * @author boris.heithecker
  */
-@ManagedBean(name = "login")
+//@ManagedBean(name = "login")
+@Named("login")
 //@RequestScoped
-@ViewScoped
+@ViewScoped //Vor Jakarta javax.faces.bean.ViewScoped;
 //@Stateless
 public class UserLogin implements Serializable {
 
@@ -124,10 +128,10 @@ public class UserLogin implements Serializable {
     }
 
     private boolean checkEmtpy() {
-        if (username == null && username.isEmpty()) {
+        if (username == null || username.isEmpty()) {
             return true;
         }
-        return password == null && password.isEmpty();
+        return password == null || password.isEmpty();
     }
 
     public String authenticate2(HttpServletRequest request) {

@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.entities.config;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 /**
  *

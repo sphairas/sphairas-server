@@ -5,12 +5,12 @@
  */
 package org.thespheres.betula.web;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
+import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.EJB;
+import jakarta.ejb.MessageDriven;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
 import org.thespheres.acer.beans.MessageEvent;
 
 /**
@@ -19,7 +19,7 @@ import org.thespheres.acer.beans.MessageEvent;
  */
 @MessageDriven(activationConfig = {
     @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/messages-topic"),
-    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic")
+    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Topic")
 })
 public class MessagesMessageListener implements MessageListener {
 

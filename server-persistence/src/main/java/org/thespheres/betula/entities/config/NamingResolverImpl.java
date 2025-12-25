@@ -6,9 +6,10 @@
 package org.thespheres.betula.entities.config;
 
 import java.util.Collections;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Default;
+import jakarta.inject.Inject;
+import java.io.Serializable;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
@@ -25,7 +26,7 @@ import org.thespheres.betula.services.ws.CommonDocuments;
  */
 @Default
 @Dependent
-public class NamingResolverImpl implements NamingResolver {
+public class NamingResolverImpl implements Serializable, NamingResolver {
 
     @Inject
     private UnitDocumentFacade ubean;

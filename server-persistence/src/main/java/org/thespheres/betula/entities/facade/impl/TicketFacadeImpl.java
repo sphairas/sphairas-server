@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.persistence.LockModeType;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.LockModeType;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
@@ -86,7 +86,7 @@ public class TicketFacadeImpl extends AbstractTicketsFacade implements TicketFac
 
     @Override
     public List<BaseTicketEntity> getUnitTickets(final UnitId scope) {//TODO scope not implemented
-        javax.persistence.criteria.CriteriaQuery<BaseTicketEntity> cq = em.getCriteriaBuilder().createQuery(BaseTicketEntity.class);
+        jakarta.persistence.criteria.CriteriaQuery<BaseTicketEntity> cq = em.getCriteriaBuilder().createQuery(BaseTicketEntity.class);
         cq.select(cq.from(BaseTicketEntity.class));
         return em.createQuery(cq)
                 .setLockMode(LockModeType.OPTIMISTIC)

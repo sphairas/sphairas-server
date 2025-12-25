@@ -6,10 +6,10 @@
 package org.thespheres.betula.web.docsrv;
 
 import java.util.Set;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import jakarta.ejb.EJB;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.model.MultiSubject;

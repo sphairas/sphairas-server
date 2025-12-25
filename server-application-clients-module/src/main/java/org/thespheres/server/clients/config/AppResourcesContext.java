@@ -6,8 +6,8 @@
 package org.thespheres.server.clients.config;
 
 import java.util.Hashtable;
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Singleton;
 import org.apache.naming.resources.FileDirContext;
 import org.apache.naming.resources.ProxyDirContext;
 import org.thespheres.betula.services.ServiceConstants;

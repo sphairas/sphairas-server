@@ -5,10 +5,10 @@
  */
 package org.thespheres.betula.entities.localbeans;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.New;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.SessionScoped;
+//import jakarta.enterprise.inject.New;
+import jakarta.enterprise.inject.Produces;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.annot.DocumentsRequest;
 import org.thespheres.betula.server.beans.annot.DocumentsSession;
@@ -22,14 +22,16 @@ public class FastTargetDocumentProducers {
 
     @DocumentsSession
     @SessionScoped
-    @Produces
-    public FastTargetDocuments2 createSessionScopedFastTargetDocuments2(@New FastTargetDocuments2Session ret) {
+    @Produces 
+    //Vor Jakarta @New FastTargetDocuments2Session ret
+    public FastTargetDocuments2 createSessionScopedFastTargetDocuments2(FastTargetDocuments2Session ret) {
         return ret;
     }
 
     @DocumentsRequest
     @Produces
-    public FastTargetDocuments2 createRequestScopedFastTargetDocuments2(@New FastTargetDocuments2Request ret) {
+    //Vor Jakarta @New FastTargetDocuments2Request ret
+    public FastTargetDocuments2 createRequestScopedFastTargetDocuments2(FastTargetDocuments2Request ret) {
         return ret;
     }
 

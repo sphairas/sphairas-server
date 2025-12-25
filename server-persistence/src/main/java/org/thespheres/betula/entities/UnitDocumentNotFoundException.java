@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.entities;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.thespheres.betula.UnitId;

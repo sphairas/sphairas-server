@@ -5,10 +5,10 @@
  */
 package org.thespheres.server.clients.model;
 
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbPropertyOrder;
-import javax.json.bind.config.PropertyOrderStrategy;
+import jakarta.json.bind.annotation.JsonbCreator;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbPropertyOrder;
+import jakarta.json.bind.config.PropertyOrderStrategy;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.server.clients.ClientConfiguration;

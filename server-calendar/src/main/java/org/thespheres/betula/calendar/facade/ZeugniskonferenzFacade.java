@@ -7,8 +7,8 @@ package org.thespheres.betula.calendar.facade;
 
 import java.util.List;
 import java.util.Set;
-import javax.ejb.Local;
-import javax.persistence.LockModeType;
+import jakarta.ejb.Local;
+import jakarta.persistence.LockModeType;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.calendar.reports.ZeugniskonferenzEntity;

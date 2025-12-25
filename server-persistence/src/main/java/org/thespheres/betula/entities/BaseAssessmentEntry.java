@@ -7,11 +7,11 @@ package org.thespheres.betula.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.MappedSuperclass;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.assess.Grade;

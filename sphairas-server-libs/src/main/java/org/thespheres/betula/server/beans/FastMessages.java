@@ -7,7 +7,7 @@ package org.thespheres.betula.server.beans;
 
 import java.util.List;
 import java.util.SortedMap;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.acer.MessageId;
 
 /**

@@ -7,13 +7,14 @@ package org.thespheres.betula.entities.service.dbadmin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import org.apache.naming.resources.ProxyDirContext;
+//import org.apache.naming.resources.ProxyDirContext;
 import org.apache.naming.resources.Resource;
 import org.thespheres.betula.document.Container;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
@@ -37,7 +38,7 @@ public class ContainerBean {
     }
 
     public void writeBackupFile(final Container container, final String file) throws IOException {
-        final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
+        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             final Marshaller m = containerJAXB.createMarshaller();

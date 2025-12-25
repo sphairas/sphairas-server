@@ -6,8 +6,8 @@
 package org.thespheres.betula.web.nds;
 
 import java.io.Serializable;
-import javax.ejb.Stateless;
-import javax.enterprise.context.SessionScoped;
+import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.SessionScoped;
 import org.thespheres.betula.niedersachsen.ASVAssessmentConvention;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.web.config.Extra;

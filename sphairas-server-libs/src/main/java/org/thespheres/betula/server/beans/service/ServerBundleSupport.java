@@ -19,7 +19,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.naming.NamingException;
-import org.apache.naming.resources.ProxyDirContext;
+import javax.naming.directory.DirContext;
+import org.openide.util.Exceptions;
+//import org.apache.naming.resources.ProxyDirContext;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
@@ -48,7 +50,7 @@ class ServerBundleSupport extends AbstractServerBundleSupport<BundleMarker> {
 
     PropertyResourceBundle fetchResourceBundle(String file) throws IOException {
 
-        final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
+        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
         final Resource res;
         try {
             res = (Resource) dc.lookup(file);
@@ -70,7 +72,6 @@ class ServerBundleSupport extends AbstractServerBundleSupport<BundleMarker> {
             final BufferedInputStream bis = new BufferedInputStream(is); //? BufferedEntity?
             return new PropertyResourceBundle(bis);
         }
-
     }
 
     @Override

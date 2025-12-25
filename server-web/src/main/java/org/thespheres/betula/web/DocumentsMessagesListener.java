@@ -5,12 +5,12 @@
  */
 package org.thespheres.betula.web;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
+import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.EJB;
+import jakarta.ejb.MessageDriven;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
 
@@ -19,7 +19,7 @@ import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
  * @author boris.heithecker
  */
 @MessageDriven(mappedName = "jms/documentsMessages", activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
+    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Topic"),
     @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/documents-topic"),
 //    @ActivationConfigProperty(propertyName = "clientId", propertyValue = "jms/documents-topic"),
     @ActivationConfigProperty(propertyName = "subscriptionName", propertyValue = "jms/documents-topic"),

@@ -4,10 +4,10 @@
  */
 package org.thespheres.betula.entities.service;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Remote;
+import jakarta.ejb.Stateless;
 import org.thespheres.betula.document.Container;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.services.ws.BetulaWebService;

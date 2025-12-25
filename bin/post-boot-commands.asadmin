@@ -5,6 +5,7 @@ set configs.config.server-config.network-config.protocols.protocol.http-listener
 
 set configs.config.server-config.iiop-service.iiop-listener.SECRETS_MUTUALAUTH.ssl.cert-nickname=${ENV=CERT_ALIAS}
 
+#Muss javax.sql.XADataSource bleiben!
 create-jdbc-connection-pool --datasourceclassname com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype javax.sql.XADataSource --property port=${ENV=DB_PORT}:password=${ENV=DB_PASSWORD}:user=${ENV=DB_USER}:serverName=${ENV=DB_HOST}:databaseName=${ENV=DB_NAME} mysql_pool
 
 create-jdbc-resource --connectionpoolid mysql_pool jdbc/betuladb
@@ -37,20 +38,20 @@ create-system-properties betula.web.ui.enable.details-list=true
 #
 ###[ ${WEB_MODULE_AUTHENTICATION} == 'ldap' ]###create-auth-realm --classname com.sun.enterprise.security.auth.realm.ldap.LDAPRealm --property jaas-context=ldapRealm:base-dn="${ENV=LDAP_BASE_DN}":directory="${ENV=LDAP_URL}":group-search-filter="member=%d":search-bind-dn="${ENV=LDAP_BIND_USER}":search-bind-password="${ENV=LDAP_PASSWORD}" ldap
 
-create-jms-resource --restype javax.jms.TopicConnectionFactory jms/app-resources-topic-factory
-create-jms-resource --restype javax.jms.Topic --enabled=true --property Name=appResourcesTopic jms/app-resources-topic
+create-jms-resource --restype jakarta.jms.TopicConnectionFactory jms/app-resources-topic-factory
+create-jms-resource --restype jakarta.jms.Topic --enabled=true --property Name=appResourcesTopic jms/app-resources-topic
 
-create-jms-resource --restype javax.jms.TopicConnectionFactory jms/ticket-topic-factory
-create-jms-resource --restype javax.jms.Topic --enabled=true --property=Name=ticketsTopic jms/tickets-topic
+create-jms-resource --restype jakarta.jms.TopicConnectionFactory jms/ticket-topic-factory
+create-jms-resource --restype jakarta.jms.Topic --enabled=true --property=Name=ticketsTopic jms/tickets-topic
 
-create-jms-resource --restype javax.jms.TopicConnectionFactory jms/document-topic-factory
-create-jms-resource --restype javax.jms.Topic --enabled=true --property=Name=documentsTopic jms/documents-topic
+create-jms-resource --restype jakarta.jms.TopicConnectionFactory jms/document-topic-factory
+create-jms-resource --restype jakarta.jms.Topic --enabled=true --property=Name=documentsTopic jms/documents-topic
 
-create-jms-resource --restype javax.jms.TopicConnectionFactory jms/message-topic-factory
-create-jms-resource --restype javax.jms.Topic --enabled=true --property=Name=messagesTopic jms/messages-topic
+create-jms-resource --restype jakarta.jms.TopicConnectionFactory jms/message-topic-factory
+create-jms-resource --restype jakarta.jms.Topic --enabled=true --property=Name=messagesTopic jms/messages-topic
 
-create-jms-resource --restype javax.jms.TopicConnectionFactory jms/student-topic-factory
-create-jms-resource --restype javax.jms.Topic --enabled=true --property=Name=studentsTopic jms/students-topic
+create-jms-resource --restype jakarta.jms.TopicConnectionFactory jms/student-topic-factory
+create-jms-resource --restype jakarta.jms.Topic --enabled=true --property=Name=studentsTopic jms/students-topic
 
 set configs.config.server-config.ejb-container.ejb-timer-service.timer-datasource=jdbc/calendar
 

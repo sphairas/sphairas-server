@@ -7,7 +7,7 @@ package org.thespheres.server.clients.config;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 

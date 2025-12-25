@@ -5,9 +5,9 @@
  */
 package org.thespheres.betula.entities.service.unitadmin;
 
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
+import jakarta.annotation.Resource;
+import jakarta.ejb.EJB;
+import jakarta.ejb.SessionContext;
 import org.thespheres.betula.document.Envelope;
 import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.services.ws.NotFoundException;

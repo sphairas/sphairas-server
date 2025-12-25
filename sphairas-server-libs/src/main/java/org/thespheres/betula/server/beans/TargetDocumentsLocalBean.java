@@ -6,7 +6,7 @@
 package org.thespheres.betula.server.beans;
 
 import java.util.Collection;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 

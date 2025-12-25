@@ -6,7 +6,7 @@
 package org.thespheres.betula.calendar.facade;
 
 import java.util.List;
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.calendar.lesson.Lesson;
 import org.thespheres.betula.calendar.lesson.LessonCalendar;

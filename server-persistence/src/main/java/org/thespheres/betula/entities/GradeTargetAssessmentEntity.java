@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.MappedSuperclass;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.assess.Grade;

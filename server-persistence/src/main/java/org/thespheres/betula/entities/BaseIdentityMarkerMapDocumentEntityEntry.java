@@ -6,10 +6,10 @@
 package org.thespheres.betula.entities;
 
 import java.io.Serializable;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import org.thespheres.betula.document.Marker;
 
 /**

@@ -5,13 +5,13 @@
  */
 package org.thespheres.betula.entities.jmsimpl;
 
-import javax.annotation.Resource;
-import javax.ejb.Stateless;
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.jms.JMSConnectionFactory;
-import javax.jms.JMSContext;
-import javax.jms.Topic;
+import jakarta.annotation.Resource;
+import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.jms.JMSConnectionFactory;
+import jakarta.jms.JMSContext;
+import jakarta.jms.Topic;
 
 /**
  *

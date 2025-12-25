@@ -8,17 +8,17 @@ package org.thespheres.betula.calendar.lesson;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import org.eclipse.persistence.annotations.IdValidation;
-import org.eclipse.persistence.annotations.PrimaryKey;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+//import org.eclipse.persistence.annotations.IdValidation;
+//import org.eclipse.persistence.annotations.PrimaryKey;
 import org.thespheres.betula.services.scheme.spi.LessonId;
 
 /**
@@ -26,7 +26,7 @@ import org.thespheres.betula.services.scheme.spi.LessonId;
  * @author boris.heithecker
  */
 @Entity
-@PrimaryKey(validation = IdValidation.NULL)
+//@PrimaryKey(validation = IdValidation.NULL)
 @Table(name = "VENDOR_LESSON_MAPPING2")
 @Access(AccessType.FIELD)
 public class VendorLessonMapping implements Serializable {

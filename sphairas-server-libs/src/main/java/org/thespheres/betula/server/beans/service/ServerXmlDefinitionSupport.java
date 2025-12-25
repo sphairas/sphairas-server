@@ -67,7 +67,7 @@ class ServerXmlDefinitionSupport extends AbstractServerBundleSupport<XmlMarkerDe
 
     XmlMarkerConventionDefinition fetchResourceBundle(String file) throws IOException {
 
-        final ProxyDirContext dc = CommonAppProperties.lookupAppResourcesContext();
+        final ProxyDirContext dc = (ProxyDirContext) CommonAppProperties.lookupAppResourcesContext();
         final Resource res;
         try {
             res = (Resource) dc.lookup(file);

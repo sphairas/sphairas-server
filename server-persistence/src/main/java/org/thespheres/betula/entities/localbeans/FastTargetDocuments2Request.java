@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.entities.localbeans;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 /**
  *

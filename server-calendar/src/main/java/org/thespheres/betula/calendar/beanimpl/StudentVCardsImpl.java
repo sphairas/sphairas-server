@@ -6,10 +6,10 @@
 package org.thespheres.betula.calendar.beanimpl;
 
 import java.util.Collection;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.EJB;
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.calendar.facade.StudentFacade;
 import org.thespheres.betula.server.beans.StudentsLocalBean;

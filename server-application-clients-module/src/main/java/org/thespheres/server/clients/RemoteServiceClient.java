@@ -7,9 +7,9 @@ package org.thespheres.server.clients;
 
 import java.net.URL;
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Service;
-import javax.xml.ws.WebServiceClient;
+import jakarta.xml.ws.BindingProvider;
+import jakarta.xml.ws.Service;
+import jakarta.xml.ws.WebServiceClient;
 import org.thespheres.betula.services.ws.BetulaWebService;
 import org.thespheres.betula.services.ws.api.BetulaServiceClient;
 

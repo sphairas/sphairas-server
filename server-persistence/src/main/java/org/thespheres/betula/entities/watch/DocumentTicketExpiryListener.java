@@ -7,14 +7,14 @@ package org.thespheres.betula.entities.watch;
 
 import java.util.Date;
 import java.util.List;
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import jakarta.ejb.ActivationConfigProperty;
+import jakarta.ejb.EJB;
+import jakarta.ejb.MessageDriven;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
@@ -26,7 +26,7 @@ import org.thespheres.betula.entities.TermGradeTargAssessTicketEnt;
  * @author boris.heithecker
  */
 @MessageDriven(mappedName = "jms/documents-topic", activationConfig = {
-    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic"),
+    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Topic"),
     @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/documents-topic"),
 //    @ActivationConfigProperty(propertyName = "clientId", propertyValue = "jms/documents-topic"),
     @ActivationConfigProperty(propertyName = "subscriptionName", propertyValue = "jms/documents-topic"),
@@ -34,7 +34,7 @@ import org.thespheres.betula.entities.TermGradeTargAssessTicketEnt;
 })
 //@MessageDriven(activationConfig = {
 //    @ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/tickets-topic"),
-//    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Topic")
+//    @ActivationConfigProperty(propertyName = "destinationType", propertyValue = "jakarta.jms.Topic")
 //})
 public class DocumentTicketExpiryListener implements MessageListener {
 

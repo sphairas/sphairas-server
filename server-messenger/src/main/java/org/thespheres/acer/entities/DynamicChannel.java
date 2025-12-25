@@ -5,10 +5,10 @@
  */
 package org.thespheres.acer.entities;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import org.thespheres.betula.Identity;
 
 /**

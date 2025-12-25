@@ -11,9 +11,14 @@ set configs.config.server-config.network-config.protocols.protocol.http-listener
 
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.key-store=${ENV=SECRETS_DIR}/keystore.jks
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.trust-store=${ENV=SECRETS_DIR}/cacerts.jks
+set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=spdev2
 
 #create-jvm-options '-Dcom.sun.enterprise.security.httpsOutboundKeyAlias=s1as
 create-system-properties com.sun.enterprise.security.httpsOutboundKeyAlias=s1as
 
 set configs.config.server-config.network-config.protocols.protocol.http-listener-1.http.encoded-slash-enabled=true
 set configs.config.server-config.network-config.protocols.protocol.http-listener-1.http.websockets-support-enabled=true
+
+#create-jvm-option -- -Djavax.net.debug=all #Muss ins Dockerfile als Environment-Variable
+#set-log-levels com.sun.enterprise.security.ssl=FINEST:org.glassfish.grizzly.ssl=FINEST:javax.net.ssl=FINEST
+set-log-levels javax.net.ssl=FINEST

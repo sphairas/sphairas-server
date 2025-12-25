@@ -11,18 +11,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.ejb.EJB;
+import jakarta.ejb.SessionContext;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.assess.Grade;
@@ -94,7 +94,7 @@ public abstract class TermGradeTargetDocumentSigneeDecorator implements GradeTar
 //         * </persistence-context-ref>
 //         * <resource-ref>
 //         * <res-ref-name>UserTransaction</res-ref-name>
-//         * <res-type>javax.transaction.UserTransaction</res-type>
+//         * <res-type>jakarta.transaction.UserTransaction</res-type>
 //         * <res-auth>Container</res-auth>
 //         * </resource-ref> */
 //        try {

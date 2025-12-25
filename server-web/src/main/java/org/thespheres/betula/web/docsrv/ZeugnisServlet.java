@@ -17,22 +17,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.EJB;
-import javax.ejb.EJBAccessException;
-import javax.ejb.EJBException;
-import javax.ejb.NoSuchEntityException;
-//import javax.enterprise.context.SessionScoped;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Instance;
-import javax.faces.bean.SessionScoped;
-//import javax.faces.bean.SessionScoped;
-//import javax.ejb.SessionContext;
-import javax.inject.Inject;
-import javax.persistence.PersistenceException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.ejb.EJB;
+import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.EJBException;
+import jakarta.ejb.NoSuchEntityException;
+import jakarta.enterprise.context.Dependent;
+//import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Instance;
+//import jakarta.faces.bean.SessionScoped;
+//import jakarta.faces.bean.SessionScoped;
+//import jakarta.ejb.SessionContext;
+import jakarta.inject.Inject;
+import jakarta.persistence.PersistenceException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.fop.apps.MimeConstants;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -60,7 +61,7 @@ import org.thespheres.betula.web.config.WebAppProperties;
  *
  * @author boris.heithecker
  */
-@SessionScoped
+@Dependent //Vor Jakarta: javax.faces.bean.SessionScoped;
 //@SessionScoped
 public class ZeugnisServlet extends HttpServlet {
 

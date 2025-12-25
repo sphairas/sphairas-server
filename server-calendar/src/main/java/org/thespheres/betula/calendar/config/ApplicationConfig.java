@@ -6,13 +6,13 @@
 package org.thespheres.betula.calendar.config;
 
 import java.util.Set;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.core.Application;
 
 /**
  *
  * @author boris.heithecker
  */
-@javax.ws.rs.ApplicationPath("resource")
+@jakarta.ws.rs.ApplicationPath("resource")
 public class ApplicationConfig extends Application {
 
     @Override

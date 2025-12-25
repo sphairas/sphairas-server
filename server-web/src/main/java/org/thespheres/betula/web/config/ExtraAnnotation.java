@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.web.config;
 
-import javax.enterprise.util.AnnotationLiteral;
+import jakarta.enterprise.util.AnnotationLiteral;
 
 /**
  *

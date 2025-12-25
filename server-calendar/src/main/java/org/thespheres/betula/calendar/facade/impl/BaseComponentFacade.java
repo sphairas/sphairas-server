@@ -6,8 +6,8 @@
 package org.thespheres.betula.calendar.facade.impl;
 
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import org.thespheres.betula.Identity;
 
 /**
@@ -43,7 +43,7 @@ public abstract class BaseComponentFacade<E, I extends Identity> {
     }
 
     protected List<E> findAll(LockModeType lmt) {
-        javax.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
+        jakarta.persistence.criteria.CriteriaQuery cq = getEntityManager().getCriteriaBuilder().createQuery();
         cq.select(cq.from(entityClass));
         return getEntityManager().createQuery(cq).setLockMode(lmt).getResultList();
     }

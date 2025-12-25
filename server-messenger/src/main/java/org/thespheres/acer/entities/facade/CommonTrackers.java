@@ -5,7 +5,7 @@
  */
 package org.thespheres.acer.entities.facade;
 
-import javax.ejb.Local;
+import jakarta.ejb.Local;
 import org.thespheres.acer.MessageId;
 
 /**

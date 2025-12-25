@@ -6,14 +6,14 @@
 package org.thespheres.betula.entities.saccess;
 
 import java.util.List;
-import javax.decorator.Decorator;
-import javax.decorator.Delegate;
-import javax.ejb.EJB;
-import javax.ejb.SessionContext;
-import javax.inject.Inject;
+import jakarta.decorator.Decorator;
+import jakarta.decorator.Delegate;
+import jakarta.ejb.EJB;
+import jakarta.ejb.SessionContext;
+import jakarta.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.persistence.LockModeType;
+import jakarta.persistence.LockModeType;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.document.DocumentId;
