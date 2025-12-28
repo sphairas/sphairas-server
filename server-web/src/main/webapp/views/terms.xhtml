@@ -7,7 +7,13 @@
 
     <ui:composition>
         <div class="content-section">
-            <h2><i class="pi pi-list"></i> Targets</h2>
+            <h2><i class="pi pi-list"></i> #{bundle['main.menu.terms.label']}</h2>
+
+            <!-- Simple empty message -->
+            <div rendered="#{app.user ne null and empty app.user.targetUnits.tabs}" 
+                 class="flex justify-content-start m-2">
+                <h:outputText value="#{bundle['terms.tabs.emptyMessage']}" />
+            </div>
 
             <p:blockUI block="termsAccordionPanel" trigger="termsAccordionPanel">
                 <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
@@ -17,7 +23,7 @@
                               dynamic="true" 
                               value="#{app.user.targetUnits.tabs}" 
                               var="target" 
-                              rendered="#{app.user ne null}" 
+                              rendered="#{app.user ne null and not empty app.user.targetUnits.tabs}" 
                               activeIndex="#{app.user.targetUnits.activeTabIndex}" > 
 
                 <p:tab title="#{target.displayTitle}">   

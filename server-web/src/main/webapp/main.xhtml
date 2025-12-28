@@ -58,7 +58,7 @@
                             actionListener="#{app.navigateTo('terms')}"
                             update=":contentForm">
                             <i class="pi pi-list"></i>
-                            <span>Kurse</span>
+                            <span>#{bundle['main.menu.terms.label']}</span>
                         </p:commandLink>
 
                         <ui:repeat value="#{app.user.primaryUnits}" var="primaryUnit" varStatus="status">
