@@ -5,14 +5,10 @@
  */
 package org.thespheres.betula.web.rest;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.core.MediaType;
 
 /**
@@ -27,14 +23,22 @@ import jakarta.ws.rs.core.MediaType;
 @Stateless
 public class InstanceInfo {
 
+    public static final String SERVER_VERSION = "2";
+
 //    @Context
 //    private UriInfo context;
-
     @GET
     @Path("/name")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getText() {
+    public String getProvider() {
         return System.getenv("SPHAIRAS_PROVIDER");
+    }
+
+    @GET
+    @Path("/version")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getVersion() {
+        return SERVER_VERSION;
     }
 
 }

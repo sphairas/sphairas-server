@@ -14,6 +14,7 @@ import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import org.thespheres.betula.database.DBAdminTask;
 import org.thespheres.betula.database.DBAdminTaskResult;
+import org.thespheres.betula.database.DbAdminService;
 
 /**
  *
@@ -23,7 +24,7 @@ import org.thespheres.betula.database.DBAdminTaskResult;
 @Stateless
 @DeclareRoles("superadmin")
 @RolesAllowed({"superadmin", "unitadmin"})
-public class DbAdminService {
+public class DbAdminServiceEndpoint implements DbAdminService {
 
     @Inject
     private CleanUpTask cleanUpTask;
