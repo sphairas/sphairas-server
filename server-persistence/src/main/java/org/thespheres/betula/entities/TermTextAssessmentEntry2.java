@@ -27,7 +27,7 @@ import jakarta.persistence.UniqueConstraint;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.document.Marker;
-import org.thespheres.betula.entities.config.AppProperties;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 
 @Entity
 @Table(name = "TERMTEXT_TARGETASSESSMENT_DOCUMENT_ENTRIES2",
@@ -99,7 +99,7 @@ public class TermTextAssessmentEntry2 implements Serializable {
 
     public boolean setText(final String value, final Timestamp timestamp) {
         final Timestamp ts = timestamp != null ? timestamp : new Timestamp(System.currentTimeMillis());
-        final boolean replaceAssessEntriesWithEqualTimestamps = Boolean.getBoolean(AppProperties.REPLACE_IF_EQUAL_TIMESTAMP);
+        final boolean replaceAssessEntriesWithEqualTimestamps = Boolean.getBoolean(CommonAppProperties.REPLACE_IF_EQUAL_TIMESTAMP);
         if (this.timestamp == null || this.timestamp.before(ts) || (this.timestamp.equals(ts) && replaceAssessEntriesWithEqualTimestamps)) {
             this.text = value;
             this.timestamp = ts;

@@ -13,6 +13,7 @@ import org.thespheres.betula.Ticket;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface TicketsLocal {
 
     public boolean deleteTicket(Ticket ticket);

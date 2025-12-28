@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.config;
+package org.thespheres.betula.server.beans.config;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -13,7 +13,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import java.io.Serializable;
-import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.LocalFileProperties;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.NoProviderException;

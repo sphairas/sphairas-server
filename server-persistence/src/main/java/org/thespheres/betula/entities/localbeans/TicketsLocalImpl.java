@@ -16,9 +16,9 @@ import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.services.jms.TicketEvent;
 import org.thespheres.betula.entities.BaseTicketEntity;
-import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.jmsimpl.TicketsNotificator;
 import org.thespheres.betula.server.beans.TicketsLocal;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 
 /**
  *
@@ -38,8 +38,8 @@ public class TicketsLocalImpl implements TicketsLocal {
 
     @Override
     public boolean deleteTicket(Ticket ticket) {
-        if (!ticket.getAuthority().equals(AppProperties.ticketsAuthority())) {
-            Logger.getLogger(TicketsLocalImpl.class.getName()).log(Level.WARNING, "Could not delete ticket {0} because its authority does not match {1}.", new Object[]{ticket, AppProperties.ticketsAuthority()});
+        if (!ticket.getAuthority().equals(CommonAppProperties.ticketsAuthority())) {
+            Logger.getLogger(TicketsLocalImpl.class.getName()).log(Level.WARNING, "Could not delete ticket {0} because its authority does not match {1}.", new Object[]{ticket, CommonAppProperties.ticketsAuthority()});
             return false;
         }
         final BaseTicketEntity te = em.find(BaseTicketEntity.class, ticket.getId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);

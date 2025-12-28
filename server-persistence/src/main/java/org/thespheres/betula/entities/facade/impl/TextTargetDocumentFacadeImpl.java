@@ -32,10 +32,10 @@ import org.thespheres.betula.entities.TermTextAssessmentEntry2;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntityLock;
 import org.thespheres.betula.entities.UnitDocumentEntity;
-import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.service.BetulaService;
 import org.thespheres.betula.entities.watch.DocumentLockTimeoutTimer;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 
 /**
  *
@@ -77,7 +77,7 @@ public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTar
     public List<TermTextTargetAssessmentEntity> findAll(final SigneeEntity signee, final LockModeType lmt) {
         return em.createNamedQuery("findTermTextTargetAssessmentsSignees", TermTextTargetAssessmentEntity.class)
                 .setParameter("signee", signee)
-                .setParameter("types", AppProperties.secureSigneeTypes())
+                .setParameter("types", CommonAppProperties.secureSigneeTypes())
                 .setLockMode(lmt)
                 .getResultList();
     }

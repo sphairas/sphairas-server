@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.config;
+package org.thespheres.betula.server.beans.config;
 
 import java.util.Arrays;
 import java.util.StringJoiner;

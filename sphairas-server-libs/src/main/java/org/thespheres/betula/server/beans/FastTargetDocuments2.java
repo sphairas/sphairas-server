@@ -22,6 +22,7 @@ import org.thespheres.betula.document.Marker;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface FastTargetDocuments2 {
 
     public FastTermTargetDocument getFastTermTargetDocument(DocumentId d);

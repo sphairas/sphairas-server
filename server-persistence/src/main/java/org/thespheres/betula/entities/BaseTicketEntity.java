@@ -17,7 +17,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import org.thespheres.betula.Ticket;
-import org.thespheres.betula.entities.config.AppProperties;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 
 /**
  *
@@ -45,7 +45,7 @@ public abstract class BaseTicketEntity implements Serializable {
     }
 
     public Ticket getTicket() {
-        return new Ticket(AppProperties.ticketsAuthority(), getId());
+        return new Ticket(CommonAppProperties.ticketsAuthority(), getId());
     }
 
 }

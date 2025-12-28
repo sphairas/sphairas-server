@@ -13,6 +13,7 @@ import org.thespheres.betula.document.Signee;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface SigneeLocal {
 
     public Signee getSigneePrincipal(final boolean requireSigneeEntity);

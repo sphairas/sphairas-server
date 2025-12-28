@@ -50,7 +50,6 @@ import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.TermTextAssessmentEntry2;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.UnitDocumentEntity;
-import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.TicketFacade;
@@ -60,7 +59,7 @@ import org.thespheres.betula.entities.saccess.SigneeEJBAccessException;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.JoinedUnitsEntry;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.ws.CommonDocuments;
 import org.thespheres.betula.util.CollectionUtil;
 
@@ -87,7 +86,7 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     protected final Map<UnitId, Set<DocumentId>> unitTargetDocs = new HashMap<>();
     protected final Map<UnitId, Map<TermId, Set<DocumentId>>> unitTermTargetDocs = new HashMap<>();
     protected final Map<String, UnitId> primaryUnits = new HashMap<>();
-    protected final Map<DocumentId, JoinedUnitsEntry> joined = new HashMap<>();
+
     @EJB
     FastTargetDocuments2Facade security;
     @Default
@@ -333,7 +332,7 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
         if (ude == null) {
             throw new NoSuchEntityException();
         }
-        final boolean useLinked = Boolean.getBoolean(AppProperties.WEB_USE_LINKED_PU_LISTS);
+        final boolean useLinked = Boolean.getBoolean(CommonAppProperties.WEB_USE_LINKED_PU_LISTS);
         final Set<DocumentId> ret;
         if (!useLinked) {
             //findTermGradeTargetAssessmentsForUnitEntityStudents

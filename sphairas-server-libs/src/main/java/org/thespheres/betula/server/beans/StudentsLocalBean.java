@@ -15,6 +15,7 @@ import org.thespheres.ical.VCard;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface StudentsLocalBean {
 
     public VCard get(StudentId student);

@@ -9,7 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.validation.constraints.NotNull;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
-import org.thespheres.betula.entities.config.ConfiguredModelException;
+import org.thespheres.betula.server.beans.config.ConfiguredModelException;
 import org.thespheres.betula.entities.config.MissingEntityException;
 import org.thespheres.betula.services.AppPropertyNames;
 import org.thespheres.betula.services.LocalProperties;

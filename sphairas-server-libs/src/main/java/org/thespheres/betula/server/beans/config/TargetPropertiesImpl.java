@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.config;
+package org.thespheres.betula.server.beans.config;
 
+import org.thespheres.betula.server.beans.config.LocalConfigProperties;
+import org.thespheres.betula.server.beans.config.ConfigurationPropertiesImpl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

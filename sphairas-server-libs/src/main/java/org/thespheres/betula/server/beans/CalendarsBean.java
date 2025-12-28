@@ -16,6 +16,7 @@ import org.thespheres.betula.document.DocumentId;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface CalendarsBean {
 
     public Date getDate(String category, UnitId unit, TermId termId, DocumentId zgn, String[] cat) throws AmbiguousDateException;

@@ -5,6 +5,7 @@
  */
 package org.thespheres.betula.entities.config;
 
+import org.thespheres.betula.server.beans.annot.Delegate;
 import java.util.Collections;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;

@@ -22,6 +22,7 @@ import org.thespheres.betula.util.Ordered;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface ReportsBean {
 
     public static final String TYPE_FEHLTAGE = "fehltage";

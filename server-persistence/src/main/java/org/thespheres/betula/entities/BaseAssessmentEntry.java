@@ -15,7 +15,7 @@ import jakarta.persistence.MappedSuperclass;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.assess.Grade;
-import org.thespheres.betula.entities.config.AppProperties;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 
 /**
  *
@@ -54,7 +54,7 @@ public abstract class BaseAssessmentEntry<I extends Identity> implements Seriali
 
     public boolean setGrade(Grade grade, java.sql.Timestamp timestamp) { //Date timestamp) {
         final Timestamp ts = timestamp != null ? timestamp : new Timestamp(System.currentTimeMillis());
-        final boolean replaceAssessEntriesWithEqualTimestamps = Boolean.getBoolean(AppProperties.REPLACE_IF_EQUAL_TIMESTAMP);
+        final boolean replaceAssessEntriesWithEqualTimestamps = Boolean.getBoolean(CommonAppProperties.REPLACE_IF_EQUAL_TIMESTAMP);
         if (this.timestamp == null || this.timestamp.before(ts) || (this.timestamp.equals(ts) && replaceAssessEntriesWithEqualTimestamps)) {
             this.grade = grade instanceof EmbeddableGrade ? (EmbeddableGrade) grade : new EmbeddableGrade(grade);
             this.timestamp = ts;

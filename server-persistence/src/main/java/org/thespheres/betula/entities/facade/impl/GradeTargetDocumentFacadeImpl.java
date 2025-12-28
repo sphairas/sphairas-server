@@ -48,11 +48,11 @@ import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.UnitDocumentEntity;
-import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.entities.service.BetulaService;
 import org.thespheres.betula.entities.localbeans.StudentsListsLocalBeanImpl;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.util.GradeEntry;
 
 /**
@@ -86,7 +86,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
         }
         return (List<T>) em.createNamedQuery("findTermGradeTargetAssessmentsSignees", TermGradeTargetAssessmentEntity.class)
                 .setParameter("signee", signee)
-                .setParameter("types", AppProperties.secureSigneeTypes())
+                .setParameter("types", CommonAppProperties.secureSigneeTypes())
                 .setLockMode(lmt)
                 .getResultList();
     }

@@ -30,9 +30,9 @@ import org.thespheres.betula.entities.StudentsTicketEntity;
 import org.thespheres.betula.entities.TermGradeTargAssessTicketEnt;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.UnitTicketEntity;
-import org.thespheres.betula.entities.config.AppProperties;
 import org.thespheres.betula.entities.jmsimpl.TicketsNotificator;
 import org.thespheres.betula.server.beans.annot.Arbeitsgemeinschaft;
+import org.thespheres.betula.server.beans.config.CommonAppProperties;
 
 /**
  *
@@ -49,7 +49,7 @@ public abstract class AbstractTicketsFacade {
     private Marker agMarker;
 
     protected <T extends BaseTicketEntity> T findTicket(Class<T> clz, Ticket ticket, LockModeType lmt) throws NoEntityFoundException {
-        if (!ticket.getAuthority().equals(AppProperties.ticketsAuthority())) {
+        if (!ticket.getAuthority().equals(CommonAppProperties.ticketsAuthority())) {
             throw new NoEntityFoundException();
         }
         final T t = em.find(clz, ticket.getId(), lmt);

@@ -15,6 +15,7 @@ import org.thespheres.betula.document.Marker;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface TargetDocumentsLocalBean {
 
     public Collection<Marker> getDocumentMarkers(DocumentId d);

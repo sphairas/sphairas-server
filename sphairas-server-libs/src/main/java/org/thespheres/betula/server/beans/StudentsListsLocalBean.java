@@ -17,6 +17,7 @@ import org.thespheres.betula.document.Marker;
  * @author boris.heithecker
  */
 @Local
+@Deprecated
 public interface StudentsListsLocalBean {
 
     public String getStringEntry(StudentId id, DocumentId document, Date asOf);

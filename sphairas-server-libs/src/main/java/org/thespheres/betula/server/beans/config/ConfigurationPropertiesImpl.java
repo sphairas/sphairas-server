@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.config;
+package org.thespheres.betula.server.beans.config;
 
+import org.thespheres.betula.server.beans.annot.Delegate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -21,12 +22,8 @@ import java.util.stream.Collectors;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-//import jakarta.xml.bind.JAXBContext;
-//import jakarta.xml.bind.JAXBException;
 import javax.naming.directory.DirContext;
 import org.apache.naming.resources.Resource;
-//import org.apache.naming.resources.ProxyDirContext;
-//import org.apache.naming.resources.Resource;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.assess.AbstractGrade;
 import org.thespheres.betula.assess.Grade;
@@ -41,7 +38,6 @@ import org.thespheres.betula.server.beans.annot.Arbeitsgemeinschaft;
 import org.thespheres.betula.server.beans.annot.Authority;
 import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.server.beans.annot.Preceding;
-import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NoProviderException;
 import org.thespheres.betula.services.UserRepresentation;
@@ -60,7 +56,7 @@ import org.thespheres.betula.services.ws.CommonDocuments;
 @ApplicationScoped
 public class ConfigurationPropertiesImpl {
 
-    static final Logger LOGGER = Logger.getLogger(AppProperties.LOGGER);
+    static final Logger LOGGER = Logger.getLogger(ConfigurationPropertiesImpl.class.getName());
     private javax.xml.bind.JAXBContext vorlageJAXB;
 
     @PostConstruct
@@ -75,14 +71,8 @@ public class ConfigurationPropertiesImpl {
     @Arbeitsgemeinschaft
     @Produces
     public Marker getAGMarker(final LocalConfigProperties config) {
-//        return vorlage.getProperty("ag.Markierung")
-//                .map(NdsZeugnisSchulvorlage.Property::getValue)
-//                .map(MarkerFactory::resolveAbstract)
-//                .orElse(new AbstractMarker("niedersachsen.unterricht.art", "ag", null));
         final String m = config.getProperty("ag.marker", Unterricht.NAME + "#ag");
         return MarkerFactory.resolveAbstract(m);
-//                return MarkerFactory.find(Unterricht.NAME, "ag", "null");
-//        return new AbstractMarker("kgs.unterricht", "ag", null);
     }
 
     @Arbeitsgemeinschaft
@@ -104,7 +94,7 @@ public class ConfigurationPropertiesImpl {
     }
 
     private Term findTerm(final LocalConfigProperties properties, boolean preceding) throws ConfiguredModelException {
-        final String prop = properties.getProperty(AppProperties.PROP_CURRENT_TERM);
+        final String prop = properties.getProperty(CommonAppProperties.PROP_CURRENT_TERM);
         final TermSchedule ts = termSchedule();
         if (prop != null) {
             try {
@@ -138,7 +128,7 @@ public class ConfigurationPropertiesImpl {
                 }
             }
         }
-        throw new ConfiguredModelException(new String[]{AppProperties.PROP_CURRENT_TERM});
+        throw new ConfiguredModelException(new String[]{CommonAppProperties.PROP_CURRENT_TERM});
     }
 
     protected TermId findPrecedingTermId(final TermId c) {
@@ -178,7 +168,6 @@ public class ConfigurationPropertiesImpl {
     @Delegate
     @Produces
     public NamingResolver findNamingResolver(final LocalConfigProperties properties) { //@New NamingResolverDelegate ubean, 
-//        final String prov = provider(properties);
         final String nprov = properties.getProperty("naming.providerURL", CommonAppProperties.provider());
         if (nprov == null || nprov.trim().isEmpty()) {
             throw new ConfiguredModelException(new String[]{"providerURL", "naming.providerURL"});
@@ -189,21 +178,7 @@ public class ConfigurationPropertiesImpl {
     @Produces
     public CommonDocuments commonDocuments() {
         final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
-        final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
-//        final Resource res;
-//        try {
-//            res = (Resource) dc.lookup(file);
-//        } catch (NamingException ex) {
-//            Logger.getLogger(ConfigurationPropertiesImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-//            throw new MissingConfigurationResourceException(file);
-//        }
-//        try (final InputStream is = res.streamContent()) {
-//            return (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
-//        } catch (IOException | JAXBException ex) {
-//            final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
-//            th.initCause(ex);
-//            throw th;
-//        }        
+        final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;     
         if (hasResource(dc, NdsReportBuilderFactory.SCHULVORLAGE_FILE)) {
             final Resource res;
             try {
@@ -231,22 +206,21 @@ public class ConfigurationPropertiesImpl {
     }
 
     @Produces
-//    @Dependent
     public Properties properties() {
         final Properties p = new Properties();
         final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
-        if (hasResource(dc, AppProperties.INSTANCE_PROPERTIES_FILE)) {
+        if (hasResource(dc, CommonAppProperties.INSTANCE_PROPERTIES_FILE)) {
             final Resource res;
             try {
-                res = (Resource) dc.lookup(AppProperties.INSTANCE_PROPERTIES_FILE);
+                res = (Resource) dc.lookup(CommonAppProperties.INSTANCE_PROPERTIES_FILE);
             } catch (NamingException ex) {
-                logger().log(Level.WARNING, ex.getMessage(), ex);
-                throw new MissingConfigurationResourceException(AppProperties.INSTANCE_PROPERTIES_FILE);
+                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+                throw new MissingConfigurationResourceException(CommonAppProperties.INSTANCE_PROPERTIES_FILE);
             }
             try {
                 p.load(res.streamContent());
             } catch (IOException ex) {
-                final MissingConfigurationResourceException th = new MissingConfigurationResourceException(AppProperties.INSTANCE_PROPERTIES_FILE);
+                final MissingConfigurationResourceException th = new MissingConfigurationResourceException(CommonAppProperties.INSTANCE_PROPERTIES_FILE);
                 th.initCause(ex);
                 throw th;
             }
@@ -254,10 +228,10 @@ public class ConfigurationPropertiesImpl {
         return p;
     }
 
-    @Produces
-    public Logger logger() {
-        return LOGGER;
-    }
+//    @Produces
+//    public Logger logger() {
+//        return LOGGER;
+//    }
 
     public static boolean hasResource(final DirContext dc, final String res) {
         try {
