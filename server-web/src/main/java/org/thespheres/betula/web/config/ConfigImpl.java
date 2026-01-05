@@ -5,6 +5,7 @@
  */
 package org.thespheres.betula.web.config;
 
+import org.thespheres.betula.server.beans.clients.ServiceInternalClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -15,7 +16,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
@@ -26,6 +26,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.Typed;
+import java.net.URI;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.InvalidNameException;
@@ -34,14 +35,11 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-//import jakarta.xml.bind.JAXBContext;
-//import jakarta.xml.bind.JAXBException;
 import javax.naming.directory.DirContext;
-//import org.apache.naming.resources.ProxyDirContext;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openide.util.Lookup;
-import org.thespheres.betula.document.model.Subject;
 import org.thespheres.betula.niedersachsen.NdsCommonConstants;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
@@ -68,8 +66,17 @@ public class ConfigImpl implements Serializable {
 //    private Date noteSetFileLastModified;
     private TermReportNoteSetTemplate noteSetTemplate;
 
+//  Siehe Anmerkung bei ServiceInternalClient.java  
+//    @Inject
+//    @RestClient
+    private ServiceInternalClient client;
+
     @PostConstruct
     public void initialize() {
+        client = RestClientBuilder.newBuilder()
+                .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
+                .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
+                .build(ServiceInternalClient.class);
         try {
             notesTemplateJAXB = javax.xml.bind.JAXBContext.newInstance(TermReportNoteSetTemplate.class);
         } catch (javax.xml.bind.JAXBException ex) {
@@ -90,6 +97,10 @@ public class ConfigImpl implements Serializable {
         } catch (javax.xml.bind.JAXBException ex) {
             throw new IllegalStateException(ex);
         }
+    }
+
+    public ServiceInternalClient getInternalClient() {
+        return client;
     }
 
     @Produces
@@ -147,7 +158,6 @@ public class ConfigImpl implements Serializable {
 //    public Comparator<Subject> findSubjectComparator(NdsReportBuilderFactory fac) {
 //        return (s1, s2) -> fac.forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
 //    }
-
     @Typed(NdsReportBuilderFactory.class)
     @Produces
     public NdsReportBuilderFactory findZeugnisConfiguratorService() {

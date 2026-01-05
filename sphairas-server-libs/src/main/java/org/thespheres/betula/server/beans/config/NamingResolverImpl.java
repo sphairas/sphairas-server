@@ -3,19 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.config;
+package org.thespheres.betula.server.beans.config;
 
+import org.thespheres.betula.server.beans.clients.ServiceInternalClient;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.thespheres.betula.server.beans.annot.Delegate;
 import java.util.Collections;
-import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import java.io.Serializable;
+import java.net.URI;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.model.DocumentsModel;
-import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.ProviderInfo;
 import org.thespheres.betula.services.NamingResolver;
@@ -26,11 +30,9 @@ import org.thespheres.betula.services.ws.CommonDocuments;
  * @author boris.heithecker
  */
 @Default
-@Dependent
+@ApplicationScoped
 public class NamingResolverImpl implements Serializable, NamingResolver {
 
-    @Inject
-    private UnitDocumentFacade ubean;
     @Inject
     private DocumentsModel dm;
     @Inject
@@ -38,6 +40,15 @@ public class NamingResolverImpl implements Serializable, NamingResolver {
     @Delegate
     @Inject
     private NamingResolver delegate;
+    private ServiceInternalClient client;
+
+    @PostConstruct
+    public void initiatlize() {
+        client = RestClientBuilder.newBuilder()
+                .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
+                .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
+                .build(ServiceInternalClient.class);
+    }
 
     @Override
     public Result resolveDisplayNameResult(Identity id) throws IllegalAuthorityException {
@@ -50,8 +61,8 @@ public class NamingResolverImpl implements Serializable, NamingResolver {
         }
         final DocumentId cNames = cd.forName(CommonDocuments.COMMON_NAMES_DOCID);
         if (uid != null && cNames != null) {
-            final String cn = ubean.getCommonName(cNames, uid);
-            if (cn != null) {
+            final String cn = client.getUnitCommonName(cNames, uid);
+            if (!StringUtils.isBlank(cn)) {
                 return new SimpleResult(cn);
             }
         }

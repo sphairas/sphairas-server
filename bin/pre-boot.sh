@@ -70,16 +70,16 @@ fi
 openssl pkcs12 -export -in $SERVER_CERT -inkey $SERVER_KEY -passin pass:${AS_ADMIN_MASTERPASSWORD} -out $SERVER_PKCS12_FILE -passout pass:${AS_ADMIN_MASTERPASSWORD} -name $ALIAS
 
 #Import keys
-if [ -f ${SECRETS_DIR}/keystore.jks ]; then
-    rm ${SECRETS_DIR}/keystore.jks
+if [ -f ${SECRETS_DIR}/keystore.p12 ]; then
+    rm ${SECRETS_DIR}/keystore.p12
 fi
-keytool -importkeystore -srckeystore ${SERVER_PKCS12_FILE} -srcstoretype PKCS12 -srcalias ${ALIAS} -destalias ${CERT_ALIAS} -srcstorepass ${AS_ADMIN_MASTERPASSWORD} -deststorepass ${AS_ADMIN_MASTERPASSWORD} -destkeystore ${SECRETS_DIR}/keystore.jks -deststoretype jks
+keytool -importkeystore -srckeystore ${SERVER_PKCS12_FILE} -srcstoretype PKCS12 -srcalias ${ALIAS} -destalias ${CERT_ALIAS} -srcstorepass ${AS_ADMIN_MASTERPASSWORD} -deststorepass ${AS_ADMIN_MASTERPASSWORD} -destkeystore ${SECRETS_DIR}/keystore.p12 -deststoretype pkcs12
 
 #Remove the default truststore with lots of trusted certs.
-if [ -f ${SECRETS_DIR}/cacerts.jks ]; then
-    rm ${SECRETS_DIR}/cacerts.jks
+if [ -f ${SECRETS_DIR}/cacerts.p12 ]; then
+    rm ${SECRETS_DIR}/cacerts.p12
 fi
-keytool -import -file ${SERVER_CERT} -trustcacerts -noprompt -alias ${ALIAS} -storepass ${AS_ADMIN_MASTERPASSWORD} -keystore ${SECRETS_DIR}/cacerts.jks -storetype jks
+keytool -import -file ${SERVER_CERT} -trustcacerts -noprompt -alias ${ALIAS} -storepass ${AS_ADMIN_MASTERPASSWORD} -keystore ${SECRETS_DIR}/cacerts.p12 -storetype pkcs12
 
 #Remove for Jakarta?
 echo "imq.keystore.password=${AS_ADMIN_MASTERPASSWORD}" > /tmp/imqpwdfile

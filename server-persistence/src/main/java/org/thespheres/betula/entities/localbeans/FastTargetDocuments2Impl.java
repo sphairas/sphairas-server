@@ -414,22 +414,6 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     }
 
     @Override
-    public StudentId[] getIntersection(UnitId unit) {
-        DocumentId docId = docModel.convertToUnitDocumentId(unit);
-        if (docId != null) {
-            StudentId[] my = getStudents().stream().toArray(StudentId[]::new);
-            return unitfacade.getIntersection(docId, my);
-        }
-        return new StudentId[0];
-    }
-
-    @Override
-    public StudentId[] getIntersection(StudentId[] student) {
-        final Collection<StudentId> my = getStudents();
-        return Arrays.stream(student).filter(my::contains).toArray(StudentId[]::new);
-    }
-
-    @Override
     public Collection<UnitId> getUnits() {
         //TODO add pu
         final Set<UnitId> set = getTargetAssessmentDocumentResultList().stream().flatMap((TermGradeTargetAssessmentEntity tgtae) -> tgtae.getUnitDocs().stream()).map(UnitDocumentEntity::getUnitId).distinct().collect(Collectors.toSet());

@@ -1,6 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
-   version="6.0">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+    <security-role>
+        <description>Interne und externe Zugriffe auf die externe API im administrativen Kontext</description>
+        <role-name>unitadmin</role-name>
+    </security-role>
+    <security-role>
+        <description>Zugriffe auf die internen APIs im administrativen Kontext</description>
+        <role-name>internal</role-name>
+    </security-role>
+    <security-constraint>
+        <display-name>Zugriffsbeschränkung auf alle APIs</display-name>
+        <web-resource-collection>
+            <web-resource-name>All</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>unitadmin</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>        
+    </security-constraint>
+    <security-constraint>
+        <display-name>Zugriffsbeschränkung auf die internen APIs</display-name>
+        <web-resource-collection>
+            <web-resource-name>Intern</web-resource-name>
+            <url-pattern>/api/internal/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>internal</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>        
+    </security-constraint>
+    <login-config>
+        <auth-method>CLIENT-CERT</auth-method>
+        <realm-name>certificate</realm-name>
+    </login-config>
 </web-app>

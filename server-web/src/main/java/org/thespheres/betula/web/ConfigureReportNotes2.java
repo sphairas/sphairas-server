@@ -50,7 +50,7 @@ import org.thespheres.betula.web.docsrv.ZeugnisArguments;
 @Named("reportNotes2")
 @ViewScoped //Vor Jakarta: javax.faces.bean.SessionScoped;
 public class ConfigureReportNotes2 implements VetoableChangeListener, Serializable {
-
+     
     private static final long serialVersionUID = 1L;
     @EJB(beanName = "ReportsBeanImpl")
     private ReportsBean zeugnisBean;

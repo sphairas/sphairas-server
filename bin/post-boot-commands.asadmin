@@ -1,5 +1,10 @@
 #start-database --dbhome ${PAYARA_PATH}/databases/ funktioniert nicht
 
+#Set location of keystores here, for all listeners and outgoing connections
+create-system-properties javax.net.ssl.keyStore=${ENV=SECRETS_DIR}/keystore.p12
+create-system-properties javax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.p12
+create-system-properties com.sun.enterprise.security.httpsOutboundKeyAlias=${ENV=CERT_ALIAS}
+
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=${ENV=CERT_ALIAS}
 #protocol http-listener-2: key-store="ssl/keystore.jks" trust-store="ssl/cacerts.jks"
 

@@ -57,11 +57,6 @@ public interface FastTargetDocuments2 {
 
     public boolean submitSingle(DocumentId docId, StudentId studId, TermId termId, Marker section, String text);
 
-    public StudentId[] getIntersection(UnitId unit);
-
-    public StudentId[] getIntersection(StudentId[] student);
-
-//    public JoinedUnitsEntry getJoinedUnits(DocumentId base);
     public Grade[] findSingleChecked(UnitId unit, TermId term, StudentId student, Collection<DocumentId> selectFrom);
 
     Collection<DocumentId> getTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTermTargetDocument> map);

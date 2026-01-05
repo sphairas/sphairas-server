@@ -1,6 +1,5 @@
 package org.thespheres.betula.server.service;
 
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Context;
@@ -26,7 +25,6 @@ import org.thespheres.betula.database.DbAdminService;
  * @author boris.heithecker@gmx.net
  */
 @Path("db")
-@RolesAllowed({"superadmin", "unitadmin"})
 public class DbServiceResource {
 
     @Context
