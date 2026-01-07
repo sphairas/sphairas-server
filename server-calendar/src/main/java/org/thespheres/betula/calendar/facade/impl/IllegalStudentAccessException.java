@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.calendar.saccess;
+package org.thespheres.betula.calendar.facade.impl;
 
 import java.security.Principal;
 import jakarta.ejb.ApplicationException;

@@ -23,6 +23,7 @@ import org.thespheres.betula.entities.UnitDocumentEntity;
  *
  * @author boris.heithecker
  */
+@Deprecated
 @Local
 public interface UnitDocumentFacade {
 

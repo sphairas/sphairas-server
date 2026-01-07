@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.calendar.saccess;
+package org.thespheres.betula.calendar.facade.impl;
 
 import java.util.Collection;
-import jakarta.decorator.Decorator;
-import jakarta.decorator.Delegate;
+import jakarta.ejb.LocalBean;
 import jakarta.ejb.SessionContext;
+import jakarta.ejb.Stateless;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import javax.naming.InitialContext;
@@ -24,12 +24,14 @@ import org.thespheres.ical.VCard;
  *
  * @author boris.heithecker
  */
-@Decorator
-public abstract class SigneeStudentsFacadeDecorator implements StudentFacade {
+//@Decorator
+@LocalBean
+@Stateless
+public class DecoratedStudentFacade extends StudentFacadeImpl implements StudentFacade {
 
-    @Inject
-    @Delegate
-    private StudentFacade delegate;
+//    @Inject
+//    @Delegate
+//    private StudentFacade delegate;
 //    @DocumentsSession
 //    @Inject
 //    private Instance<FastTargetDocuments2> ftd2SessionInstance;
@@ -54,16 +56,16 @@ public abstract class SigneeStudentsFacadeDecorator implements StudentFacade {
     @Override
     public Collection<VCard> findAllVCards(UnitId unit) {
         Collection<StudentId> studs = getFastTargetDocuments2().getStudents(unit, null);
-        return delegate.findVCards(studs);
+        return super.findVCards(studs);
     }
 
     @Override
     public Collection<VCard> findAllVCards() {
         if (getDecoratedSessionContext().isCallerInRole("unitadmin")) {
-            return delegate.findAllVCards();
+            return super.findAllVCards();
         }
         Collection<StudentId> students = getFastTargetDocuments2().getStudents();
-        return delegate.findVCards(students);
+        return super.findVCards(students);
     }
 
     @Override
@@ -72,7 +74,7 @@ public abstract class SigneeStudentsFacadeDecorator implements StudentFacade {
         if (!ctx.isCallerInRole("unitadmin")) {
             throw new IllegalStudentAccessException(student, ctx.getCallerPrincipal());
         }
-        delegate.remove(student);
+        super.remove(student);
     }
 
 }

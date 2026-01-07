@@ -3,35 +3,34 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.saccess;
+package org.thespheres.betula.entities.facade.impl;
 
 import java.util.Collections;
 import java.util.List;
-import jakarta.decorator.Decorator;
-import jakarta.decorator.Delegate;
 import jakarta.ejb.EJB;
+import jakarta.ejb.LocalBean;
 import jakarta.ejb.SessionContext;
-import jakarta.inject.Inject;
+import jakarta.ejb.Stateless;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import jakarta.persistence.LockModeType;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
-import org.thespheres.betula.entities.facade.impl.SigneeFacadeImpl;
 
 /**
  *
  * @author boris.heithecker@gmx.net
  */
-@Decorator
-public abstract class TextTargetDocumentSigneeDecorator implements TextTargetDocumentFacade {
+@LocalBean
+@Stateless
+public class DecoratedTextTargetDocumentFacade extends TextTargetDocumentFacadeImpl implements TextTargetDocumentFacade {
 
-    @Inject
-    @Delegate
-    private TextTargetDocumentFacade delegate;
+//    @Inject
+//    @Delegate
+//    private TextTargetDocumentFacade delegate;
     @EJB
-    protected SigneeFacadeImpl login;
+    protected SigneeFacadeImpl signees;
 
     private SessionContext getDecoratedSessionContext() {
         InitialContext ic;
@@ -47,11 +46,11 @@ public abstract class TextTargetDocumentSigneeDecorator implements TextTargetDoc
     public List<TermTextTargetAssessmentEntity> findAll(final LockModeType lmt) {
         final SessionContext ctx = getDecoratedSessionContext();
         if (ctx.isCallerInRole("unitadmin")) {
-            return delegate.findAll(lmt);
+            return super.findAll(lmt);
         } else if (ctx.isCallerInRole("signee")) {
-            final SigneeEntity signee = login.getCurrent();
+            final SigneeEntity signee = signees.getCurrent();
             if (signee != null) {
-                return delegate.findAll(signee, lmt);
+                return super.findAll(signee, lmt);
             }
         }
         return Collections.EMPTY_LIST;
@@ -61,10 +60,10 @@ public abstract class TextTargetDocumentSigneeDecorator implements TextTargetDoc
     public List<TermTextTargetAssessmentEntity> findAll(final SigneeEntity signee, final LockModeType lmt) {
         if (getDecoratedSessionContext().isCallerInRole("unitadmin")
                 || getDecoratedSessionContext().isCallerInRole("remoteadmin")
-                || (signee != null && login.getCurrent().equals(signee))) {
-            return delegate.findAll(signee, lmt);
+                || (signee != null && signees.getCurrent().equals(signee))) {
+            return super.findAll(signee, lmt);
         }
-        throw new SigneeEJBAccessException("TermGradeTargetDocumentSigneeDecorator.findAll", login.getSigneePrincipal(false));
+        throw new SigneeEJBAccessException("TermGradeTargetDocumentSigneeDecorator.findAll", signees.getSigneePrincipal(false));
     }
 
 }

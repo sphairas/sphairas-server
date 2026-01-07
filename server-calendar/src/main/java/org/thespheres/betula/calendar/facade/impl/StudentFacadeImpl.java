@@ -7,9 +7,7 @@ package org.thespheres.betula.calendar.facade.impl;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-import jakarta.ejb.LocalBean;
 import jakarta.ejb.NoSuchEntityException;
-import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
@@ -31,8 +29,8 @@ import org.thespheres.ical.VCard;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@Stateless
+//@LocalBean
+//@Stateless
 public class StudentFacadeImpl extends BaseComponentFacade<StudentEntity, StudentId> implements StudentFacade {
 
     @PersistenceContext(unitName = "studentsPU")

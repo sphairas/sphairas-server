@@ -55,7 +55,7 @@ import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.TicketFacade;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.entities.facade.impl.SigneeFacadeImpl;
-import org.thespheres.betula.entities.saccess.SigneeEJBAccessException;
+import org.thespheres.betula.entities.facade.impl.SigneeEJBAccessException;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;

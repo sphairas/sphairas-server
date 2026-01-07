@@ -22,8 +22,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Stateless;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.NonUniqueResultException;
@@ -59,8 +57,8 @@ import org.thespheres.betula.util.GradeEntry;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@Stateless
+//@LocalBean
+//@Stateless
 public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTargetAssessmentEntity> implements GradeTargetDocumentFacade {
 
     @EJB

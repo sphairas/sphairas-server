@@ -3,27 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.saccess;
+package org.thespheres.betula.entities.localbeans;
 
-import jakarta.decorator.Decorator;
-import jakarta.decorator.Delegate;
+import jakarta.ejb.LocalBean;
 import jakarta.ejb.SessionContext;
-import jakarta.inject.Inject;
+import jakarta.ejb.Stateless;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.thespheres.betula.document.Signee;
+import org.thespheres.betula.entities.localbeans.SigneeLocalImpl;
 import org.thespheres.betula.server.beans.SigneeLocal;
 
 /**
  *
  * @author boris.heithecker
  */
-@Decorator
-public abstract class SigneeFacadeSigneeDecorator implements SigneeLocal {
-
-    @Inject
-    @Delegate
-    private SigneeLocal delegate;
+@LocalBean
+@Stateless
+public class DecoratedSigneeLocal extends SigneeLocalImpl implements SigneeLocal {
 
     private SessionContext getDecoratedSessionContext() {
         InitialContext ic;
@@ -53,7 +50,7 @@ public abstract class SigneeFacadeSigneeDecorator implements SigneeLocal {
         if (!context.isCallerInRole("signee") && context.isCallerInRole("unitadmin")) {
             return null;
         }
-        return delegate.getSigneePrincipal(requireSigneeEntity);
+        return super.getSigneePrincipal(requireSigneeEntity);
     }
 
 }

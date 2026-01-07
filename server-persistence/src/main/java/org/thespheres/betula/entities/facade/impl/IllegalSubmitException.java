@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.saccess;
+package org.thespheres.betula.entities.facade.impl;
 
 import java.security.Principal;
 import jakarta.ejb.ApplicationException;

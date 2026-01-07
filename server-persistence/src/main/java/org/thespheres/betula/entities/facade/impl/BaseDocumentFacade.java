@@ -25,7 +25,7 @@ import org.thespheres.betula.server.beans.SigneeLocal;
  * @author boris.heithecker
  * @param <T>
  */
-abstract class BaseDocumentFacade<T extends BaseDocumentEntity> {
+public abstract class BaseDocumentFacade<T extends BaseDocumentEntity> {
 
     @PersistenceContext(unitName = "betula0")
     protected EntityManager em;

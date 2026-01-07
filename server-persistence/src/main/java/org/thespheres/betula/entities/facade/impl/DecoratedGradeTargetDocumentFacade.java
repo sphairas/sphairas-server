@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.saccess;
+package org.thespheres.betula.entities.facade.impl;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -11,25 +11,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import jakarta.decorator.Decorator;
-import jakarta.decorator.Delegate;
 import jakarta.ejb.EJB;
+import jakarta.ejb.LocalBean;
 import jakarta.ejb.SessionContext;
+import jakarta.ejb.Stateless;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.entities.GradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.SigneeEntity;
-import org.thespheres.betula.entities.facade.impl.SigneeFacadeImpl;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.LocalProperties;
@@ -38,16 +35,17 @@ import org.thespheres.betula.services.LocalProperties;
  *
  * @author boris.heithecker
  */
-@Decorator
-public abstract class TermGradeTargetDocumentSigneeDecorator implements GradeTargetDocumentFacade {
+@LocalBean
+@Stateless
+public class DecoratedGradeTargetDocumentFacade extends GradeTargetDocumentFacadeImpl implements GradeTargetDocumentFacade {
 
-    @Inject
-    @Delegate
-    private GradeTargetDocumentFacade delegate;
-    @PersistenceContext(unitName = "betula0")
-    protected EntityManager em;
+//    @Inject
+//    @Delegate
+//    private GradeTargetDocumentFacade delegate;
+//    @PersistenceContext(unitName = "betula0")
+//    protected EntityManager em;
     @EJB
-    protected SigneeFacadeImpl login;
+    protected SigneeFacadeImpl signees;
     @Inject
     @SessionScoped
     private Provider<LocalProperties> properties;
@@ -66,11 +64,11 @@ public abstract class TermGradeTargetDocumentSigneeDecorator implements GradeTar
     public <T extends GradeTargetAssessmentEntity> List<T> findAll(LockModeType lmt, Class<T> type) {
         final SessionContext ctx = getDecoratedSessionContext();
         if (ctx.isCallerInRole("unitadmin")) {
-            return delegate.findAll(lmt, type);
+            return super.findAll(lmt, type);
         } else if (ctx.isCallerInRole("signee")) {
-            final SigneeEntity signee = login.getCurrent();
+            final SigneeEntity signee = signees.getCurrent();
             if (signee != null) {
-                return delegate.findAll(signee, type, lmt);
+                return super.findAll(signee, type, lmt);
             }
         }
         return Collections.EMPTY_LIST;
@@ -80,10 +78,10 @@ public abstract class TermGradeTargetDocumentSigneeDecorator implements GradeTar
     public <T extends GradeTargetAssessmentEntity> List<T> findAll(SigneeEntity signee, Class<T> type, LockModeType lmt) {
         if (getDecoratedSessionContext().isCallerInRole("unitadmin")
                 || getDecoratedSessionContext().isCallerInRole("remoteadmin")
-                || (signee != null && login.getCurrent().equals(signee))) {
-            return delegate.findAll(signee, type, lmt);
+                || (signee != null && signees.getCurrent().equals(signee))) {
+            return super.findAll(signee, type, lmt);
         }
-        throw new SigneeEJBAccessException("TermGradeTargetDocumentSigneeDecorator.findAll", login.getSigneePrincipal(false));
+        throw new SigneeEJBAccessException("TermGradeTargetDocumentSigneeDecorator.findAll", signees.getSigneePrincipal(false));
     }
     //Do not delete: serves as sample for getting user transaction
 //    public void persist(Object object) {
@@ -113,15 +111,15 @@ public abstract class TermGradeTargetDocumentSigneeDecorator implements GradeTar
     @Override
     public <I extends Identity> boolean submit(DocumentId id, StudentId student, I gradeId, Grade grade, Timestamp ts) {
         if (!getDecoratedSessionContext().isCallerInRole("unitadmin") && !getDecoratedSessionContext().isCallerInRole("remoteadmin")) {
-            final GradeTargetAssessmentEntity target = delegate.find(id, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            final GradeTargetAssessmentEntity target = super.find(id, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             if (grade != null) {
                 if (grade.getConvention().equals(target.getPreferredConvention()) || isPermittedExtra(grade)) {
-                    return delegate.submit(id, student, gradeId, grade, ts);
+                    return super.submit(id, student, gradeId, grade, ts);
                 }
             }
-            throw new IllegalSubmitException(target.getDocumentId(), login.getSigneePrincipal(false), grade);
+            throw new IllegalSubmitException(target.getDocumentId(), signees.getSigneePrincipal(false), grade);
         }
-        return delegate.submit(id, student, gradeId, grade, ts);
+        return super.submit(id, student, gradeId, grade, ts);
     }
 
     private boolean isPermittedExtra(final Grade g) {

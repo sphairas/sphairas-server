@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.thespheres.betula.entities.saccess;
+package org.thespheres.betula.entities.facade.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import jakarta.decorator.Decorator;
-import jakarta.decorator.Delegate;
 import jakarta.ejb.EJB;
 import jakarta.ejb.EJBAccessException;
+import jakarta.ejb.LocalBean;
 import jakarta.ejb.SessionContext;
+import jakarta.ejb.Stateless;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import javax.naming.InitialContext;
@@ -32,8 +32,8 @@ import org.thespheres.betula.entities.EmbeddableSigneeInfo;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.UnitDocumentEntity;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
-import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
+import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.ws.CommonDocuments;
 
@@ -41,12 +41,10 @@ import org.thespheres.betula.services.ws.CommonDocuments;
  *
  * @author boris.heithecker
  */
-@Decorator
-public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade {
+@LocalBean
+@Stateless
+public class DecoratedUnitDocumentFacade extends UnitDocumentFacadeImpl implements UnitDocumentFacade {
 
-    @Inject
-    @Delegate
-    private UnitDocumentFacade delegate;
     @PersistenceContext(unitName = "betula0")
     protected EntityManager em;
     @EJB
@@ -74,7 +72,7 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
     @Override
     public List<UnitDocumentEntity> findAll(LockModeType lmt) {
         if (getDecoratedSessionContext().isCallerInRole("unitadmin") || getDecoratedSessionContext().isCallerInRole("remoteadmin")) {
-            return delegate.findAll(lmt);
+            return super.findAll(lmt);
         }
 
         return targets.findAll(LockModeType.OPTIMISTIC, TermGradeTargetAssessmentEntity.class).stream()
@@ -86,7 +84,9 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
 //        CriteriaQuery<UnitDocumentEntity> cq = em.getCriteriaBuilder().createQuery(UnitDocumentEntity.class);
 //        Root<UnitDocumentEntity> pet = cq.from(UnitDocumentEntity.class);
 //        List<Predicate> list = new ArrayList<>();
-////        if (!doAsAdmin) {
+    
+
+    ////        if (!doAsAdmin) {
 //        Signee signee = login.getSigneePrincipal();
 //        CriteriaBuilder cb = em.getCriteriaBuilder();
 //        list.add(cb.equal(pet.join("targets").join("signeeInfoentries").get("type"), "entitled.signee"));
@@ -105,14 +105,14 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
         }
         Signee loggedIn;
         if ((((loggedIn = login.getSigneePrincipal(false)) != null) && loggedIn.equals(signee)) || getDecoratedSessionContext().isCallerInRole("unitadmin")) {
-            return delegate.getPrimaryUnit(kldoc, signee);
+            return super.getPrimaryUnit(kldoc, signee);
         }
         return null;
     }
 
     @Override
     public UnitDocumentEntity find(DocumentId id, LockModeType lmt) {
-        final UnitDocumentEntity ret = delegate.find(id, lmt);
+        final UnitDocumentEntity ret = super.find(id, lmt);
         if (ret != null && !getDecoratedSessionContext().isCallerInRole("unitadmin")) {
             final Signee current = login.getSigneePrincipal(true);
             if (current != null) {
@@ -127,7 +127,7 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
                 }
                 boolean permit = l.stream()
                         .map(cd::forName)
-                        .map(d -> delegate.getPrimaryUnit(d, current))
+                        .map(d -> super.getPrimaryUnit(d, current))
                         .anyMatch(pu -> pu != null && pu.equals(docModel.convertToUnitId(id)));
                 //TODO: respect unlinked
                 permit = permit | ret.getTargetAssessments().stream()
@@ -155,7 +155,7 @@ public abstract class UnitDocumentSigneeDecorator implements UnitDocumentFacade 
         if (cNames != null && !d.equals(cNames)) {
             throw new IllegalArgumentException("Document " + d + " does not match " + cNames);
         }
-        delegate.setCommonName(d, uid, cn);
+        super.setCommonName(d, uid, cn);
     }
 
 }

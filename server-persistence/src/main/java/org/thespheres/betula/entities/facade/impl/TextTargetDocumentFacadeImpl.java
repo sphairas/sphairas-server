@@ -13,8 +13,6 @@ import java.util.logging.Logger;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Stateless;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
@@ -41,8 +39,8 @@ import org.thespheres.betula.server.beans.config.CommonAppProperties;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@Stateless
+//@LocalBean
+//@Stateless
 public class TextTargetDocumentFacadeImpl extends BaseDocumentFacade<TermTextTargetAssessmentEntity> implements TextTargetDocumentFacade {
 
     @EJB

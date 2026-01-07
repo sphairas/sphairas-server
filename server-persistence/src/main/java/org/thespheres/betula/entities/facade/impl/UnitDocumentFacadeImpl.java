@@ -19,8 +19,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Stateless;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.NonUniqueResultException;
@@ -52,8 +50,8 @@ import org.thespheres.ical.VCard;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@Stateless
+//@LocalBean
+//@Stateless
 public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntity> implements UnitDocumentFacade {
 
     @EJB(beanName = "StudentVCardsImpl")

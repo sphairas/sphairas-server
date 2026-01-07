@@ -5,8 +5,6 @@
  */
 package org.thespheres.betula.entities.localbeans;
 
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Stateless;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.server.beans.SigneeLocal;
 
@@ -14,8 +12,8 @@ import org.thespheres.betula.server.beans.SigneeLocal;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@Stateless
+//@LocalBean
+//@Stateless
 public class SigneeLocalImpl extends AbstractSigneeFacade implements SigneeLocal {
 
     @Override
