@@ -8,10 +8,6 @@
         <servlet-class>org.thespheres.betula.calendar.students.StudentsServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>LessonServlet</servlet-name>
-        <servlet-class>org.thespheres.betula.calendar.lesson.LessonServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>TicketsServlet</servlet-name>
         <servlet-class>org.thespheres.betula.calendar.tickets.TicketsServlet</servlet-class>
     </servlet>
@@ -22,10 +18,6 @@
     <servlet-mapping>
         <servlet-name>StudentsServlet</servlet-name>
         <url-pattern>/students/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>LessonServlet</servlet-name>
-        <url-pattern>/stundenplan/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>TicketsServlet</servlet-name>

@@ -28,14 +28,6 @@
     <class>org.thespheres.betula.calendar.tickets.TicketEntity</class>
     <class>org.thespheres.betula.calendar.UniqueCalendarComponentEntity</class>
     <class>org.thespheres.betula.calendar.reports.ZeugniskonferenzEntity</class>
-    <class>org.thespheres.betula.calendar.lesson.LessonCalendar</class>
-    <class>org.thespheres.betula.calendar.lesson.LessonJournalEntry</class>
-    <class>org.thespheres.betula.calendar.lesson.LessonUnit</class>
-    <class>org.thespheres.betula.calendar.lesson.LessonUpdate</class>
-    <class>org.thespheres.betula.calendar.lesson.WeeklyLessonComponent</class>
-    <class>org.thespheres.betula.calendar.lesson.VendorLessonMapping</class>
-    <class>org.thespheres.betula.calendar.lesson.LessonSubscriber</class>
-    <class>org.thespheres.betula.calendar.lesson.Lesson</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
