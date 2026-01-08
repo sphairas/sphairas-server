@@ -22,12 +22,8 @@
     </modules>
       
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source> 
-        <maven.compiler.target>1.8</maven.compiler.target> 
-        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
-        <jakartaee>8.0</jakartaee>
+        <jakartaee>10.0.0</jakartaee>
     </properties>
       
     <dependencies>
