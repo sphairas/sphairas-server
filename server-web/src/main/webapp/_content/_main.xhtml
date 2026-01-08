@@ -9,14 +9,6 @@
 
     <f:view contentType="text/html">
 
-        <h:outputStylesheet name="style.css" />
-        <h:head>
-            <link rel="shortcut icon" type="image/x-icon" href="#{request.contextPath}/resources/favicon.ico" />
-            <f:facet name="first">
-                <meta content='text/html; charset=UTF-8' http-equiv="Content-Type"/>
-                <title>Listen</title>
-            </f:facet>
-        </h:head> 
 
         <h:body>  
 
@@ -33,25 +25,15 @@
             <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
                 <p:graphicImage value="resources/ajax-loading-bar-blue.gif" />
             </p:dialog>
-
-            <p:layout  fullPage="true" stateful="true">
-                <p:layoutUnit position="north" size="180" resizable="true" closable="false" collapsible="false">                        
+                     
                     <!--                        <h:graphicImage value="resources/logo.jpg" width="170" style="margin-left: auto; margin-right: auto; display: block"/>-->
                     <p:graphicImage value="#{app.image}" width="170" style="margin-left: auto; margin-right: auto; display: block"/>
-                    <h:outputText value="#{app.username}" style="vertical-align: bottom"/> 
-                </p:layoutUnit>
 
-                <p:layoutUnit id="west" position="west" collapsible="true" resizable="true">
 
                     <h:form>
                         <!--- Ohne ajax false funktioniert es nicht && zwischen menu und menuitem dürfen keine kommentare --> 
 
                         <p:menu id="menu" style="width:120px"> 
-                            <p:menuitem value="#{bundle['main.menu.messages']}" action="#{app.navigateTo('messages')}" style="#{app.getMenuStyle('messages')}" update="center" ajax="false"/> 
-                            <p:menuitem value="#{bundle['main.menu.terms']}" actionListener="#{app.navigateTo('terms')}" rendered="#{app.user.renderMenu('terms')}" style="#{app.getMenuStyle('terms')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" /> 
-                            <p:menuitem value="#{app.user.primaryUnits[0].displayTitle}" actionListener="#{app.setCurrentPrimaryUnit(app.user.primaryUnits[0].documentIdName)}" rendered="#{app.user.primaryUnitsSize > 0}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
-                            <p:menuitem value="#{app.user.primaryUnits[1].displayTitle}" actionListener="#{app.setCurrentPrimaryUnit(app.user.primaryUnits[1].documentIdName)}" rendered="#{app.user.primaryUnitsSize > 1}" style="#{app.getMenuStyle('primaryUnits')}" update="menu,content" ajax="true" partialSubmit="true" process="@this" />
-                            <p:separator/> 
                             <p:menuitem value="#{bundle['main.menu.help']}" url="https://www.sphairas.de/faq" target="_blank" /> 
                             <p:menuitem value="#{bundle['main.menu.exit']}" actionListener="#{app.doLogout}" global="false" ajax="true" partialSubmit="true" process="@this"/>
                         </p:menu>
@@ -59,22 +41,6 @@
 
                     <p:dashboard id="dashboard" model="#{app.user.dashboard}"/>
                 </p:layoutUnit> 
-
-                <p:layoutUnit   id="center" position="center"> 
-                    <p:panel id="content" style="border: none; padding: 0; background: none">
-                        <ui:include  src="content/#{app.activePage}.xhtml"/>
-                    </p:panel>
-                </p:layoutUnit>
-
-                <p:layoutUnit id="south" position="south"> 
-                    <!--<p:lifecycle/>-->
-                </p:layoutUnit>
-
-            </p:layout>
-
-            <!--        transport="long-polling"    onClose="callLogout()"-->
-            <p:socket  onMessage="handleMessage" channel="/notify-grade-update/#{app.user.signee.id}" autoConnect="true" widgetVar="notifier" >
-            </p:socket>
 
             <script type="text/javascript">
                 function handleMessage(message) {
