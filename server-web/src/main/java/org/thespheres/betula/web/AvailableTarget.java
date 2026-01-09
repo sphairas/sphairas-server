@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.primefaces.component.datatable.DataTable;
@@ -84,6 +85,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     private String signeeTypeTitle;
     private DocumentId commentsDoc;
     private MenuModel menu;
+    private final Logger logger = Logger.getLogger(AvailableTarget.class.getName());
 
     AvailableTarget(final String displayName, final BetulaWebApplication app) {
         super(app, displayName);
@@ -147,7 +149,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             if (arr.length != 1) {
                 StringJoiner sj = new StringJoiner(", ");
                 Arrays.stream(arr).map(DocumentId::getId).forEach(sj::add);
-                application.getLogger().log(Level.INFO, "Editing target type must be one single document in AvailableTarget. Found: {0} ({1})", new Object[]{arr.length, sj.toString()});
+                logger.log(Level.INFO, "Editing target type must be one single document in AvailableTarget. Found: {0} ({1})", new Object[]{arr.length, sj.toString()});
 //                throw new IllegalStateException("Editing target type must be one single document in AvailableTarget. Found: " + arr.length + " (" + sj.toString() + ")");
             }
             target = arr;
@@ -159,7 +161,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         if (menu == null) {
             menu = new DefaultMenuModel();
             final DefaultSubMenu downloadMenu = DefaultSubMenu.builder()
-                    .label(BetulaWebApplication.getBundleValue("availableTarget.downloadOption.label"))
+                    .label(Util.getBundleValue("availableTarget.downloadOption.label"))
                     .icon("pi pi-download")
                     .expanded(true)
                     .build();
@@ -175,7 +177,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     private void addUrlToSubmenu(final DefaultSubMenu downloadMenu, String value, String icon, String url) {
         DefaultMenuItem item = DefaultMenuItem.builder()
-                .value(BetulaWebApplication.getBundleValue(value))
+                .value(Util.getBundleValue(value))
                 .icon(icon)
                 .url(url)
                 .target("_blank")
@@ -527,7 +529,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                     .filter(d -> sfx != null && sfx.equals(this.application.getDocumentsModel().getSuffix(d)))
                     .collect(CollectionUtil.singleton())
                     .orElse(DocumentId.NULL);
-            application.getLogger().log(Level.FINE, "AvailableTarget.hasComments Comment doc: {0}", commentsDoc.toString());
+            logger.log(Level.FINE, "AvailableTarget.hasComments Comment doc: {0}", commentsDoc.toString());
         }
         return !DocumentId.isNull(commentsDoc);
     }
@@ -587,7 +589,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                         .collect(CollectionUtil.singleton())
                         .map(FastTextTermTargetDocument.Entry::getText)
                         .orElse("");
-                application.getLogger().log(Level.FINE, "TargetStudent.getComment Found comment: {0}", comment);
+                logger.log(Level.FINE, "TargetStudent.getComment Found comment: {0}", comment);
             }
             return comment;
         }
@@ -599,7 +601,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 if (res) {
                     this.comment = cmnt;
                 } else {
-                    application.getLogger().log(Level.WARNING, "Could not submit text value \"{0}\" to document {1}.", new String[]{cmnt, commentsDoc.toString()});
+                    logger.log(Level.WARNING, "Could not submit text value \"{0}\" to document {1}.", new String[]{cmnt, commentsDoc.toString()});
                 }
             }
         }

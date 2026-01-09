@@ -8,8 +8,7 @@ package org.thespheres.betula.web;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Singleton;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.services.jms.MultiTargetAssessmentEvent;
 import org.thespheres.betula.services.jms.TicketEvent;
@@ -18,8 +17,9 @@ import org.thespheres.betula.services.jms.TicketEvent;
  *
  * @author boris.heithecker
  */
-@Singleton
-@LocalBean//TODO CDI sessionscped?? applicationscoped
+//@Singleton
+//@LocalBean//TODO CDI sessionscped?? applicationscoped
+@ApplicationScoped
 public class EventDispatch implements Serializable {
 
     private final WeakHashMap<AbstractData, Object> listenerMap = new WeakHashMap();

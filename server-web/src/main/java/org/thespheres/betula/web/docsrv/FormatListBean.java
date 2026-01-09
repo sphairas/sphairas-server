@@ -65,7 +65,7 @@ public class FormatListBean {
 
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentCardBean;
-    @EJB
+    @Inject
     private DocumentMapper documentMapper;
     @EJB
     private NdsFormatter fOPFormatter;

@@ -12,9 +12,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Startup;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.openide.filesystems.FileObject;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.assess.Grade;
@@ -30,9 +28,10 @@ import org.thespheres.betula.validation.impl.ZensurenschnittValidationConfigurat
  *
  * @author boris.heithecker
  */
-@Startup
-@Singleton
-@LocalBean
+//@Startup
+//@Singleton
+//@LocalBean
+@ApplicationScoped
 public class ZensurenschnittValidationBean {
 
     private ZensurenschnittValidationConfiguration config;

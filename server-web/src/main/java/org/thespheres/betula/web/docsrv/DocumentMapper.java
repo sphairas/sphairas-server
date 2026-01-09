@@ -15,10 +15,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import jakarta.ejb.EJB;
-import jakarta.ejb.Stateless;
-import jakarta.ejb.LocalBean;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import java.io.Serializable;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.document.DocumentId;
@@ -37,9 +37,10 @@ import org.thespheres.betula.services.LocalProperties;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@Stateless
-public class DocumentMapper {
+//@LocalBean
+//@Stateless
+@Dependent
+public class DocumentMapper implements Serializable {
 
     @EJB(beanName = "TargetDocumentsLocalBeanImpl")
     private TargetDocumentsLocalBean mtad;

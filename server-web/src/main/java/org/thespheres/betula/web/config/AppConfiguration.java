@@ -29,6 +29,7 @@ import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Named;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,6 +52,7 @@ import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.thespheres.betula.assess.AssessmentConvention;
 import org.thespheres.betula.assess.Grade;
+import org.thespheres.betula.document.model.Subject;
 import org.thespheres.betula.niedersachsen.NdsCommonConstants;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
@@ -392,5 +394,18 @@ public class AppConfiguration implements Serializable {
     public String[] getTargetTypes() {
         return getWebUIConfiguration().getCommitTargetTypes();
 //        return new String[]{"quartalsnoten", "zeugnisnoten", "arbeitsverhalten", "sozialverhalten"};
+    }
+
+    public Comparator<Subject> getSubjectComparator() {
+        return (s1, s2) -> getReportBuilderFactory().forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
+    }
+    
+    
+    public String getAppName() {
+        return "sphairas";
+    }
+
+    public String getCurrentYear() {
+        return "2025";
     }
 }

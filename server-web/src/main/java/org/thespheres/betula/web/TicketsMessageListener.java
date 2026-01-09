@@ -6,8 +6,8 @@
 package org.thespheres.betula.web;
 
 import jakarta.ejb.ActivationConfigProperty;
-import jakarta.ejb.EJB;
 import jakarta.ejb.MessageDriven;
+import jakarta.inject.Inject;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
@@ -23,7 +23,7 @@ import org.thespheres.betula.services.jms.TicketEvent;
 })
 public class TicketsMessageListener implements MessageListener {
 
-    @EJB
+    @Inject
     private EventDispatch multiTargetAssessmentEventService;
 
     public TicketsMessageListener() {

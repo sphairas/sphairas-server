@@ -36,7 +36,7 @@ public class BemerkungenBean {
 
     @EJB(beanName = "ReportsBeanImpl")
     private org.thespheres.betula.server.beans.ReportsBean zeugnisBean;
-    @EJB
+    @Inject
     private ZeugnisArguments zeugnisArguments;
     @Inject
     private TermReportNoteSetTemplate reportNoteTemplate;

@@ -7,8 +7,7 @@ package org.thespheres.betula.web.docsrv;
 
 import java.util.Date;
 import jakarta.ejb.EJB;
-import jakarta.ejb.Stateless;
-import jakarta.ejb.LocalBean;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.thespheres.betula.StudentId;
@@ -31,9 +30,10 @@ import org.thespheres.ical.util.VCardHolder;
  *
  * @author boris.heithecker
  */
-@LocalBean
-@EJB(name = "java:global/Betula_Web/ZeugnisArguments!org.thespheres.betula.web.docsrv.ZeugnisArguments", beanInterface = ZeugnisArguments.class)
-@Stateless
+//@LocalBean
+//@EJB(name = "java:global/Betula_Web/ZeugnisArguments!org.thespheres.betula.web.docsrv.ZeugnisArguments", beanInterface = ZeugnisArguments.class)
+//@Stateless
+@ApplicationScoped
 public class ZeugnisArguments {
 
 //    @EJB(lookup = "java:global/Betula_Persistence/ZeugnisBeanImpl!org.thespheres.betula.niedersachsen.admin.zgn.ZeugnisBean")

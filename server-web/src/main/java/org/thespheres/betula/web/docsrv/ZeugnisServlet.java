@@ -74,7 +74,7 @@ public class ZeugnisServlet extends HttpServlet {
 //    private FastTargetDocuments targets;
 //    @Inject
 //    private FastTargetDocuments2 targets2;
-    @EJB
+    @Inject
     DocumentMapper documentMapper;
     @Current
     @Inject

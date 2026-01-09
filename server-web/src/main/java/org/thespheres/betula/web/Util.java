@@ -8,8 +8,10 @@ package org.thespheres.betula.web;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.ResourceBundle;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.document.Marker;
@@ -74,4 +76,11 @@ public class Util {
         }
         return null;
     }
+
+    static String getBundleValue(final String key) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        ResourceBundle bundle = context.getApplication().getResourceBundle(context, "bundle");
+        return bundle.getString(key);
+    }
+
 }

@@ -5,7 +5,7 @@
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>#{app.appName}</title>
+        <title>#{config.appName}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <meta name="context-path" content="#{request.contextPath}/"/>
         <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
@@ -32,9 +32,9 @@
             <div class="app-topbar">
                 <div class="app-logo">
                     <p:graphicImage value="#{config.image}" 
-                                    alt="#{app.appName}"
+                                    alt="#{config.appName}"
                                     styleClass="app-logo-image"/>
-                    <span>#{app.appName}</span>
+                    <span>#{config.appName}</span>
                 </div>
 
                 <div class="app-user-section">
@@ -151,7 +151,7 @@
                     <h:link value="About" target="_blank" outcome="about" />
                 </div>
                 <div class="footer-copyright">
-                    © #{app.currentYear} #{app.appName}. All rights reserved.
+                    © #{config.currentYear} #{config.appName}. All rights reserved.
                 </div>
             </div>
         </div>

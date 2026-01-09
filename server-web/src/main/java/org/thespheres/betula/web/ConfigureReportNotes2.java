@@ -54,7 +54,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
     private static final long serialVersionUID = 1L;
     @EJB(beanName = "ReportsBeanImpl")
     private ReportsBean zeugnisBean;
-    @EJB
+    @Inject
     private ZeugnisArguments zeugnisArguments;
 //    @ManagedProperty("#{app}")
 //    @Inject

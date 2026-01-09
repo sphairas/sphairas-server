@@ -9,9 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Set;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Startup;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.openide.filesystems.FileObject;
 import org.thespheres.betula.server.beans.config.LayerConfigUtilities;
 import org.thespheres.betula.validation.impl.CareerAwareGradeCondition;
@@ -23,9 +21,10 @@ import org.thespheres.betula.validation.impl.PolicyLegalHint;
  *
  * @author boris.heithecker
  */
-@Startup
-@Singleton
-@LocalBean
+//@Startup
+//@Singleton
+//@LocalBean
+@ApplicationScoped
 public class VersetzungsValidationBean {
 
     private VersetzungsValidationConfiguration config;

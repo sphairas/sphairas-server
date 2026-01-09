@@ -6,10 +6,8 @@
 package org.thespheres.betula.web.docsrv;
 
 import java.util.Set;
-import jakarta.ejb.EJB;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.Startup;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.model.MultiSubject;
@@ -22,12 +20,13 @@ import org.thespheres.betula.validation.impl.ZensurensprungValidation;
  *
  * @author boris.heithecker@gmx.net
  */
-@Startup
-@Singleton
-@LocalBean
+//@Startup
+//@Singleton
+//@LocalBean
+@ApplicationScoped
 public class ZensurensprungValidationBean {
 
-    @EJB
+    @Inject
     DocumentMapper documentMapper;
 
     public Set<OneZensurensprungResult> validate(final UnitsModel<VCardStudent, FastTermTargetDocument> oum, TermId term) {

@@ -8,7 +8,6 @@ package org.thespheres.betula.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.ResourceBundle;
 import org.primefaces.PrimeFaces;
 //import org.primefaces.PrimeFaces;
 //import org.primefaces.context.RequestContext;
@@ -45,7 +43,6 @@ import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.model.DocumentsModel;
-import org.thespheres.betula.document.model.Subject;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
@@ -62,7 +59,6 @@ import org.thespheres.betula.services.ws.CommonDocuments;
 import org.thespheres.betula.web.config.Extra;
 import org.thespheres.betula.web.docsrv.DocumentMapper;
 import org.thespheres.ical.VCard;
-import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.web.config.AppConfiguration;
 
@@ -93,9 +89,9 @@ public class BetulaWebApplication implements Serializable {
     private StudentsLocalBean studentVCardsImpl;
     @EJB(beanName = "StudentsListsLocalBeanImpl")
     private StudentsListsLocalBean studentsLists;
-    @EJB
+    @Inject
     private DocumentMapper documentMapper;
-    @EJB
+    @Inject
     private EventDispatch eventDispatch;
     @Default
     @Inject
@@ -125,11 +121,11 @@ public class BetulaWebApplication implements Serializable {
     private LocalProperties properties;
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
     private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
-    private final Logger log = Logger.getLogger(BetulaWebApplication.class.getPackage().getName());
+//    private final Logger log = Logger.getLogger(BetulaWebApplication.class.getPackage().getName());
 //    private Optional<AssessmentConvention> crossMarksAssessmentConvention;    
 //    private Optional<String[]> crossMarksSubjectConvention;
-    @Inject
-    private NdsReportBuilderFactory reportBuilderFactory;
+//    @Inject
+//    private NdsReportBuilderFactory reportBuilderFactory;
 
     public AppConfiguration getAppConfiguration() {
         return config;
@@ -187,14 +183,6 @@ public class BetulaWebApplication implements Serializable {
         return Optional.empty();
     }
 
-    public String getAppName() {
-        return "sphairas";
-    }
-
-    public String getCurrentYear() {
-        return "2025";
-    }
-
 //    public String getCurrentPrimaryUnit() {
 //        return currentPrimaryUnit;
 //    }
@@ -202,13 +190,13 @@ public class BetulaWebApplication implements Serializable {
 //    public void setCurrentPrimaryUnit(final String currentPrimaryUnit) {
 //        this.currentPrimaryUnit = currentPrimaryUnit;
 //    }
-    public String getMenuStyle(String menu) {
-        if (menu.equals(getActivePage())) {
-            return "font-weight: bold;";
-        } else {
-            return "";
-        }
-    }
+//    public String getMenuStyle(String menu) {
+//        if (menu.equals(getActivePage())) {
+//            return "font-weight: bold;";
+//        } else {
+//            return "";
+//        }
+//    }
 
     public NamingResolver getNamingResolver() {
 //        if (namingResolver == null) {
@@ -217,9 +205,9 @@ public class BetulaWebApplication implements Serializable {
         return namingResolver;
     }
 
-    public NdsReportBuilderFactory getReportBuilderFactory() {
-        return reportBuilderFactory;
-    }
+//    public NdsReportBuilderFactory getReportBuilderFactory() {
+//        return reportBuilderFactory;
+//    }
 
 //    public ZeugnisConfiguratorService getZeugnisConfiguratorService() {
     ////        if (zgnConfig == null) {
@@ -227,9 +215,6 @@ public class BetulaWebApplication implements Serializable {
 ////        }
 //        return zgnConfig;
 //    }
-    public Comparator<Subject> getSubjectComparator() {
-        return (s1, s2) -> reportBuilderFactory.forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
-    }
 
     public CommonDocuments getCommonDocuments() {
         return commonDocuments;
@@ -340,13 +325,13 @@ public class BetulaWebApplication implements Serializable {
         return (!select.isUnsatisfied() && !select.isAmbiguous()) ? select.get() : null;
     }
 
-    public Logger getLogger() {
-        return log;
-    }
+//    public Logger getLogger() {
+//        return log;
+//    }
 
-    public void processTimeout(jakarta.faces.event.AjaxBehaviorEvent evt) {
-        logout(null);
-    }
+//    public void processTimeout(jakarta.faces.event.AjaxBehaviorEvent evt) {
+//        logout(null);
+//    }
 //    public String logout() {
 //        FacesContext.getCurrentInstance()
 //            .getExternalContext()
@@ -379,9 +364,4 @@ public class BetulaWebApplication implements Serializable {
         }
     }
 
-    static String getBundleValue(final String key) {
-        FacesContext context = FacesContext.getCurrentInstance();
-        ResourceBundle bundle = context.getApplication().getResourceBundle(context, "bundle");
-        return bundle.getString(key);
-    }
 }

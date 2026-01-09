@@ -89,11 +89,11 @@ public class NdsFormatReportsBean {
     private org.thespheres.betula.server.beans.ReportsBean zeugnisBean;
     @EJB
     private StudentsListsLocalBean sllb;
-    @EJB
+    @Inject
     private DocumentMapper documentMapper;
     @Inject
     private CommonTargetProperties targetProps;
-    @EJB
+    @Inject
     private ZeugnisArguments zeugnisArguments;
     @Default
     @Inject

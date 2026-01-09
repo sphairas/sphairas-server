@@ -291,7 +291,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         if (menu == null) {
             menu = new DefaultMenuModel();
             final DefaultSubMenu downloadMenu = DefaultSubMenu.builder()
-                    .label(BetulaWebApplication.getBundleValue("primaryUnits.menu.download"))
+                    .label(Util.getBundleValue("primaryUnits.menu.download"))
                     .icon("pi pi-download")
                     .expanded(true)
                     .build();
@@ -311,7 +311,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
     private void addUrlToSubmenu(final DefaultSubMenu downloadMenu, String value, String icon, String url) {
         DefaultMenuItem item = DefaultMenuItem.builder()
-                .value(BetulaWebApplication.getBundleValue(value))
+                .value(Util.getBundleValue(value))
                 .icon(icon)
                 .url(url)
                 .target("_blank")
@@ -346,7 +346,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
     }
 
     public List<String> getDetailsTemplates() {
-        List<String> ret = application.getReportBuilderFactory().getSchulvorlage().getListDefinitions().stream()
+        List<String> ret = application.getAppConfiguration().getReportBuilderFactory().getSchulvorlage().getListDefinitions().stream()
                 .map(ListDefinition::getName)
                 .collect(Collectors.toList());
         return ret;
@@ -393,7 +393,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
     public List<MultiSubject> getSubjects() {
         if (subjects == null) {
             subjects = new ArrayList<>();
-            final Comparator<Subject> cmp = application.getSubjectComparator();
+            final Comparator<Subject> cmp = application.getAppConfiguration().getSubjectComparator();
             final Comparator<MultiSubject> arrCmp = Comparator.comparing(ms -> ms.getSubjectMarkerSet().stream().map(m -> new Subject(m, ms.getRealmMarker())).min(cmp).get(), cmp);
             subjects = getDocMap().values().stream()
                     .map(Map::keySet)
@@ -686,7 +686,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
         public boolean isAvReasonEnabled() {
             final Grade grade = getArbeitsverhalten().getGrade();
-            final NdsReportBuilderFactory fac = PrimaryUnit.this.application.getReportBuilderFactory();
+            final NdsReportBuilderFactory fac = PrimaryUnit.this.application.getAppConfiguration().getReportBuilderFactory();
             final AssessmentConvention cnv = fac.getAvConvention();
             return isAVSVReasonEnabled(fac, grade, cnv);
         }
@@ -724,7 +724,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
         public boolean isSvReasonEnabled() {
             final Grade grade = getSozialverhalten().getGrade();
-            final NdsReportBuilderFactory fac = PrimaryUnit.this.application.getReportBuilderFactory();
+            final NdsReportBuilderFactory fac = PrimaryUnit.this.application.getAppConfiguration().getReportBuilderFactory();
             final AssessmentConvention cnv = fac.getSvConvention();
             return isAVSVReasonEnabled(fac, grade, cnv);
         }

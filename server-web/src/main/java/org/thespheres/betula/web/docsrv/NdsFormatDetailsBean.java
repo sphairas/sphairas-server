@@ -79,15 +79,15 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
 @LocalBean
 public class NdsFormatDetailsBean {
 
-    @EJB
+    @Inject
     private ZensurensprungValidationBean zensurensprung;
-    @EJB
+    @Inject
     private VersetzungsValidationBean versetzung;
-    @EJB
+    @Inject
     private ZensurenschnittValidationBean schnitt;
     @EJB(beanName = "ReportsBeanImpl")
     private ReportsBean zeugnisBean;
-    @EJB
+    @Inject
     private DocumentMapper documentMapper;
     @Default
     @Inject
