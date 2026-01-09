@@ -43,7 +43,6 @@ public class ApplicationUser implements Serializable {
     private PrimaryUnit[] primaryUnits;
     private final BetulaWebApplication application;
     private final Signee signee;
-    private boolean isInitMessages;
 
     ApplicationUser(BetulaWebApplication app, Signee sig) {
         this.application = app;
@@ -78,7 +77,6 @@ public class ApplicationUser implements Serializable {
 //    }
 
     void invalidateMessages() {
-        isInitMessages = false;
     }
 
     //schedule, terms, primaryUnits
@@ -152,7 +150,7 @@ public class ApplicationUser implements Serializable {
             final DocumentId single = docs.iterator().next();
             final Optional<Marker> ret = Optional.ofNullable(application.getDocumentMapper().getSubject(single))
                     .map(MultiSubject::getSingleSubject);
-            final List<String> cmsc = application.getCrossMarkSubjectConventions();
+            final List<String> cmsc = application.getAppConfiguration().getCrossMarkSubjectConventions();
             if (ret.map(Marker::getConvention)
                     .map(cmsc::contains)
                     .orElse(false)) {
@@ -170,7 +168,7 @@ public class ApplicationUser implements Serializable {
         if (primaryUnits == null) {
             final ArrayList<String> l = new ArrayList<>();
             l.add(CommonDocuments.PRIMARY_UNIT_HEAD_TEACHERS_DOCID);
-            final String names = application.getWebUIConfiguration().getProperty("head-teacher-additional-document-names");
+            final String names = application.getAppConfiguration().getWebUIConfiguration().getProperty("head-teacher-additional-document-names");
             if (names != null) {
                 Arrays.stream(names.split(","))
                         .forEach(l::add);

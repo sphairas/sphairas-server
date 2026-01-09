@@ -181,3 +181,30 @@ body {
 .ui-editable-column:hover {
     background-color: var(--primary-50) !important;
 }
+
+/*Logo*/
+.app-logo-image {
+    height: 40px;
+    width: auto;
+    margin-right: 12px;
+    vertical-align: middle;
+}
+
+/* For high-DPI screens */
+@media (-webkit-mi-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .app-logo-image {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .app-logo-image {
+        height: 32px;
+    }
+    
+    .app-logo span {
+        display: none; /* Hide app name on mobile if needed */
+    }
+}

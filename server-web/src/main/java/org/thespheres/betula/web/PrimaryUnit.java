@@ -256,14 +256,14 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
     public String[] getEditingDocTypes() {
         if (editingDocTypes == null) {
-            editingDocTypes = application.getWebUIConfiguration().getPrimaryUnitListedTargetTypes();
+            editingDocTypes = application.getAppConfiguration().getWebUIConfiguration().getPrimaryUnitListedTargetTypes();
         }
         return editingDocTypes;
     }
 
     public String getEditingDocType() {
         if (editingDocType == null) {
-            editingDocType = application.getWebUIConfiguration().getDefaultCommitTargetType();
+            editingDocType = application.getAppConfiguration().getWebUIConfiguration().getDefaultCommitTargetType();
         }
         return editingDocType;
     }
@@ -692,7 +692,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         private boolean isAVSVReasonEnabled(final NdsReportBuilderFactory fac, final Grade grade, final AssessmentConvention cnv) {
-            final String p = application.getWebUIConfiguration().getProperty("avsv.reason.disabled");
+            final String p = application.getAppConfiguration().getWebUIConfiguration().getProperty("avsv.reason.disabled");
             if ("true".equals(p)) {
                 return false;
             } else if ("false".equals(p)) {
@@ -730,7 +730,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         public boolean isNotesEnabled() {
-            final String p = application.getWebUIConfiguration().getProperty("report.notes.dialog.enabled");
+            final String p = application.getAppConfiguration().getWebUIConfiguration().getProperty("report.notes.dialog.enabled");
             final boolean enabled = Boolean.parseBoolean(p);
             return enabled;
         }

@@ -114,7 +114,7 @@ public class GradeValue extends AbstractGradeWrapper {
                 return v;
             }
         }
-        return application.getExtraGrades().stream()
+        return application.getAppConfiguration().getExtraGrades().stream()
                 .filter(g -> g.getId().equals(gradeId))
                 .collect(CollectionUtil.singleOrNull());
     }
@@ -160,7 +160,7 @@ public class GradeValue extends AbstractGradeWrapper {
         return Arrays.stream(getConventions())
                 .map(AssessmentConvention::getName)
                 .anyMatch(g.getConvention()::equals)
-                || application.getExtraGrades().contains(g);
+                || application.getAppConfiguration().getExtraGrades().contains(g);
     }
 
     @Override

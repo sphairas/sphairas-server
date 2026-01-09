@@ -62,7 +62,7 @@
                                 <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%" width="10%"/>  
                                 <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%" />  
                                 <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%" />     
-                                <p:columns value="#{app.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%" />  
+                                <p:columns value="#{config.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%" />  
                             </p:row>  
                         </p:columnGroup> 
 
@@ -77,7 +77,7 @@
                             #{target.getGradeValueAt(student, term).shortLabel} 
                         </p:columns>  
 
-                        <p:columns value="#{app.targetTypes}" 
+                        <p:columns value="#{config.targetTypes}" 
                                    var="targetType" 
                                    columnIndexVar="ci"
                                    styleClass="ui-editable-column" 
@@ -194,7 +194,7 @@
                                                              style="width: 100%;">  
                                                 <f:selectItem itemLabel="#{bundle['zeugnisnoten.noSelectionLabel']}" 
                                                               noSelectionOption="true" />
-                                                <f:selectItems value="#{app.crossMarkGrades}" 
+                                                <f:selectItems value="#{config.crossMarkGrades}" 
                                                                var="grade" 
                                                                itemLabel="#{target.resolveCrossMarkGradeLabel(grade)}" 
                                                                itemValue="#{grade.id}" />  

@@ -7,22 +7,14 @@ package org.thespheres.betula.web;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
@@ -40,19 +32,15 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.io.InputStream;
 import java.util.ResourceBundle;
 import org.primefaces.PrimeFaces;
 //import org.primefaces.PrimeFaces;
 //import org.primefaces.context.RequestContext;
-import org.primefaces.model.DefaultStreamedContent;
-import org.primefaces.model.StreamedContent;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
-import org.thespheres.betula.services.web.WebUIConfiguration;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
@@ -69,17 +57,14 @@ import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.server.beans.annot.DocumentsSession;
 import org.thespheres.betula.server.beans.annot.Preceding;
 import org.thespheres.betula.services.LocalProperties;
-import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.ws.CommonDocuments;
 import org.thespheres.betula.web.config.Extra;
 import org.thespheres.betula.web.docsrv.DocumentMapper;
 import org.thespheres.ical.VCard;
-import org.thespheres.betula.assess.AssessmentConvention;
-import org.thespheres.betula.assess.GradeFactory;
-import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
+import org.thespheres.betula.web.config.AppConfiguration;
 
 /**
  *
@@ -126,27 +111,29 @@ public class BetulaWebApplication implements Serializable {
     private String activePage = "";
 //    private String currentPrimaryUnit;
     private ApplicationUser currentUser;
-    @Inject
-    private WebUIConfiguration webConfig;
+//    @Inject
+//    private WebUIConfiguration webConfig;
 //    @Inject
 //    private ZeugnisConfiguratorService zgnConfig;
 //    @Inject
 //    private Comparator<Subject> subjectComparator;
+    @Inject
+    private AppConfiguration config;
     @Inject
     private CommonDocuments commonDocuments;
     @Inject
     private LocalProperties properties;
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
     private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
-    private DefaultStreamedContent image;
     private final Logger log = Logger.getLogger(BetulaWebApplication.class.getPackage().getName());
-    @Inject
-    private CrossmarkSettings crossmarks;
-    private List<Grade> crossMarkGrade;
 //    private Optional<AssessmentConvention> crossMarksAssessmentConvention;    
 //    private Optional<String[]> crossMarksSubjectConvention;
     @Inject
     private NdsReportBuilderFactory reportBuilderFactory;
+
+    public AppConfiguration getAppConfiguration() {
+        return config;
+    }
 
     public ApplicationUser getUser() {
         if (currentUser == null) {
@@ -172,26 +159,6 @@ public class BetulaWebApplication implements Serializable {
             currentUser.logout();
             Logger.getLogger(BetulaWebApplication.class.getName()).log(Level.INFO, "LOGGED OUT {0} {1}", new Object[]{currentUser.getSignee().getId(), new Date().toLocaleString()});
         }
-    }
-
-    public StreamedContent getImage() {
-        if (image == null) {
-            final String lr = getWebUIConfiguration().getLogoResource();
-            try {
-                if (lr != null) {
-                    final Path rp = ServiceConstants.configBase().resolve(lr);
-                    InputStream is = Files.newInputStream(rp);
-                    image = DefaultStreamedContent.builder()
-                            .stream(() -> is)
-                            .contentType("image/jpeg")
-                            .build();
-                } else {
-
-                }
-            } catch (IOException ex) {
-            }
-        }
-        return image;
     }
 
     public String getUsername() {
@@ -250,13 +217,6 @@ public class BetulaWebApplication implements Serializable {
         return namingResolver;
     }
 
-    public WebUIConfiguration getWebUIConfiguration() {
-//        if (webConfig == null) {
-//            return webConfig = SystemProperties.findWebUIConfiguration();
-//        }
-        return webConfig;
-    }
-
     public NdsReportBuilderFactory getReportBuilderFactory() {
         return reportBuilderFactory;
     }
@@ -277,55 +237,6 @@ public class BetulaWebApplication implements Serializable {
 
     public LocalProperties getProperties() {
         return properties;
-    }
-
-    public List<Grade> getExtraGrades() {
-        final String extra = webConfig.getProperty("extra.grades.permitted");
-        return Optional.ofNullable(extra)
-                .map(p -> p.split(","))
-                .map(Arrays::stream)
-                .orElse(Stream.empty())
-                .map(BetulaWebApplication::find)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    static Grade find(final String representation) {
-        if (representation != null && !representation.isEmpty()) {
-            final int i = representation.indexOf('#');
-            if (i != -1) {
-                final String cnv = representation.substring(0, i);
-                final String id = representation.substring(i + 1);
-                return GradeFactory.find(cnv, id);
-            }
-        }
-        return null;
-    }
-
-    public List<String> getCrossMarkSubjectConventions() {
-        return Arrays.asList(crossmarks.conventions());
-    }
-
-    public AssessmentConvention getCrossMarkAssessmentConvention() {
-        return crossmarks.getAssessmentConvention();
-    }
-
-    public List<Grade> getCrossMarkGrades() {
-        if (crossMarkGrade == null) {
-            final List<Grade> l = new CopyOnWriteArrayList<>();
-            final AssessmentConvention ac = getCrossMarkAssessmentConvention();
-            if (ac != null) {
-                l.addAll(Arrays.asList(ac.getAllGradesReverseOrder()));
-            }
-            l.addAll(getExtraGrades());
-            crossMarkGrade = l;
-        }
-        return crossMarkGrade;
-    }
-
-    public String[] getTargetTypes() {
-        return webConfig.getCommitTargetTypes();
-//        return new String[]{"quartalsnoten", "zeugnisnoten", "arbeitsverhalten", "sozialverhalten"};
     }
 
     public void showMessage(String summary, String detail) {

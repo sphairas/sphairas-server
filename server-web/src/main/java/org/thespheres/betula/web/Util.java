@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import org.thespheres.betula.assess.Grade;
+import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.document.model.Subject;
@@ -61,4 +63,15 @@ public class Util {
         return (s1, s2) -> reportBuilderFactory.forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
     }
 
+    public static Grade find(final String representation) {
+        if (representation != null && !representation.isEmpty()) {
+            final int i = representation.indexOf('#');
+            if (i != -1) {
+                final String cnv = representation.substring(0, i);
+                final String id = representation.substring(i + 1);
+                return GradeFactory.find(cnv, id);
+            }
+        }
+        return null;
+    }
 }

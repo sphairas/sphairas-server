@@ -19,7 +19,7 @@ public class InternalServicesReadyCheck implements HealthCheck {
     public static final String NAME = "ping-service-internal-endpoint-from-web";
 
     @Inject
-    private ConfigImpl config;
+    private AppConfiguration config;
 
     @Override
     public HealthCheckResponse call() {

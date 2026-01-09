@@ -31,7 +31,9 @@
             <!-- Top Bar -->
             <div class="app-topbar">
                 <div class="app-logo">
-                    <i class="pi pi-box"></i>
+                    <p:graphicImage value="#{config.image}" 
+                                    alt="#{app.appName}"
+                                    styleClass="app-logo-image"/>
                     <span>#{app.appName}</span>
                 </div>
 
@@ -106,7 +108,7 @@
                         <ui:fragment rendered="#{app.activePage == 'terms'}">
                             <ui:include src="views/terms.xhtml"/>
                         </ui:fragment>
-                        
+
                         <ui:repeat value="#{app.user.primaryUnits}" var="primaryUnit" varStatus="status">
                             <ui:fragment rendered="#{app.activePage == 'primaryUnit_'.concat(status.index)}">
                                 <ui:include src="views/primaryUnit.xhtml"/>

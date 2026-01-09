@@ -108,7 +108,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     protected String getSigneeTypeTitle() {
         if (signeeTypeTitle == null) {
-            final String defaultTargetType = application.getWebUIConfiguration().getDefaultCommitTargetType();
+            final String defaultTargetType = application.getAppConfiguration().getWebUIConfiguration().getDefaultCommitTargetType();
             final String[] st = Stream.concat(docs.stream(), crossMarkSubjects.stream().map(CrossMarkSubject::getDocument))
                     .filter(d -> application.getDocumentsModel().getSuffix(d) != null)//May be null if custom suffix not listed in model
                     .filter(d -> application.getDocumentsModel().getSuffix(d).equals(defaultTargetType))
@@ -142,7 +142,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     public DocumentId getTargetDocument() {
         if (target == null) {
             final DocumentId[] arr = docs.stream()
-                    .filter(d -> d.getId().endsWith(application.getWebUIConfiguration().getDefaultCommitTargetType()))
+                    .filter(d -> d.getId().endsWith(application.getAppConfiguration().getWebUIConfiguration().getDefaultCommitTargetType()))
                     .toArray(DocumentId[]::new);
             if (arr.length != 1) {
                 StringJoiner sj = new StringJoiner(", ");
@@ -329,7 +329,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 if (fd != null) {
                     fd.getTerms().stream()
                             .filter(t -> addToRenderedTerms(t, d))
-                            .forEach(t -> gradeColumns.add(new AvailableTermColumn(d, t, null, false, application.getWebUIConfiguration().getDefaultCommitTargetType())));
+                            .forEach(t -> gradeColumns.add(new AvailableTermColumn(d, t, null, false, application.getAppConfiguration().getWebUIConfiguration().getDefaultCommitTargetType())));
                 }
             });
             Collections.sort(gradeColumns);
@@ -345,7 +345,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     public synchronized Map<String, AvailableTermColumn> getEditableTermColumns() {
         if (editableGradeColumns == null) {
-            application.getWebUIConfiguration().getCommitTargetTypes();
+            application.getAppConfiguration().getWebUIConfiguration().getCommitTargetTypes();
             editableGradeColumns = new HashMap<>();
             for (DocumentId d : docs) {
                 final FastTermTargetDocument fd = application.getFastDocument(d);
@@ -366,7 +366,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     boolean addToRenderedTerms(final TermId t, final DocumentId d) {
         return !t.equals(getEditTerm().getScheduledItemId())
-                && d.getId().endsWith(application.getWebUIConfiguration().getDefaultCommitTargetType())
+                && d.getId().endsWith(application.getAppConfiguration().getWebUIConfiguration().getDefaultCommitTargetType())
                 && getEditTerm().getScheduledItemId().getId() - t.getId() > 0; //only preceding terms
     }
 
@@ -413,7 +413,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 .computeIfAbsent(sid, s -> new HashMap<>())
                 .computeIfAbsent(cms, v -> {
                     final Entry initial = application.getFastDocument(v.getDocument()).selectEntry(stud.getId(), term.getScheduledItemId());
-                    return new GradeValue(application, v.getDocument(), term.getScheduledItemId(), stud.getId(), new AssessmentConvention[]{application.getCrossMarkAssessmentConvention()}, initial, null, mayEdit, application.getWebUIConfiguration().getDefaultCommitTargetType(), null);
+                    return new GradeValue(application, v.getDocument(), term.getScheduledItemId(), stud.getId(), new AssessmentConvention[]{application.getAppConfiguration().getCrossMarkAssessmentConvention()}, initial, null, mayEdit, application.getAppConfiguration().getWebUIConfiguration().getDefaultCommitTargetType(), null);
                 });
         return ret;
     }
@@ -522,7 +522,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
 
     public boolean hasComments() {
         if (this.commentsDoc == null) {
-            final String sfx = this.application.getWebUIConfiguration().getProperty("targets.comments.suffix");
+            final String sfx = this.application.getAppConfiguration().getWebUIConfiguration().getProperty("targets.comments.suffix");
             this.commentsDoc = this.docs.stream()
                     .filter(d -> sfx != null && sfx.equals(this.application.getDocumentsModel().getSuffix(d)))
                     .collect(CollectionUtil.singleton())
@@ -686,7 +686,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 final List<Grade> l = Arrays.stream(getPreferredConventions())
                         .flatMap(c -> Arrays.stream(c.getAllGradesReverseOrder()))
                         .collect(Collectors.toList());
-                application.getExtraGrades().forEach(l::add);
+                application.getAppConfiguration().getExtraGrades().forEach(l::add);
                 grades = l;
             }
             return grades;

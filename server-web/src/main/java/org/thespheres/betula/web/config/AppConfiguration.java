@@ -26,7 +26,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.Typed;
+import jakarta.inject.Named;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Stream;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.InvalidNameException;
@@ -40,6 +47,10 @@ import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openide.util.Lookup;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
+import org.thespheres.betula.assess.AssessmentConvention;
+import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.niedersachsen.NdsCommonConstants;
 import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
@@ -47,16 +58,20 @@ import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate;
 import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
+import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.web.WebUIConfiguration;
 import org.thespheres.betula.services.web.XmlWebUIConfiguration;
 import org.thespheres.betula.util.CollectionUtil;
+import org.thespheres.betula.web.BetulaWebApplication;
+import org.thespheres.betula.web.Util;
 
 /**
  *
  * @author boris.heithecker
  */
+@Named("config")
 @ApplicationScoped
-public class ConfigImpl implements Serializable {
+public class AppConfiguration implements Serializable {
 
     private static final String SERVER_CRT_FILE = "server.crt";
     private javax.xml.bind.JAXBContext notesTemplateJAXB;
@@ -65,11 +80,15 @@ public class ConfigImpl implements Serializable {
     private javax.xml.bind.JAXBContext crossmarkSettingsJAXB;
 //    private Date noteSetFileLastModified;
     private TermReportNoteSetTemplate noteSetTemplate;
+    private XmlWebUIConfiguration webUIConfig;
 
 //  Siehe Anmerkung bei ServiceInternalClient.java  
 //    @Inject
 //    @RestClient
     private ServiceInternalClient client;
+    private CrossmarkSettings crossmarks;
+    private List<Grade> crossMarkGrade;
+    private NdsReportBuilderFactory reportBuilderFactory;
 
     @PostConstruct
     public void initialize() {
@@ -104,7 +123,14 @@ public class ConfigImpl implements Serializable {
     }
 
     @Produces
-    public XmlWebUIConfiguration findWebUIConfiguration() {
+    public XmlWebUIConfiguration getWebUIConfiguration() {
+        if (webUIConfig == null) {
+            webUIConfig = findWebUIConfiguration();
+        }
+        return webUIConfig;
+    }
+
+    private XmlWebUIConfiguration findWebUIConfiguration() {
         final String bp = null; //getProvider();
         if (bp != null) {
             final WebUIConfiguration swc = Lookup.getDefault().lookupAll(WebUIConfiguration.class).stream()
@@ -122,7 +148,7 @@ public class ConfigImpl implements Serializable {
         try {
             res = (Resource) dc.lookup(file);
         } catch (NamingException ex) {
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
             throw new MissingConfigurationResourceException(file);
         }
         try (final InputStream is = res.streamContent()) {
@@ -142,7 +168,7 @@ public class ConfigImpl implements Serializable {
             certs = cf.generateCertificates(is).stream()
                     .toArray(Certificate[]::new);
         } catch (IOException | CertificateException ex) {
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
             final ConfigurationException th = new ConfigurationException(SERVER_CRT_FILE, "certificate");
             th.initCause(ex);
             throw th;
@@ -160,7 +186,14 @@ public class ConfigImpl implements Serializable {
 //    }
     @Typed(NdsReportBuilderFactory.class)
     @Produces
-    public NdsReportBuilderFactory findZeugnisConfiguratorService() {
+    public NdsReportBuilderFactory getReportBuilderFactory() {
+        if (reportBuilderFactory == null) {
+            reportBuilderFactory = findZeugnisConfiguratorService();
+        }
+        return reportBuilderFactory;
+    }
+
+    private NdsReportBuilderFactory findZeugnisConfiguratorService() {
         final DirContext dc = lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
         final NdsZeugnisSchulvorlage vorlage;
@@ -169,7 +202,7 @@ public class ConfigImpl implements Serializable {
             try {
                 res = (Resource) dc.lookup(file);
             } catch (NamingException ex) {
-                Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+                Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
                 throw new MissingConfigurationResourceException(file);
             }
             try (final InputStream is = res.streamContent()) {
@@ -222,7 +255,7 @@ public class ConfigImpl implements Serializable {
             dc.lookup(file);
         } catch (NamingException nex) {
             final String msg = "No file " + file + " found!";
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, msg);
+            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, msg);
             return new TermReportNoteSetTemplate("null");
         }
         Date lm = null;
@@ -232,7 +265,7 @@ public class ConfigImpl implements Serializable {
                 lm = attr.getCreationOrLastModifiedDate();
             }
         } catch (NamingException | ClassCastException ex) {
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
             throw ex;
         }
 //        if (noteSetFileLastModified != null && noteSetTemplate != null && lm != null && !lm.after(noteSetFileLastModified)) {
@@ -242,7 +275,7 @@ public class ConfigImpl implements Serializable {
         try {
             res = (Resource) dc.lookup(file);
         } catch (NamingException ex) {
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
+            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
             throw new MissingConfigurationResourceException(file);
         }
         try (final InputStream is = res.streamContent()) {
@@ -258,7 +291,14 @@ public class ConfigImpl implements Serializable {
 
     @Dependent
     @Produces
-    public CrossmarkSettings createCrossmarkSettings() {
+    public CrossmarkSettings getCrossmarkSettings() {
+        if (crossmarks == null) {
+            crossmarks = createCrossmarkSettings();
+        }
+        return crossmarks;
+    }
+
+    private CrossmarkSettings createCrossmarkSettings() {
         final DirContext dc = lookupAppResourcesContext();
         final String file = NdsCommonConstants.ANKREUZZEUGNISSE_FILE;
         final Resource res;
@@ -295,8 +335,62 @@ public class ConfigImpl implements Serializable {
                 }
             }
         } catch (NamingException ex) {
-            Logger.getLogger(ConfigImpl.class.getPackage().getName()).log(Level.WARNING, "An exception occured listing resources in " + dc.toString(), ex); //Vor Jakarta dc.getContextName()
+            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, "An exception occured listing resources in " + dc.toString(), ex); //Vor Jakarta dc.getContextName()
         }
         return false;
+    }
+
+    public StreamedContent getImage() {
+        final String image = getWebUIConfiguration().getLogoResource();
+        if (image != null) {
+            try {
+                final Path rp = ServiceConstants.configBase().resolve(image);
+                final InputStream is = Files.newInputStream(rp);
+                return DefaultStreamedContent.builder()
+                        .stream(() -> is)
+                        .contentType("image/png")
+                        .build();
+            } catch (IOException ex) {
+                Logger.getLogger(BetulaWebApplication.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
+            }
+        }
+        return null;
+    }
+
+    public List<Grade> getExtraGrades() {
+        final String extra = getWebUIConfiguration().getProperty("extra.grades.permitted");
+        return Optional.ofNullable(extra)
+                .map(p -> p.split(","))
+                .map(Arrays::stream)
+                .orElse(Stream.empty())
+                .map(Util::find)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    public List<Grade> getCrossMarkGrades() {
+        if (crossMarkGrade == null) {
+            final List<Grade> l = new CopyOnWriteArrayList<>();
+            final AssessmentConvention ac = getCrossMarkAssessmentConvention();
+            if (ac != null) {
+                l.addAll(Arrays.asList(ac.getAllGradesReverseOrder()));
+            }
+            l.addAll(getExtraGrades());
+            crossMarkGrade = l;
+        }
+        return crossMarkGrade;
+    }
+
+    public List<String> getCrossMarkSubjectConventions() {
+        return Arrays.asList(crossmarks.conventions());
+    }
+
+    public AssessmentConvention getCrossMarkAssessmentConvention() {
+        return crossmarks.getAssessmentConvention();
+    }
+
+    public String[] getTargetTypes() {
+        return getWebUIConfiguration().getCommitTargetTypes();
+//        return new String[]{"quartalsnoten", "zeugnisnoten", "arbeitsverhalten", "sozialverhalten"};
     }
 }
