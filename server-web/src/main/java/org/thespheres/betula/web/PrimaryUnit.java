@@ -35,10 +35,6 @@ import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
 import org.primefaces.model.menu.DefaultSubMenu;
 import org.primefaces.model.menu.MenuModel;
-//import org.primefaces.event.ToggleEvent;
-//import org.primefaces.model.Visibility;
-//import org.primefaces.push.EventBus;
-//import org.primefaces.push.EventBusFactory;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -140,7 +136,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                 r.addResolverHint("naming.only.level");
                 r.addResolverHint("klasse.ohne.schuljahresangabe");
                 final String ln = r.getResolvedName(application.getCurrentTerm());
-                level = Integer.parseInt(ln);
+                level = Integer.valueOf(ln);
             } catch (IllegalAuthorityException | NumberFormatException ex) {
                 final String msg = "An exception has occurred resolving primary unit level for " + unit.toString();
                 Logger.getLogger(PrimaryUnit.class.getName()).log(Level.WARNING, msg, ex);
@@ -152,10 +148,6 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
     @Override
     protected Grade resolveReference(AvailableStudent stud, Subject column, GradeReference proxy) {
-//        GradeValue gv = gradeValueForDocType(stud.getId(), column, "vorzensuren");
-//        if (gv != null) {
-//            return gv.getValue();
-//        }
         return proxy;
     }
 
@@ -621,7 +613,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                 try {
                     if (value != null && !value.trim().isEmpty()) {
                         try {
-                            val = Integer.parseInt(value);
+                            val = Integer.valueOf(value);
                         } catch (final NumberFormatException nfex) {
                             return;
                         }
@@ -650,7 +642,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                 try {
                     if (value != null && !value.trim().isEmpty()) {
                         try {
-                            val = Integer.parseInt(value);
+                            val = Integer.valueOf(value);
                         } catch (final NumberFormatException nfex) {
                             return;
                         }
@@ -766,18 +758,6 @@ public class PrimaryUnit extends AbstractData<Subject> {
             return this.textFieldValues;
         }
 
-//        public void showReportNotesDialog() {
-//            final Map<String, List<String>> params = new HashMap<>();
-//            final List<String> zgnId = Arrays.asList(getZeugnisId().getAuthority(), getZeugnisId().getId(), getZeugnisId().getVersion().getVersion());
-//            params.put(ConfigureReportNotes.PARAMETER_ZEUGNIS_ID, zgnId);
-//            final List<String> unitId = Arrays.asList(unit.getAuthority(), unit.getId());
-//            params.put(ConfigureReportNotes.PARAMETER_UNIT_ID, unitId);
-//            final Map<String, Object> options = new HashMap<>();
-//            options.put("modal", true);
-//            options.put("contentHeight", 320);
-//            options.put("contentWidth", 640); ////hint: available options are modal, draggable, resizable, width, height, contentWidth and contentHeight
-//            RequestContext.getCurrentInstance().openDialog("content/reportNotesConfig", options, params);
-//        }
         public List<Grade> getAVSVGrades() {
             if (grades == null) {
                 final AssessmentConvention con = GradeFactory.findConvention(ASVAssessmentConvention.AV_NAME);

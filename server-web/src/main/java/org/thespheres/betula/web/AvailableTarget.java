@@ -34,8 +34,6 @@ import org.primefaces.model.menu.DefaultMenuItem;
 import org.primefaces.model.menu.DefaultMenuModel;
 import org.primefaces.model.menu.DefaultSubMenu;
 import org.primefaces.model.menu.MenuModel;
-//import org.primefaces.push.EventBus;
-//import org.primefaces.push.EventBusFactory;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -75,17 +73,13 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     private final Map<StudentId, Map<CrossMarkSubject, GradeValue>> crossMarkGradeValues = new HashMap<>();
     private ArrayList<AvailableTermColumn> gradeColumns;
     private HashMap<String, AvailableTermColumn> editableGradeColumns;
-//    private final DocumentId base;
-//    private boolean dirty;
     private DocumentId[] target;
-    private boolean joinTargets = true;
-//    private String csvEncoding;
-    private List<CrossMarkSubject> crossMarkSubjects = new ArrayList<>();
+    private final List<CrossMarkSubject> crossMarkSubjects = new ArrayList<>();
     private String entitlementTitle = null;
     private String signeeTypeTitle;
     private DocumentId commentsDoc;
     private MenuModel menu;
-    private final Logger logger = Logger.getLogger(AvailableTarget.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AvailableTarget.class.getName());
 
     AvailableTarget(final String displayName, final BetulaWebApplication app) {
         super(app, displayName);
@@ -149,8 +143,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             if (arr.length != 1) {
                 StringJoiner sj = new StringJoiner(", ");
                 Arrays.stream(arr).map(DocumentId::getId).forEach(sj::add);
-                logger.log(Level.INFO, "Editing target type must be one single document in AvailableTarget. Found: {0} ({1})", new Object[]{arr.length, sj.toString()});
-//                throw new IllegalStateException("Editing target type must be one single document in AvailableTarget. Found: " + arr.length + " (" + sj.toString() + ")");
+                LOGGER.log(Level.INFO, "Editing target type must be one single document in AvailableTarget. Found: {0} ({1})", new Object[]{arr.length, sj.toString()});
             }
             target = arr;
         }
@@ -195,9 +188,6 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 + "&document.id=" + getDocumentIdEncoded(tid) + "&document.authority=" + getDocumentAuthorityEncoded(tid) + "&document.version=" + getDocumentVersionEncoded(tid)
                 //                + "&unit.id=" + getUnitIdEncoded() + "&unit.authority=" + getUnitAuthorityEncoded()
                 + "&mime=application/pdf";
-        if (hasJoinedTargets()) {
-            ret += "&joinTargets=" + Boolean.toString(joinTargets);
-        }
         if (hasComments()) {
             try {
                 final String enc = URLEncoder.encode(commentsDoc.toString(), "utf-8");
@@ -221,33 +211,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             ret += "&encoding=" + enc;
         }
         ret += "&mime=text/csv";
-        if (hasJoinedTargets()) {
-            ret += "&joinTargets=" + Boolean.toString(joinTargets);
-        }
         return ret;
-    }
-
-//    public String getCsvEncoding() {
-//        return csvEncoding;
-//    }
-//
-//    public void setCsvEncoding(String value) {
-//        csvEncoding = value;
-//    }
-    public boolean hasJoinedTargets() {
-        final DocumentId t = getTargetDocument();
-        return t != null && false; //application.getJoinedUnits(t) != null;
-    }
-
-    public boolean isJoinTargets() {
-        return joinTargets;
-    }
-
-    public void setJoinTargets(boolean joinTargets) {
-        this.joinTargets = joinTargets;
-    }
-
-    public void joinTargetsChecked() {//Do not remove, without ajax event joinTargets is not updated properly
     }
 
     public String getTermAuthorityEncoded() {
@@ -291,21 +255,6 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
         }
     }
 
-//    public String getUnitIdEncoded() {
-//        try {
-//            return URLEncoder.encode(base.getId(), "utf-8");
-//        } catch (UnsupportedEncodingException ex) {
-//            return null;
-//        }
-//    }
-//
-//    public String getUnitAuthorityEncoded() {
-//        try {
-//            return URLEncoder.encode(base.getAuthority(), "utf-8");
-//        } catch (UnsupportedEncodingException ex) {
-//            return null;
-//        }
-//    }
     @Override
     protected HashSet<StudentId> createStudents() {
         final HashSet<StudentId> studs = new HashSet<>();
@@ -529,7 +478,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                     .filter(d -> sfx != null && sfx.equals(this.application.getDocumentsModel().getSuffix(d)))
                     .collect(CollectionUtil.singleton())
                     .orElse(DocumentId.NULL);
-            logger.log(Level.FINE, "AvailableTarget.hasComments Comment doc: {0}", commentsDoc.toString());
+            LOGGER.log(Level.FINE, "AvailableTarget.hasComments Comment doc: {0}", commentsDoc.toString());
         }
         return !DocumentId.isNull(commentsDoc);
     }
@@ -589,7 +538,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                         .collect(CollectionUtil.singleton())
                         .map(FastTextTermTargetDocument.Entry::getText)
                         .orElse("");
-                logger.log(Level.FINE, "TargetStudent.getComment Found comment: {0}", comment);
+                LOGGER.log(Level.FINE, "TargetStudent.getComment Found comment: {0}", comment);
             }
             return comment;
         }
@@ -601,7 +550,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
                 if (res) {
                     this.comment = cmnt;
                 } else {
-                    logger.log(Level.WARNING, "Could not submit text value \"{0}\" to document {1}.", new String[]{cmnt, commentsDoc.toString()});
+                    LOGGER.log(Level.WARNING, "Could not submit text value \"{0}\" to document {1}.", new String[]{cmnt, commentsDoc.toString()});
                 }
             }
         }

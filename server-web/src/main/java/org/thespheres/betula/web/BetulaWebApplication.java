@@ -21,8 +21,6 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
 import jakarta.faces.application.FacesMessage;
-//import jakarta.faces.bean.ManagedBean;
-//import jakarta.faces.bean.SessionScoped;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
@@ -32,8 +30,6 @@ import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.primefaces.PrimeFaces;
-//import org.primefaces.PrimeFaces;
-//import org.primefaces.context.RequestContext;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
@@ -67,22 +63,16 @@ import org.thespheres.betula.web.config.AppConfiguration;
  * @author boris.heithecker
  */
 @RolesAllowed("signee")
-//@ManagedBean(name = "app")
 @Named("app")
 @ViewScoped//@SessionScoped //Vor Jakarta: javax.faces.bean.SessionScoped;
 public class BetulaWebApplication implements Serializable {
 
-//    @Inject
-//    private FastTargetDocuments bean2;
     @DocumentsSession
     @Inject
     private FastTargetDocuments2 bean;
     @Any
     @Inject
     private Instance<VorschlagDecoration> extraAssessment;
-//    @Extra(targetType = "arbeitsverhalten")
-//    @Inject
-//    private VorschlagDecoration avextra;
     @EJB
     private SigneeLocal loginBeanImpl;
     @EJB(beanName = "StudentVCardsImpl")
@@ -105,14 +95,7 @@ public class BetulaWebApplication implements Serializable {
     @Inject
     private DocumentsModel docModel;
     private String activePage = "";
-//    private String currentPrimaryUnit;
     private ApplicationUser currentUser;
-//    @Inject
-//    private WebUIConfiguration webConfig;
-//    @Inject
-//    private ZeugnisConfiguratorService zgnConfig;
-//    @Inject
-//    private Comparator<Subject> subjectComparator;
     @Inject
     private AppConfiguration config;
     @Inject
@@ -121,11 +104,6 @@ public class BetulaWebApplication implements Serializable {
     private LocalProperties properties;
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
     private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
-//    private final Logger log = Logger.getLogger(BetulaWebApplication.class.getPackage().getName());
-//    private Optional<AssessmentConvention> crossMarksAssessmentConvention;    
-//    private Optional<String[]> crossMarksSubjectConvention;
-//    @Inject
-//    private NdsReportBuilderFactory reportBuilderFactory;
 
     public AppConfiguration getAppConfiguration() {
         return config;
@@ -133,17 +111,8 @@ public class BetulaWebApplication implements Serializable {
 
     public ApplicationUser getUser() {
         if (currentUser == null) {
-//            FacesContext context = FacesContext.getCurrentInstance();
-//            HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
-//            Object o = request.getSession().getAttribute(UserLogin.ISERV_IMAP_AUTHORIZED_SIGNEE);
-//            if (o != null && o instanceof Signee && request.isUserInRole("signee")) {
-//                Signee sig = (Signee) o;
             final Signee sig = loginBeanImpl.getSigneePrincipal(false);
-//                if (sig.getId().equals(request.getUserPrincipal().getName())) {
             currentUser = new ApplicationUser(this, sig);
-//                    RequestContext.getCurrentInstance().execute("PF('notifier').connect('/" + sig.getId() + "')");
-//                }
-//            }
         }
         return currentUser;
     }
@@ -170,7 +139,6 @@ public class BetulaWebApplication implements Serializable {
     }
 
     public void navigateTo(final String page) {
-//        this.setCurrentPrimaryUnit(this.currentUser.getPrimaryUnits()[0].getDocumentIdName());
         activePage = page;
     }
 
@@ -183,38 +151,9 @@ public class BetulaWebApplication implements Serializable {
         return Optional.empty();
     }
 
-//    public String getCurrentPrimaryUnit() {
-//        return currentPrimaryUnit;
-//    }
-//
-//    public void setCurrentPrimaryUnit(final String currentPrimaryUnit) {
-//        this.currentPrimaryUnit = currentPrimaryUnit;
-//    }
-//    public String getMenuStyle(String menu) {
-//        if (menu.equals(getActivePage())) {
-//            return "font-weight: bold;";
-//        } else {
-//            return "";
-//        }
-//    }
-
     public NamingResolver getNamingResolver() {
-//        if (namingResolver == null) {
-//            return namingResolver = SystemProperties.findNamingResolver();
-//        }
         return namingResolver;
     }
-
-//    public NdsReportBuilderFactory getReportBuilderFactory() {
-//        return reportBuilderFactory;
-//    }
-
-//    public ZeugnisConfiguratorService getZeugnisConfiguratorService() {
-    ////        if (zgnConfig == null) {
-////            return zgnConfig = SystemProperties.findZeugnisConfiguratorService();
-////        }
-//        return zgnConfig;
-//    }
 
     public CommonDocuments getCommonDocuments() {
         return commonDocuments;
@@ -227,24 +166,16 @@ public class BetulaWebApplication implements Serializable {
     public void showMessage(String summary, String detail) {
         FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, summary, detail);
         PrimeFaces.current().dialog().showMessageDynamic(message);
-//        RequestContext.getCurrentInstance().showMessageInDialog(message);
     }
 
     public Term getCurrentTerm() {
-        return currentTerm; //SystemProperties.terms()[1];
+        return currentTerm;
     }
 
     public Term getTermBefore() {
-        return beforeTerm; //SystemProperties.terms()[0];
+        return beforeTerm;
     }
 
-//    public Messages getMessages() {
-//        if (messages == null) {
-//            messages = new Messages(this);
-//            eventDispatch.register(messages);
-//        }
-//        return messages;
-//    }
     EventDispatch getEventDispatch() {
         return eventDispatch;
     }
@@ -273,10 +204,6 @@ public class BetulaWebApplication implements Serializable {
         return bean.getPrimaryUnitStudents(docIdName);
     }
 
-//    FastMessages getFastMessages() {
-//        getMessages();//initialize Messages, register listener
-//        return fastMessages;
-//    }
     Marker getStudentMarkerEntry(StudentId sid, DocumentId studentSGLMarkerDocId) {
         return studentsLists.getMarkerEntry(sid, studentSGLMarkerDocId, null);
     }
@@ -309,35 +236,10 @@ public class BetulaWebApplication implements Serializable {
         return bean.getTickets(docId, termId, studId);
     }
 
-//    JoinedUnitsEntry getJoinedUnits(DocumentId base) {
-//        return bean.getJoinedUnits(base);
-//    }
     VorschlagDecoration getAssessmentDecoration(Extra extra) {
-//        for(VorschlagDecoration v : extraAssessment) {
-//            Logger.getLogger(getClass().getName()).log(Level.INFO, v.getClass().getName());
-//        }
-//        if (extra.targetType().equals("arbeitsverhalten")) {
-//            Instance<VorschlagDecoration> select = extraAssessment.select(extra);
-//            return select.get();
-//        }
         Instance<VorschlagDecoration> select = extraAssessment.select(extra);
-//        return select.isUnsatisfied() ? null : select.get();
         return (!select.isUnsatisfied() && !select.isAmbiguous()) ? select.get() : null;
     }
-
-//    public Logger getLogger() {
-//        return log;
-//    }
-
-//    public void processTimeout(jakarta.faces.event.AjaxBehaviorEvent evt) {
-//        logout(null);
-//    }
-//    public String logout() {
-//        FacesContext.getCurrentInstance()
-//            .getExternalContext()
-//            .invalidateSession();
-//        return "/login.xhtml?faces-redirect=true";
-//    }
 
     public void logout(ActionEvent evt) {
         FacesContext fc = FacesContext.getCurrentInstance();

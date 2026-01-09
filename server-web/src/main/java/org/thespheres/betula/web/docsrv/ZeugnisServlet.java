@@ -22,12 +22,8 @@ import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.EJBException;
 import jakarta.ejb.NoSuchEntityException;
 import jakarta.enterprise.context.Dependent;
-//import jakarta.enterprise.context.SessionScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
-//import jakarta.faces.bean.SessionScoped;
-//import jakarta.faces.bean.SessionScoped;
-//import jakarta.ejb.SessionContext;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
 import jakarta.servlet.ServletException;
@@ -68,12 +64,6 @@ public class ZeugnisServlet extends HttpServlet {
     public static final int BEFORE_TERMS = 3;
     @EJB
     private NdsFormatter fOPFormatter;
-//    @EJB //Cannot inject stateful bean, will be destroy permanently (!) after EJBAccessException
-//    private FastTargetDocuments targets;
-//    @Inject//Cannot inject stateful bean, will be destroy permanently (!) after EJBAccessException
-//    private FastTargetDocuments targets;
-//    @Inject
-//    private FastTargetDocuments2 targets2;
     @Inject
     DocumentMapper documentMapper;
     @Current
@@ -91,9 +81,6 @@ public class ZeugnisServlet extends HttpServlet {
     private DocumentsModel docModel;
     @EJB
     private StudentsListsLocalBean sllb;
-//    @DocumentsSession
-//    @Inject
-//    private Instance<FastTargetDocuments2> ftd2SessionInstance;
     @DocumentsRequest
     @Inject
     private Instance<FastTargetDocuments2> ftd2RequestInstance;
@@ -113,12 +100,6 @@ public class ZeugnisServlet extends HttpServlet {
         processRequest(request, response);
     }
 
-//    @Override
-//    public void init() throws ServletException {
-//        super.init(); //To change body of generated methods, choose Tools | Templates.
-////        webConfig = SystemProperties.findWebUIConfiguration();
-//        fOPFormatter.initialized();
-//    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -165,7 +146,6 @@ public class ZeugnisServlet extends HttpServlet {
         } catch (NoSuchEntityException noex) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
-
     }
 
     private void target(HttpServletRequest request, HttpServletResponse response, String mime, FastTargetDocuments2 mtad, String enc) throws IOException, ServletException {
@@ -181,25 +161,6 @@ public class ZeugnisServlet extends HttpServlet {
         final DocumentId[] arr = Arrays.stream(webConfig.getCommitTargetTypes())
                 .map(t -> docModel.convert(target, t))
                 .toArray(DocumentId[]::new);
-//        boolean joinTargets = false;
-//        String jtp;
-//        if ((jtp = request.getParameter("joinTargets")) != null) {
-//            joinTargets = Boolean.valueOf(jtp);
-//        }
-//        if (joinTargets) {
-//            final DocumentId base = docModel.convert(target);
-//            JoinedUnitsEntry joinedUnits = mtad.getJoinedUnits(base);
-//            if (joinedUnits == null) {
-//                throw new ServletException();
-//            }
-//            display = joinedUnits.getJoinUnit();
-//            arr = Arrays.stream(joinedUnits.getJoinedUnits())
-//                    .map(u -> new DocumentId(u.getAuthority(), u.getId() + "-" + webConfig.getDefaultCommitTargetType(), DocumentId.Version.LATEST))
-//                    .toArray(DocumentId[]::new);
-//        } else {
-        //    arr = new DocumentId[]{target};
-//        }
-//        this.mtad.getJoinedUnits(null)
         DocumentId[] texts = new DocumentId[]{};
         final String commentsDoc = request.getParameter("comments");
         if (commentsDoc != null) {
@@ -389,22 +350,4 @@ public class ZeugnisServlet extends HttpServlet {
         response.getOutputStream().write(out);
     }
 
-//    private FastTargetDocuments2 lookupFastTargetDocumentsImplLocal() {
-//        try {
-//            Context c = new InitialContext();
-//            return (FastTargetDocuments2) c.lookup("java:global/Betula_Server/Betula_Persistence/FastTargetDocuments2Facade!org.thespheres.betula.entities.localbeans.FastTargetDocuments2Facade");
-//        } catch (NamingException ne) {
-//            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
-//            throw new RuntimeException(ne);
-//        }
-//    }
-//    private SessionContext getSessionContext() {
-//        InitialContext ic;
-//        try {
-//            ic = new InitialContext();
-//            return (SessionContext) ic.lookup("java:comp/EJBContext");
-//        } catch (NamingException ex) {
-//            throw new RuntimeException(ex);
-//        }
-//    }
 }
