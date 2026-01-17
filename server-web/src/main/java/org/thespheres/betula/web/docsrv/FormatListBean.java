@@ -18,8 +18,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
@@ -59,21 +58,17 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
  *
  * @author boris.heithecker
  */
-@Stateless
-@LocalBean
+@Dependent
 public class FormatListBean {
 
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentCardBean;
     @Inject
     private DocumentMapper documentMapper;
-    @EJB
+    @Inject
     private NdsFormatter fOPFormatter;
-//    @Inject
-//    private WebUIConfiguration webConfig;
     @Inject
     private LocalProperties properties;
-//    private DocumentId studentSGLMarkerDocId;
     private String sglConvention;
     @EJB
     private StudentsListsLocalBean sllb;
@@ -85,13 +80,11 @@ public class FormatListBean {
 
     @PostConstruct
     public void initialize() {
-//        studentSGLMarkerDocId = WebAppProperties.STUDENT_BILDUNGSGANG_DOCID;
         sglConvention = sglConvention = SGL.NAME;
         final Marker[] sort = Optional.ofNullable(properties.getProperty("berichte.convention"))
                 .map(MarkerFactory::findConvention)
                 .map(MarkerConvention::getAllMarkers)
                 .orElse(null);
-//        reportsMarkerComparator = Comparator.comparingInt(m -> sort == null ? Integer.MAX_VALUE : Arrays.<Marker>binarySearch(sort, m, Comparator.comparing(Marker::getId)));
     }
 
     public void oneListe(final boolean vorzensuren, final FastTargetDocuments2 tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, Map<DocumentId, FastTermTargetDocument> fttd, Term before, ZensurenListenCollectionXml collection) {
@@ -148,10 +141,6 @@ public class FormatListBean {
             if (sgl != null) {
                 l.setStudentHint(" (" + sgl.getShortLabel().replace("KGS ", "") + ")");
             }
-//            double sum = 0d;
-//            int count = 0;
-//            final Map<Grade, Integer> gCount = new TreeMap((Comparator<Grade>) (g1, g2) -> collator.compare(g1.getShortLabel(), g2.getShortLabel()));
-
 //
             for (Map.Entry<MultiSubject, Set<DocumentId>> e : map.entrySet()) {
                 final Set<FastTermTargetDocument> fdocs = e.getValue().stream()
@@ -228,14 +217,6 @@ public class FormatListBean {
                     } else {
                         lg = g;
                     }
-//                    if (lg != null && lg instanceof NumberValueGrade) {
-////                        double nv = ((NumberValueGrade) lg).getNumberValue().doubleValue();
-////                        sum += nv;
-////                        ++count;
-//                    } 
-//                    else if (lg != null && (lg.getConvention().equals(ASVAssessmentConvention.AV_NAME) || lg.getConvention().equals(ASVAssessmentConvention.SV_NAME))) {
-//                        gCount.compute(lg, (gr, i) -> i != null ? ++i : 1);
-//                    }
                 }
 //TODO WebUIConfiguration
                 // final MultiSubject subject = e.getKey();

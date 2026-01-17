@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.LocalBean;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
@@ -75,8 +76,7 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
  *
  * @author boris.heithecker
  */
-@Stateless
-@LocalBean
+@Dependent
 public class NdsFormatDetailsBean {
 
     @Inject
@@ -92,7 +92,7 @@ public class NdsFormatDetailsBean {
     @Default
     @Inject
     private NamingResolver namingResolver;
-    @EJB
+    @Inject
     private NdsFormatter fOPFormatter;
     @Default
     @Inject
@@ -107,8 +107,6 @@ public class NdsFormatDetailsBean {
     @Inject
     private SigneeLocal signees;
 
-//    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
-//    @RolesAllowed({"signee", "unitadmin"})
     public void oneStudent(final StudentDetailsXml details,
             final MappedStudent ms,
             UnitId pu,
@@ -124,18 +122,6 @@ public class NdsFormatDetailsBean {
         final StudentId student = ms.getStudentId();
         final String sName = ms.getDisplayName();
         final Marker sgl = ms.getCareer();
-//        final VCardStudent card = new VCardStudent(student);
-//        card.setVCard(studentCardBean.get(student));
-//        String sName = card.getFullName();
-//        final Marker sgl = fOPFormatter.getStudentSGL(student, fOPFormatter.termEnd(current.getScheduledItemId()));
-//        if (sgl != null) {
-//            sName += " (" + sgl.getShortLabel().replace("KGS ", "") + ")";
-//        }
-//        final String lname = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.download.details.title", sName, kla, jahr, hj);
-//        final StudentDetailsXml details = new StudentDetailsXml();
-//        details.setListDate(ldate);
-//        details.setListName(lname); 
-//        details.setSortString(StudentComparator.sortStringFromDirectoryName(card.getDirectoryName()));
         //Subject-grade map for validation, keine fächerübergreifende Evaluierung ????
         final Map<TermId, Map<Subject, Grade>> zeugnisnoten = new HashMap<>();
 //            final Map<String, <Grade, Integer>> avsvMap = new TreeMap((Comparator<Grade>) (g1, g2) -> collator.compare(g1.getShortLabel(), g2.getShortLabel()));

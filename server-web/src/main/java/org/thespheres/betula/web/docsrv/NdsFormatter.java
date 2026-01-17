@@ -36,19 +36,12 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
-import jakarta.ejb.EJBContext;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Singleton;
-import jakarta.ejb.Startup;
-//import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
-//import jakarta.xml.bind.JAXBContext;
-//import jakarta.xml.bind.JAXBException;
-//import jakarta.xml.bind.Marshaller;
+import jakarta.security.enterprise.SecurityContext;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -91,7 +84,6 @@ import org.thespheres.betula.services.scheme.spi.TermSchedule;
 import org.thespheres.betula.util.CollectionUtil;
 import org.thespheres.betula.util.StudentComparator;
 import org.thespheres.betula.web.PrimaryUnit;
-import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.niedersachsen.kgs.SGL;
 import org.thespheres.betula.niedersachsen.NdsZeugnisFormular;
@@ -113,19 +105,17 @@ import org.xml.sax.SAXException;
  *
  * @author boris.heithecker
  */
-@Startup
-@LocalBean //(name = "java:global/Betula_Web/FOPFormatter!org.thespheres.betula.web.docsrv.NdsFormatter", beanInterface = NdsFormatter.class)
-@Singleton
 //Annotation required to ensure that context.isCallerInRole works as espected
 @RolesAllowed({"unitadmin", "signee"})
+@ApplicationScoped
 public class NdsFormatter {
 
     public static final String BACKGROUND_URL = "url(resource:org/thespheres/betula/web/docsrv/Probedruck.png)";
-    @EJB
+    @Inject
     private FormatListBean formatListBean;
-    @EJB
+    @Inject
     private NdsFormatDetailsBean formatDetailsBean;
-    @EJB
+    @Inject
     private NdsFormatReportsBean formatReportsBean2;
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentCardBean;
@@ -134,29 +124,20 @@ public class NdsFormatter {
     @EJB
     private StudentsListsLocalBean sllb;
     @Inject
-//    @SessionScoped
     private CommonTargetProperties targetProps;
     @Default
     @Inject
-//    @SessionScoped
     private TermSchedule termSchedule;
     @Current
     @Inject
-//    @SessionScoped
     private Term currentTerm;
     @Default
     @Inject
-//    @SessionScoped
     private NamingResolver namingResolver;
     @Inject
-//    @SessionScoped
     private WebUIConfiguration webConfig;
     @Inject
-//    @SessionScoped
     private NdsReportBuilderFactory builderFactory;
-    @Inject
-//    @SessionScoped
-    private LocalProperties properties;
     @Inject
     private DocumentsModel docModel;
     private javax.xml.bind.JAXBContext jaxb;
@@ -171,8 +152,8 @@ public class NdsFormatter {
     private final Collator collator = Collator.getInstance(Locale.GERMANY);
     private String defaultEditingTargetType;
     private Templates detailsTemplate;
-    @Resource
-    protected EJBContext context;
+    @Inject
+    private SecurityContext context;
 
     public NdsFormatter() {
     }
@@ -180,13 +161,9 @@ public class NdsFormatter {
     @PostConstruct
     public void initialize() {
         Locale.setDefault(Locale.GERMANY);
-        //        WebUIConfiguration webConfig = SystemProperties.findWebUIConfiguration();
-//        studentSGLMarkerDocId = WebAppProperties.STUDENT_BILDUNGSGANG_DOCID;
         sglConvention = SGL.NAME;
-//        Locale.setDefault(Locale.GERMANY);
         defaultEditingTargetType = webConfig.getDefaultCommitTargetType();
         try {
-//                Context c = new InitialContext();
             jaxb = javax.xml.bind.JAXBContext.newInstance(ZeugnisMappe.class);
             listJaxb = javax.xml.bind.JAXBContext.newInstance(ZensurenListenCollectionXml.class);
             detailsJaxb = javax.xml.bind.JAXBContext.newInstance(DetailsListXml.class);
@@ -195,9 +172,6 @@ public class NdsFormatter {
             if (Files.exists(p)) {
                 fopFactory.setUserConfig(p.toFile());
             }
-//        final URL base = p.toUri().toURL();
-//            fopFactory.setUserConfig(userConfig);.getFontManager().setFontBaseURL(p.toString());
-//            foUserAgent = fopFactory.newFOUserAgent();
             factory = TransformerFactory.newInstance();
             final String xslFoFile = builderFactory.getSchulvorlage().getXslFoFile();
             final InputStream is;
@@ -268,9 +242,9 @@ public class NdsFormatter {
         } else {
             rMap = Collections.EMPTY_MAP;
         }
-
+        
         final boolean setBackground = !builderFactory.getSchulvorlage().getProperty(NdsZeugnisSchulvorlage.PROP_SIGNEES_NO_BACKGROUND)
-                .map(p -> Boolean.parseBoolean(p.getValue()))
+                .map(p -> Boolean.valueOf(p.getValue()))
                 .orElse(false) && !context.isCallerInRole("unitadmin");
 
         final boolean toXml = "text/xml".equals(mime);

@@ -62,7 +62,7 @@ import org.thespheres.betula.web.config.WebAppProperties;
 public class ZeugnisServlet extends HttpServlet {
 
     public static final int BEFORE_TERMS = 3;
-    @EJB
+    @Inject
     private NdsFormatter fOPFormatter;
     @Inject
     DocumentMapper documentMapper;

@@ -29,6 +29,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
 import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
@@ -81,8 +82,7 @@ import org.thespheres.ical.util.IComponentUtilities;
  *
  * @author boris.heithecker
  */
-@Stateless
-@LocalBean
+@Dependent
 public class NdsFormatReportsBean {
 
     @EJB(beanName = "ReportsBeanImpl")
@@ -108,20 +108,16 @@ public class NdsFormatReportsBean {
     private LocalProperties properties;
     @Inject
     private BemerkungenBean bemBean;
-//    @Inject
-//    private WebUIConfiguration webConfig;
     @Inject
     private CrossmarkSettings crossmarks;
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentCardBean;
-//    private String sglConvention;
     private Comparator<Marker> reportsMarkerComparator;
     private final static boolean ADD_IDENTITIES = true;
     private final static boolean ADD_SIGNEES = false;
 
     @PostConstruct
     public void initialize() {
-//        sglConvention = webConfig.getProperty(WebUIConfiguration.SGL_NAME, String.class);
         final Marker[] sort = Optional.ofNullable(properties.getProperty("berichte.convention"))
                 .map(MarkerFactory::findConvention)
                 .map(MarkerConvention::getAllMarkers)
@@ -149,9 +145,6 @@ public class NdsFormatReportsBean {
                     .map(d -> sllb.getMarkerEntry(student, d, asOf))
                     .orElse(null);
         }
-//        if (sgl == null) {
-//            return null;
-//        }
         final NdsReportBuilder builder;
 
         final Marker[] typ = Arrays.stream(markers)
@@ -263,20 +256,8 @@ public class NdsFormatReportsBean {
             Logger.getLogger(NdsFormatReportsBean.class.getName()).log(Level.WARNING, msg, nfex);
         }
 
-//        final List<String> crossMarkSubjectConventions = Arrays.stream(properties.getProperty("crossmark.subject.conventions", "").split(","))
-//                .collect(Collectors.toList());
-//        final AssessmentConvention crossMarkGradeConvention = Optional.ofNullable(properties.getProperty("crossmark.assessment.convention"))
-//                .map(GradeFactory::findConvention)
-//                .orElse(null);
         final MarkerConvention[] crossMarkSubjectConventions = crossmarks.conventions(level);
         final AssessmentConvention crossMarkGradeConvention = crossmarks.getAssessmentConvention();
-//        if (!crossmarks.isUnsatisfied()) {
-//            crossMarkSubjectConventions = crossmarks.get().conventions(level);
-//            crossMarkGradeConvention = crossmarks.get().getAssessmentConvention();
-//        } else {
-//            crossMarkSubjectConventions = null;
-//            crossMarkGradeConvention = null;
-//        }
 
         boolean foundCaptionsOnLayoutConvention = false;
         for (final Map.Entry<MultiSubject, Set<DocumentId>> e : docMap.entrySet()) {
@@ -421,11 +402,7 @@ public class NdsFormatReportsBean {
         if (crossMarkGradeConvention != null && !flcrossmark.isEmpty()) {
             final NdsZeugnisFormular.CrossMarkArea cma = builder.createCrossMarkArea();
 
-//            crossMarkSubjectConventions.stream()
-//                    .map(MarkerFactory::findConvention)
-//                    .filter(Objects::nonNull)
             Arrays.stream(crossMarkSubjectConventions)
-                    //                    .peek(mc -> Logger.getLogger("ZEUGNISSE").log(Level.INFO, "Found " + mc.getClass().getCanonicalName()))
                     .forEach(cmc -> {
                         final NdsZeugnisFormular.CrossMarkSubject cms = new NdsZeugnisFormular.CrossMarkSubject(cmc.getDisplayName());
                         cma.getSubjects().add(cms);
@@ -525,7 +502,6 @@ public class NdsFormatReportsBean {
         }
 
         if (abgangsZeugnis) {
-//            zeugnisArguments.getZeugnisAusgabe(zgnId);
             builder.setAbgangsdaten(issuance, stufe + ".");
         }
         final NdsZeugnisFormular data = builder.getZeugnisData();
