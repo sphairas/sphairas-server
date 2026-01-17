@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>Session Expired</title>
+       <title>#{bundle['session.expired.page.title']}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <meta name="context-path" content="#{request.contextPath}/"/>
-        <link rel="icon" type="image/x-icon" href="#{request.contextPath}/resources/images/favicon.ico"/>
+        <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
         <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.css" />
         <h:outputStylesheet library="css" name="error-pages.css"/>
     </h:head>
@@ -17,29 +17,24 @@
         <div class="error-page-container">
             <i class="pi pi-clock error-icon warning"></i>
 
-            <h1 class="error-title">Session Expired</h1>
+            <h1 class="error-title">#{bundle['session.expired.page.heading']}</h1>
 
             <div class="error-divider"></div>
 
             <p class="error-message">
-                Your session has expired due to inactivity. 
-                Please log in again to continue working.
+                #{bundle['session.expired.page.message']}
             </p>
 
             <div class="error-actions">
-                <p:button value="Return to Login" 
+                <p:button value="#{bundle['session.expired.page.button.login']}" 
                           icon="pi pi-sign-in" 
                           href="#{request.contextPath}/login.xhtml"
-                          styleClass="button-lg button-warning"/>
+                          styleClass="p-button-lg p-button-warning"/>
             </div>
 
-            <p class="error-info">
-                Tip: Save your work frequently to avoid losing data.
-            </p>
         </div>
 
         <f:event type="preRenderView" listener="#{errors.logError}" />
-        <h:outputText value="#{errorBean.errorMessage}" />
 
     </h:body>
 </html>

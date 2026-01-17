@@ -5,10 +5,10 @@
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>404 - Page Not Found</title>
+       <title>#{bundle['notfound.page.title']}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <meta name="context-path" content="#{request.contextPath}/"/>
-        <link rel="icon" type="image/x-icon" href="#{request.contextPath}/resources/images/favicon.ico"/>
+        <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
         <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.css"/>
         <h:outputStylesheet library="css" name="error-pages.css"/>
     </h:head>
@@ -17,32 +17,24 @@
         <div class="error-page-container">
             <div class="error-code">404</div>
 
-            <h1 class="error-title small">Page Not Found</h1>
+            <h1 class="error-title small">#{bundle['notfound.page.heading']}</h1>
 
             <div class="error-divider"></div>
 
             <p class="error-message compact">
-                The page you're looking for doesn't exist or has been moved.
+                #{bundle['notfound.page.message']}
             </p>
 
             <div class="error-actions">
-                <p:button value="Go to Home" 
+                <p:button value="#{bundle['notfound.page.button.home']}" 
                           icon="pi pi-home" 
                           href="#{request.contextPath}/main.xhtml"
                           styleClass="p-button-lg"/>
-
-                <p:button value="Go Back" 
-                          icon="pi pi-arrow-left" 
-                          onclick="history.back(); return false;"
-                          styleClass="p-button-lg p-button-outlined"/>
             </div>
 
-            <p class="error-info">
-                Looking for something specific? Try searching from the <a href="#{request.contextPath}/main.xhtml">homepage</a>.
-            </p>
         </div>
 
         <f:event type="preRenderView" listener="#{errors.logError}" />
-        <h:outputText value="#{errorBean.errorMessage}" />
+
     </h:body>
 </html>

@@ -5,10 +5,10 @@
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>Error - #{config.appName}</title>
+        <title>#{bundle['error.page.title']} - #{config.appName}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <meta name="context-path" content="#{request.contextPath}/"/>
-        <link rel="icon" type="image/x-icon" href="#{request.contextPath}/resources/images/favicon.ico"/>
+        <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
         <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.css"/>
         <h:outputStylesheet library="css" name="error-pages.css"/>
     </h:head>
@@ -17,51 +17,47 @@
         <div class="error-page-container">
             <i class="pi pi-exclamation-triangle error-icon danger"></i>
 
-            <h1 class="error-title">Oops! Something went wrong</h1>
+            <h1 class="error-title">#{bundle['error.page.heading']}</h1>
 
             <div class="error-divider"></div>
 
-            <p class="error-message">
-                We're sorry, but an unexpected error has occurred. 
-                Our team has been notified and is working to fix the issue.
-            </p>
+            <p class="error-message">#{bundle['error.page.message']}</p>
 
             <!-- Show error details only in development mode -->
             <h:panelGroup rendered="#{facesContext.application.projectStage eq 'Development'}">
                 <div class="error-details">
-                    <strong>Error Details (Development Mode Only):</strong>
+                    <strong>#{bundle['error.page.details.heading']}:</strong>
                     <h:outputText value="#{requestScope['jakarta.servlet.error.exception']}" />
 
-                    <strong>Message:</strong>
+                    <strong>#{bundle['error.page.details.message']}:</strong>
                     <h:outputText value="#{requestScope['jakarta.servlet.error.message']}" />
 
-                    <strong>Status Code:</strong>
+                    <strong>#{bundle['error.page.details.status']}:</strong>
                     <h:outputText value="#{requestScope['jakarta.servlet.error.status_code']}" />
 
-                    <strong>Request URI:</strong>
+                    <strong>#{bundle['error.page.details.uri']}:</strong>
                     <h:outputText value="#{requestScope['jakarta.servlet.error.request_uri']}" />
                 </div>
             </h:panelGroup>
 
             <div class="error-actions">
-                <p:button value="Go to Home" 
+                <p:button value="#{bundle['error.page.button.home']}" 
                           icon="pi pi-home" 
                           href="#{request.contextPath}/main.xhtml"
                           styleClass="p-button-lg"/>
 
-                <p:button value="Contact Support" 
+<!--                <p:button value="#{bundle['error.page.button.support']}" 
                           icon="pi pi-envelope" 
                           href="mailto:support@yourapp.com"
-                          styleClass="p-button-lg p-button-outlined"/>
+                          styleClass="p-button-lg p-button-outlined"/>-->
             </div>
 
-            <p class="error-info">
-                If this problem persists, please contact our support team.
-            </p>
+<!--            <p class="error-info">
+                #{bundle['error.page.footer']}
+            </p>-->
         </div>
 
         <f:event type="preRenderView" listener="#{errors.logError}"/>
-        <h:outputText value="#{errors.errorMessage}"/>
 
     </h:body>
 </html>

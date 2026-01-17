@@ -133,9 +133,9 @@
             <url-pattern>/ui/jakarta.faces.resource/*</url-pattern>
             <url-pattern>/primepush/*</url-pattern>
             <!-- ADD ERROR PAGES TO EXCLUSION -->
-            <url-pattern>/error.xhtml</url-pattern>
-            <url-pattern>/sessionExpired.xhtml</url-pattern>
-            <url-pattern>/notFound.xhtml</url-pattern>
+            <url-pattern>/error-pages/error.xhtml</url-pattern>
+            <url-pattern>/error-pages/sessionExpired.xhtml</url-pattern>
+            <url-pattern>/error-pages/notFound.xhtml</url-pattern>
         </web-resource-collection>
     </security-constraint>
     
@@ -219,26 +219,26 @@
     <!-- 404 Not Found -->
     <error-page>
         <error-code>404</error-code>
-        <location>/notFound.xhtml</location>
+        <location>/error-pages/notFound.xhtml</location>
     </error-page>
     <!-- 500 Internal Server Error -->
     <error-page>
         <error-code>500</error-code>
-        <location>/error.xhtml</location>
+        <location>/error-pages/error.xhtml</location>
     </error-page>
     <!-- Session Expired (ViewExpiredException) -->
     <error-page>
         <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
-        <location>/sessionExpired.xhtml</location>
+        <location>/error-pages/sessionExpired.xhtml</location>
     </error-page>
     <!-- General Exception -->
     <error-page>
         <exception-type>java.lang.Exception</exception-type>
-        <location>/error.xhtml</location>
+        <location>/error-pages/error.xhtml</location>
     </error-page>
     <!-- Throwable (catches everything) -->
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>
-        <location>/error.xhtml</location>
+        <location>/error-pages/error.xhtml</location>
     </error-page>
 </web-app>

@@ -10,7 +10,10 @@
         </resource-bundle>
         <locale-config>
             <default-locale>de_DE</default-locale>
+            <!--<supported-locale>en</supported-locale>-->
         </locale-config>
+        <!-- Message Bundle (optional, for faces messages) -->
+        <!--<message-bundle>Bundle</message-bundle>-->
         <action-listener>
             org.primefaces.application.DialogActionListener
         </action-listener>
