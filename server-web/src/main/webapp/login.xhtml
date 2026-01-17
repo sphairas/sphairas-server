@@ -6,10 +6,10 @@
       xmlns:p="http://primefaces.org/ui">
 
     <f:view contentType="text/html">
-        <h:outputStylesheet name="style.css" />
-        <h:head>
-            <link rel="shortcut icon" type="image/x-icon" href="#{request.contextPath}/resources/favicon.ico" />
+        <h:head>            
             <title>Login</title>
+            <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
+            <h:outputStylesheet library="css" name="style.css" />
         </h:head>
 
         <h:body>
