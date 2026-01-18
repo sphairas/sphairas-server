@@ -23,12 +23,11 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.primefaces.PrimeFaces;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -241,29 +240,32 @@ public class BetulaWebApplication implements Serializable {
         return (!select.isUnsatisfied() && !select.isAmbiguous()) ? select.get() : null;
     }
 
-    public void logout(ActionEvent evt) {
-        FacesContext fc = FacesContext.getCurrentInstance();
-        if (fc != null) {
-            ExternalContext context = fc.getExternalContext();
-            if (context != null) {
-                String redirect = null;
-                HttpServletRequest request = (HttpServletRequest) context.getRequest();
-                if (request != null) {
-                    redirect = request.getContextPath();
-                }
-                HttpSession session = (HttpSession) context.getSession(false);
-                if (session != null) {
-                    session.invalidate();
-                }
-                if (redirect != null) {
-                    try {
-                        context.redirect(redirect);
-                        fc.responseComplete();
-                    } catch (IOException ex) {
-                    }
-                }
-            }
+    public void logout() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
+
+        try {
+            // Logout from Jakarta Security (if using container-managed security)
+            request.logout();
+
+            // Invalidate the session
+            externalContext.invalidateSession();
+
+            // Redirect to context root
+            String contextPath = externalContext.getRequestContextPath();
+            externalContext.redirect(contextPath);
+
+            facesContext.responseComplete();
+
+        } catch (ServletException | IOException e) {
+            // Log the error properly
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Logout failed", e);
+
+            // Show error message to user
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Logout Error", "Unable to logout. Please try again.");
+            facesContext.addMessage(null, message);
         }
     }
-
 }

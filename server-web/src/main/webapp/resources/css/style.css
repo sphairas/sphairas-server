@@ -229,7 +229,7 @@ body {
 
 /*noBorders not used until now*/
 /* Utility class to remove borders and backgrounds from tables */
-.noBorders tr, 
+.noBorders tr,
 .noBorders td,
 .noBorders th {
     background: none !important;
@@ -241,4 +241,17 @@ body {
 .noBorders .p-datatable-tbody > tr > td {
     background: none !important;
     border: none !important;
+}
+
+/*Login view*/
+.login-container {
+    max-width: 450px;
+    margin: 8rem auto;
+    padding: 1rem;
+}
+
+.login-error {
+    color: #f44336;
+    margin-top: 1rem;
+    display: block;
 }

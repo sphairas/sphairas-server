@@ -30,24 +30,27 @@
         <div class="app-container">
             <!-- Top Bar -->
             <div class="app-topbar">
-                <div class="app-logo">
-                    <p:graphicImage value="#{config.image}" 
-                                    alt="#{config.appName}"
-                                    styleClass="app-logo-image"/>
-                    <span>#{config.appName}</span>
-                </div>
-
-                <div class="app-user-section">
-                    <div class="user-info">
-                        <i class="pi pi-user"></i>
-                        <span>#{app.username}</span>
+                <h:form>
+                    <div class="app-logo">
+                        <p:graphicImage value="#{config.image}" 
+                                        alt="#{config.appName}"
+                                        styleClass="app-logo-image"/>
+                        <span>#{config.appName}</span>
                     </div>
-                    <p:commandButton 
-                        value="Logout" 
-                        icon="pi pi-sign-out" 
-                        styleClass="p-button-sm p-button-outlined p-button-secondary"
-                        action="#{app.logout}"/>
-                </div>
+
+                    <div class="app-user-section">
+                        <div class="user-info">
+                            <i class="pi pi-user"></i>
+                            <span>#{app.username}</span>
+                        </div>
+<!--                        <p:commandButton 
+                            value="#{bundle['main.logout']}" 
+                            icon="pi pi-sign-out" 
+                            styleClass="p-button-sm p-button-outlined p-button-secondary"
+                            action="#{app.logout}"
+                            ajax="false" />-->
+                    </div>
+                </h:form>
             </div>
 
             <!-- Content Wrapper (Sidebar + Main Content) -->
