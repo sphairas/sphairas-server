@@ -410,11 +410,15 @@ public class AppConfiguration implements Serializable {
     }
 
     public String getHelpLink() {
-                return null;
-//        return "https://www.sphairas.de/faq";
+//                return null;
+        return "https://www.sphairas.de/faq";
     }
 
     public String getCopyrightFooter() {
-        return "© 2015-2025 sphairas. All rights reserved.";
+        return "© sphairas";
+    }
+    
+    public String getPrivacyPolicyUrl() {
+        return null;
     }
 }

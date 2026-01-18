@@ -122,13 +122,20 @@
             <!-- Footer -->
             <div class="app-footer">
                 <div class="footer-links">
-                    <h:link value="Privacy Policy" outcome="privacy"/>
-                    <h:link value="Terms of Service" outcome="terms"/>
-                    <h:link value="Contact Us" outcome="contact"/>
-                    <h:link value="About" target="_blank" outcome="about" />
+                    <!--<h:link value="#{bundle['main.footer.impressum']}" outcome="impressum"/>-->
+                    <h:outputLink 
+                        rendered="#{config.privacyPolicyUrl ne null}"
+                        value="#{config.privacyPolicyUrl}" 
+                        target="_blank">
+                        <h:outputText value="#{bundle['main.footer.datenschutz']}"/>
+                    </h:outputLink>
+                    <!--<h:link value="#{bundle['main.footer.barrierefreiheit']}" outcome="barrierefreiheit"/>-->
+                    <h:outputLink value="https://www.sphairas.de" target="_blank">
+                        <h:outputText value="#{bundle['main.footer.about']}"/>
+                    </h:outputLink>
                 </div>
-                <div class="footer-copyright">
-                   #{config.copyrightFooter}
+                <div class="footer-copyright" rendered="#{config.copyrightFooter != null}">
+                    #{config.copyrightFooter}
                 </div>
             </div>
         </div>
