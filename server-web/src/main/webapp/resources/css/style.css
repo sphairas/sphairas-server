@@ -203,8 +203,42 @@ body {
     .app-logo-image {
         height: 32px;
     }
-    
+
     .app-logo span {
         display: none; /* Hide app name on mobile if needed */
     }
+}
+
+/*Migrated css*/
+
+/* DataTable auto-sizing columns */
+.p-datatable table {
+    table-layout: auto !important;
+}
+
+/* SelectOneMenu dropdown height limit (if still needed) */
+.p-selectonemenu-panel {
+    max-height: 400px !important; /* Use fixed pixel value instead of percentage */
+}
+
+/* Ensure dropdown items are scrollable (usually not needed) */
+.p-selectonemenu-items-wrapper {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+/*noBorders not used until now*/
+/* Utility class to remove borders and backgrounds from tables */
+.noBorders tr, 
+.noBorders td,
+.noBorders th {
+    background: none !important;
+    border: none !important;
+}
+
+/* Optional: Also target PrimeFaces 10 specific elements */
+.noBorders .p-datatable-tbody > tr,
+.noBorders .p-datatable-tbody > tr > td {
+    background: none !important;
+    border: none !important;
 }
