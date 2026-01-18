@@ -75,27 +75,23 @@
                         </ui:repeat>
 
                         <p:commandLink 
-                            styleClass="menu-item #{app.activePage eq 'reports' ? 'active' : ''}"
-                            actionListener="#{app.navigateTo('reports')}"
-                            update=":contentForm">
-                            <i class="pi pi-sign-out"></i>
-                            <span>Reports</span>
-                        </p:commandLink>
-
-                        <p:commandLink 
                             styleClass="menu-item #{app.activePage eq 'settings' ? 'active' : ''}"
+                            rendered="#{config.settingsEnabled}"
                             actionListener="#{app.navigateTo('settings')}"
                             update=":contentForm">
                             <i class="pi pi-cog"></i>
-                            <span>Settings</span>
+                            <span>#{bundle['main.menu.settings']}</span>
                         </p:commandLink>
 
                         <p:commandLink 
-                            styleClass="menu-item #{app.activePage eq 'help' ? 'active' : ''}"
-                            actionListener="#{app.navigateTo('help')}"
-                            update=":contentForm">
+                            styleClass="menu-item"
+                            rendered="#{config.helpLink ne null}"
+                            onclick="if (this.disabled)
+                                        return false;
+                                    window.open('#{config.getHelpLink()}', '_blank');
+                                    return false;">
                             <i class="pi pi-question-circle"></i>
-                            <span>Help</span>
+                            <span>#{bundle['main.menu.help']}</span>
                         </p:commandLink>
                     </h:form>
                 </div>
@@ -115,29 +111,10 @@
                             </ui:fragment>
                         </ui:repeat>
 
-                        <ui:fragment rendered="#{app.activePage == 'reports'}">
-                            <div class="content-section">
-                                <h2><i class="pi pi-chart-bar"></i> Reports</h2>
-                                <p>View and generate reports.</p>
-                                <!-- Add your reports content here -->
-                            </div>
-                        </ui:fragment>
-
                         <ui:fragment rendered="#{app.activePage == 'settings'}">
-                            <div class="content-section">
-                                <h2><i class="pi pi-cog"></i> Settings</h2>
-                                <p>Configure application settings.</p>
-                                <!-- Add your settings content here -->
-                            </div>
+                            <ui:include src="views/settings.xhtml"/>
                         </ui:fragment>
 
-                        <ui:fragment rendered="#{app.activePage == 'help'}">
-                            <div class="content-section">
-                                <h2><i class="pi pi-question-circle"></i> Help</h2>
-                                <p>Get help and support information.</p>
-                                <!-- Add your help content here -->
-                            </div>
-                        </ui:fragment>
                     </h:form>
                 </div>
             </div>
@@ -151,21 +128,21 @@
                     <h:link value="About" target="_blank" outcome="about" />
                 </div>
                 <div class="footer-copyright">
-                    © #{config.currentYear} #{config.appName}. All rights reserved.
+                   #{config.copyrightFooter}
                 </div>
             </div>
         </div>
 
         <!-- Session Expired Dialog -->
         <p:dialog id="sessionExpiredDialog"
-                  header="Session Expired" 
+                  header="#{bundle['session.expired.page.title']}" 
                   widgetVar="sessionExpired" 
                   modal="true"
                   closable="false">
             <h:panelGrid columns="1" style="text-align: center;">
                 <i class="pi pi-info-circle" style="font-size: 3rem; color: #2196F3;"></i>
-                <h:outputText value="Your session has expired." style="margin-top: 1rem;"/>
-                <p:commandButton value="Return to Login" 
+                <h:outputText value="#{bundle['session.expired.page.message']}" style="margin-top: 1rem;"/>
+                <p:commandButton value="#{bundle['session.expired.page.button.login']}" 
                                  action="#{app.logout}"
                                  icon="pi pi-sign-in"
                                  style="margin-top: 1rem;"/>
@@ -174,15 +151,15 @@
 
         <!-- General Error Dialog -->
         <p:dialog id="errorDialog"
-                  header="Error" 
+                  header="Error #{bundle['error.page.title']}" 
                   widgetVar="errorDialog" 
                   modal="true">
             <h:panelGrid columns="1" style="text-align: center;">
                 <i class="pi pi-times-circle" style="font-size: 3rem; color: #f44336;"></i>
-                <h:outputText value="An error occurred:" style="margin-top: 1rem;"/>
+                <h:outputText value="#{bundle['error.page.message']}" style="margin-top: 1rem;"/>
                 <h:outputText value="#{pfExceptionHandler.message}" 
                               style="font-weight: 600; margin-top: 0.5rem;"/>
-                <p:commandButton value="Close" 
+                <p:commandButton value="#{bundle['main.error.dialog.close']}" 
                                  onclick="PF('errorDialog').hide();"
                                  style="margin-top: 1rem;"/>
             </h:panelGrid>
@@ -192,6 +169,7 @@
         <p:idleMonitor timeout="120000" onidle="handleIdle();" />
 
         <p:messages />
+
         <p:lifecycle />
     </h:body>
 </html>

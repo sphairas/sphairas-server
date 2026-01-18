@@ -399,13 +399,22 @@ public class AppConfiguration implements Serializable {
     public Comparator<Subject> getSubjectComparator() {
         return (s1, s2) -> getReportBuilderFactory().forCareer(null).compare(s1.getSubjectMarker(), s2.getSubjectMarker());
     }
-    
-    
+
     public String getAppName() {
         return "sphairas";
     }
 
-    public String getCurrentYear() {
-        return "2025";
+    public boolean isSettingsEnabled() {
+                return false;
+//        return true;
+    }
+
+    public String getHelpLink() {
+                return null;
+//        return "https://www.sphairas.de/faq";
+    }
+
+    public String getCopyrightFooter() {
+        return "© 2015-2025 sphairas. All rights reserved.";
     }
 }
