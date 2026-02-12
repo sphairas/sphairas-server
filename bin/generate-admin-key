@@ -15,19 +15,26 @@ fi
 SERVER_KEY=${SECRETS}/server.key
 SERVER_CERT=${SECRETS}/server.crt
 
-read -p "Please enter your name: " NAME
+# Echo and prompt to stderr (>&2)
+echo -n "Please enter your name: " >&2
+read NAME
+
 while true; do
-    read -s -p "Password: " PASSWORD
-    echo
-    read -s -p "Password (again): " PASSWORD2
-    echo
+    echo -n "Password: " >&2
+    read -s PASSWORD
+    echo >&2 
+
+    echo -n "Password (again): " >&2
+    read -s PASSWORD2
+    echo >&2
+
     [ "$PASSWORD" = "$PASSWORD2" ] && break
-    echo "Please try again"
+    echo "Please try again" >&2
 done
 
-echo "Create a new signed admin key for $SPHAIRAS_PROVIDER."
+echo "Create a new signed admin key for $SPHAIRAS_PROVIDER." >&2
 if [ -z "$NAME" ]; then
-    echo "No name supplied."
+    echo "No name supplied." >&2
     CNAME="$SPHAIRAS_PROVIDER Admin"
 else
     CNAME="$NAME"
@@ -35,16 +42,17 @@ fi
 
 source ${SUBJECT}
 
-openssl req -newkey rsa:4096 -keyout ${HOME_DIR}/admin.key -nodes -out ${HOME_DIR}/admin.csr -subj "/CN=${CNAME}/C=${C}/ST=${ST}/L=${L}/O=${O}" 
-#Sign the key
-openssl x509 -req -CA $SERVER_CERT -CAkey $SERVER_KEY -in ${HOME_DIR}/admin.csr -passin pass:$AS_ADMIN_MASTERPASSWORD -out ${HOME_DIR}/admin.cer -days 365 -CAcreateserial
-#Create PKCS12
+# Redirect openssl status output to stderr (>&2) to keep stdout clean
+openssl req -newkey rsa:4096 -keyout ${HOME_DIR}/admin.key -nodes -out ${HOME_DIR}/admin.csr -subj "/CN=${CNAME}/C=${C}/ST=${ST}/L=${L}/O=${O}" >&2 2>&1 
+
+# Sign the key (Redirect status to stderr)
+openssl x509 -req -CA $SERVER_CERT -CAkey $SERVER_KEY -in ${HOME_DIR}/admin.csr -passin pass:$AS_ADMIN_MASTERPASSWORD -out ${HOME_DIR}/admin.cer -days 365 -CAcreateserial >&2 2>&1
+
+# Create PKCS12
 #openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${SECRETS}/admin.p12 -passout pass:'changeit' -chain -CAfile $SERVER_CERT -name $SPHAIRAS_PROVIDER
-#TODO: Verschlüsslungsalgorithmen anpassen, Java-kompatibel machen; macalg SHA1 ist offenbar erforderlich für Java 11
-openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out ${HOME_DIR}/admin.p12 -passout pass:$PASSWORD -chain -CAfile $SERVER_CERT -name ${SPHAIRAS_PROVIDER} -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg SHA1
+# TODO: Verschlüsslungsalgorithmen anpassen, Java-kompatibel machen; macalg SHA1 ist offenbar erforderlich für Java 11
+# CRITICAL: Output is set to /dev/stdout so it can be piped outside of Docker
+openssl pkcs12 -export -in ${HOME_DIR}/admin.cer -inkey ${HOME_DIR}/admin.key -out /dev/stdout -passout pass:$PASSWORD -chain -CAfile $SERVER_CERT -name ${SPHAIRAS_PROVIDER} -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg SHA1
 rm ${HOME_DIR}/admin.key
 rm ${HOME_DIR}/admin.csr
 rm ${HOME_DIR}/admin.cer
-
-echo "To copy your private key to your current console use \"docker cp $(hostname):${HOME_DIR}/admin.p12 .\". \
-Don't forget to delete the key file inside this container when you're done. Use \"docker exec -it $(hostname) rm ${HOME_DIR}/admin.p12\" to remove the key file."
