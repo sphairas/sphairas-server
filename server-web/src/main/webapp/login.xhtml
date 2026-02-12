@@ -1,76 +1,93 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 
-    <f:view contentType="text/html">
-        <h:head>            
-            <title>Login</title>
-            <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
-            <h:outputStylesheet library="css" name="style.css" />
-        </h:head>
+    <h:head>            
+        <title>#{bundle['login.title']}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
+        <link rel="stylesheet" href="https://unpkg.com/primeflex@3.3.1/primeflex.css"/>
 
-        <h:body>
-            <div style="width: 450px; margin-left: auto; margin-right: auto; margin-top: 8em; display: block">
-                <h:form id="login">
+        <h:outputStylesheet library="css" name="style.css" />
+    </h:head>
 
-                    <p:remoteCommand name="callLogout" actionListener="#{app.doLogout}"  />
+    <h:body>
 
-                    <p:panel id="login-panel" header="#{login.headerLabel}">  
-                        <h:panelGrid columns="2">  
-                            <h:outputText value="#{bundle['login.username']}" style="margin-right: 1em"/>  
-                            <p:inputText id="login-username" value="#{login.username}" required="true" />
-                            <h:outputText value="#{bundle['login.password']}" />  
-                            <p:password id="login-password" value="#{login.password}"  required="true" />
-                            <p:spacer />
-                            <p:commandButton value="${bundle['login.submit']}" 
-                                             actionListener="#{login.doLogin2}" 
-                                             update="login-panel" 
-                                             partialSubmit="true" />
-                        </h:panelGrid>  
-                        <h:outputText value="#{login.errorMessage}" rendered="#{login.errorMessage ne null}" style="color: red"/> 
-                    </p:panel>  
-                    <!--<p:lifecycle/>-->
+        <!-- Flex container to center login form -->
+        <div class="flex align-items-center justify-content-center" style="min-height: 100vh;">
+            <div class="col-12 md:col-6 lg:col-4 xl:col-3">
+                <h:form id="loginForm">
+                    <p:panel id="loginPanel" 
+                             styleClass="login-card" 
+                             header="#{login.headerLabel}">
 
-                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException" 
-                                                                onexception="viewExpiredException.xhtml" />-->
-                    <!--                             <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException" 
-                                                                onexception="callLogout()" />-->
+                        <!-- Username field -->
+                        <div class="field">
+                            <label for="username" class="block mb-2 font-medium">
+                                #{bundle['login.username']}
+                            </label>
+                            <p:inputText id="username" 
+                                         value="#{login.username}" 
+                                         required="true"
+                                         requiredMessage="#{bundle['login.username.required']}"
+                                         autocomplete="username"
+                                         placeholder="#{bundle['login.username']}"
+                                         styleClass="w-full"/>
+                        </div>
 
-                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException" 
-                                            onexception="document.location.href = document.location.href;" />
+                        <!-- Password field -->
+                        <div class="field">
+                            <label for="password" class="block mb-2 font-medium">
+                                #{bundle['login.password']}
+                            </label>
+                            <p:password id="password" 
+                                        value="#{login.password}" 
+                                        required="true"
+                                        requiredMessage="#{bundle['login.password.required']}"
+                                        feedback="false"
+                                        autocomplete="current-password"
+                                        placeholder="#{bundle['login.password']}"
+                                        styleClass="w-full"/>
+                        </div>
 
-                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException"  
-                                                                onexception="document.location.href = document.location.href;" />-->
-
-                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException"
-                                                                update="exceptionDialog"
-                                                                onexception="PF('exceptionDialog').show();" />-->
-                    <!--                    <p:ajaxExceptionHandler type="javax.faces.application.ViewExpiredException"
-                                                                onexception="reloadPage" />-->
-
-                    <p:dialog id="exceptionDialog" header="#{pfExceptionHandler.type}" widgetVar="exceptionDialog" height="100px">
-                        <p>  Wegen eines zwischenzeitlichen Neustarts ist die Login-Seite im Browser-Cache 
-                            ungültig und muss noch einmal geladen werden.
-                        </p>
-                          <!--Message: #{pfExceptionHandler.message} <br/>-->
-  <!--                        StackTrace: <h:outputText value="#{pfExceptionHandler.formattedStackTrace}" escape="false" /> <br />-->
-
-                        <p:button onclick="document.location.href = document.location.href;"
-                                  value="Login-Seite neu laden!"
-                                  rendered="#{pfExceptionHandler.type == 'javax.faces.application.ViewExpiredException'}" />
-                    </p:dialog>
+                        <!-- Login button -->
+                        <div class="field mt-4">
+                            <p:commandButton value="#{bundle['login.submit']}" 
+                                             action="#{login.doLogin}" 
+                                             update="loginPanel"
+                                             icon="pi pi-sign-in"
+                                             styleClass="w-full p-button-lg"/>
+                        </div>
+                    </p:panel>
                 </h:form>
             </div>
+        </div>
 
-            <!--            <script type="text/javascript">
-                            function reloadPage() {
-                                location.reload(true);
-                            }
-                        </script>-->
-        </h:body>
-    </f:view>
+        <!-- Session expired handler -->
+        <p:ajaxExceptionHandler type="jakarta.faces.application.ViewExpiredException" 
+                                update="sessionExpiredDialog"
+                                onexception="PF('sessionExpired').show();" />
+
+        <p:dialog id="sessionExpiredDialog"
+                  header="#{bundle['login.session.expired.title']}" 
+                  widgetVar="sessionExpired" 
+                  modal="true"
+                  closable="false"
+                  resizable="false"
+                  styleClass="w-11 md:w-6 lg:w-4">
+            <div class="text-center">
+                <i class="pi pi-info-circle text-6xl text-blue-500 mb-3"></i>
+                <p class="mb-4">#{bundle['login.session.expired.message']}</p>
+                <p:commandButton value="#{bundle['login.reload']}" 
+                                 onclick="location.reload();"
+                                 icon="pi pi-refresh"
+                                 styleClass="p-button-primary"/>
+            </div>
+        </p:dialog>
+        
+        <p:messages />
+
+    </h:body>
 </html>
-

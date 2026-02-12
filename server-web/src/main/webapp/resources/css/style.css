@@ -5,6 +5,8 @@
 }
 
 body {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+    min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
 }
@@ -50,6 +52,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .app-content-wrapper {
@@ -229,7 +232,7 @@ body {
 
 /*noBorders not used until now*/
 /* Utility class to remove borders and backgrounds from tables */
-.noBorders tr, 
+.noBorders tr,
 .noBorders td,
 .noBorders th {
     background: none !important;
@@ -241,4 +244,11 @@ body {
 .noBorders .p-datatable-tbody > tr > td {
     background: none !important;
     border: none !important;
+}
+
+/*Login view*/
+.login-card {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
 }
