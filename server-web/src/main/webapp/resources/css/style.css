@@ -252,3 +252,14 @@ body {
     border-radius: 8px;
     overflow: hidden;
 }
+
+/* Menu items auto width based on content*/
+.ui-menubar .ui-menu-child {
+    width: max-content !important;
+    min-width: 200px;
+    max-width: 500px; /* Prevent extremely wide menus */
+}
+
+.ui-menubar .ui-menuitem {
+    white-space: nowrap;
+}
