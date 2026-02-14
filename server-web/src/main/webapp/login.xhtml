@@ -22,7 +22,9 @@
                     <p:panel id="loginPanel" 
                              styleClass="login-card" 
                              header="#{login.headerLabel}">
-
+                        
+                        <p:messages id="messages" showDetail="false" closable="true"/>
+                        
                         <!-- Username field -->
                         <div class="field">
                             <label for="username" class="block mb-2 font-medium">
@@ -77,16 +79,18 @@
                   closable="false"
                   resizable="false"
                   styleClass="w-11 md:w-6 lg:w-4">
-            <div class="text-center">
-                <i class="pi pi-info-circle text-6xl text-blue-500 mb-3"></i>
-                <p class="mb-4">#{bundle['login.session.expired.message']}</p>
-                <p:commandButton value="#{bundle['login.reload']}" 
-                                 onclick="location.reload();"
-                                 icon="pi pi-refresh"
-                                 styleClass="p-button-primary"/>
-            </div>
+            <h:form>
+                <div class="text-center">
+                    <i class="pi pi-info-circle text-6xl text-blue-500 mb-3"></i>
+                    <p class="mb-4">#{bundle['login.session.expired.message']}</p>
+                    <p:commandButton value="#{bundle['login.reload']}" 
+                                     onclick="location.reload(); return false;"
+                                     icon="pi pi-refresh"
+                                     styleClass="p-button-primary"/>
+                </div>
+            </h:form>
         </p:dialog>
-        
+
         <p:messages />
 
     </h:body>
