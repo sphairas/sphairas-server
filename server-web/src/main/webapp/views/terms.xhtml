@@ -10,210 +10,213 @@
             <h2><i class="pi pi-list"></i> #{bundle['main.menu.terms.label']}</h2>
 
             <!-- Simple empty message -->
-            <div rendered="#{app.user ne null and empty app.user.targetUnits.tabs}" 
-                 class="flex justify-content-start m-2">
-                <h:outputText value="#{bundle['terms.tabs.emptyMessage']}" />
-            </div>
+            <ui:fragment rendered="#{app.user ne null and empty app.user.targetUnits.tabs}">
+                <div class="flex justify-content-start m-2">
+                    <h:outputText value="#{bundle['terms.tabs.emptyMessage']}" />
+                </div>
+            </ui:fragment>
+            
+            <ui:fragment rendered="#{app.user ne null and not empty app.user.targetUnits.tabs}">
+                <p:blockUI block="termsAccordionPanel" trigger="termsAccordionPanel">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                </p:blockUI>
 
-            <p:blockUI block="termsAccordionPanel" trigger="termsAccordionPanel">
-                <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-            </p:blockUI>
+                <p:accordionPanel id="termsAccordionPanel" 
+                                  dynamic="true" 
+                                  value="#{app.user.targetUnits.tabs}" 
+                                  var="target" 
+                                  rendered="#{app.user ne null and not empty app.user.targetUnits.tabs}" 
+                                  activeIndex="#{app.user.targetUnits.activeTabIndex}" > 
 
-            <p:accordionPanel id="termsAccordionPanel" 
-                              dynamic="true" 
-                              value="#{app.user.targetUnits.tabs}" 
-                              var="target" 
-                              rendered="#{app.user ne null and not empty app.user.targetUnits.tabs}" 
-                              activeIndex="#{app.user.targetUnits.activeTabIndex}" > 
+                    <p:tab title="#{target.displayTitle}">   
 
-                <p:tab title="#{target.displayTitle}">   
+                        <!-- Menu Bar -->
+                        <!-- Sollte später durch p:fileDownload ersetzt werden. Die nested h:form ist notwendig zum Öffnen im neuen Tab.-->
+                        <p:menubar model="#{target.menu}" styleClass="mb-3" />  
 
-                    <!-- Menu Bar -->
-                    <!-- Sollte später durch p:fileDownload ersetzt werden. Die nested h:form ist notwendig zum Öffnen im neuen Tab.-->
-                    <p:menubar model="#{target.menu}" styleClass="mb-3" />  
+                        <!--stripedRows="true"-->
+                        <p:dataTable id="datatable" 
+                                     var="student" 
+                                     widgetVar="datatableWidget"
+                                     value="#{target.students}" 
+                                     editable="true"  
+                                     emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
+                                     editMode="cell" 
+                                     rowExpandMode="single" 
+                                     rowIndexVar="rowIndex" 
+                                     styleClass="p-datatable-striped p-datatable-gridlines"
+                                     cellEditMode="click">     
 
-                    <!--stripedRows="true"-->
-                    <p:dataTable id="datatable" 
-                                 var="student" 
-                                 widgetVar="datatableWidget"
-                                 value="#{target.students}" 
-                                 editable="true"  
-                                 emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
-                                 editMode="cell" 
-                                 rowExpandMode="single" 
-                                 rowIndexVar="rowIndex" 
-                                 styleClass="p-datatable-striped p-datatable-gridlines"
-                                 cellEditMode="click">     
+                            <f:event type="preRenderComponent" listener="#{target.onPreRenderComponent}"/>
 
-                        <f:event type="preRenderComponent" listener="#{target.onPreRenderComponent}"/>
+                            <p:ajax event="cellEdit" 
+                                    listener="#{target.onCellEdit}" 
+                                    update="@this"/>
 
-                        <p:ajax event="cellEdit" 
-                                listener="#{target.onCellEdit}" 
-                                update="@this"/>
+                            <p:columnGroup type="header">   
+                                <p:row>  
+                                    <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled() or target.hasComments()}" style="width:2%" />   
+                                    <p:column rowspan="2" headerText="#{bundle['student.name']}" />   
+                                    <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
+                                    <p:column colspan="#{target.editableTermColumns.size()}" rendered="#{!target.editableTermColumns.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
+                                </p:row>  
+                                <p:row>   
+                                    <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%" width="10%"/>  
+                                    <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%" />  
+                                    <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%" />     
+                                    <p:columns value="#{config.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%" />  
+                                </p:row>  
+                            </p:columnGroup> 
 
-                        <p:columnGroup type="header">   
-                            <p:row>  
-                                <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled() or target.hasComments()}" style="width:2%" />   
-                                <p:column rowspan="2" headerText="#{bundle['student.name']}" />   
-                                <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
-                                <p:column colspan="#{target.editableTermColumns.size()}" rendered="#{!target.editableTermColumns.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
-                            </p:row>  
-                            <p:row>   
-                                <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%" width="10%"/>  
-                                <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%" />  
-                                <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%" />     
-                                <p:columns value="#{config.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%" />  
-                            </p:row>  
-                        </p:columnGroup> 
+                            <p:column rendered="#{target.isCrossMarksEnabled() or target.hasComments()}">  
+                                <p:rowToggler />
+                            </p:column>   
+                            <p:column>  
+                                <h:outputText value="#{student.directoryName}"/>  
+                            </p:column>   
 
-                        <p:column rendered="#{target.isCrossMarksEnabled() or target.hasComments()}">  
-                            <p:rowToggler />
-                        </p:column>   
-                        <p:column>  
-                            <h:outputText value="#{student.directoryName}"/>  
-                        </p:column>   
+                            <p:columns value="#{target.termColumns}" var="term" columnIndexVar="ci" style="text-align: center;"  >
+                                #{target.getGradeValueAt(student, term).shortLabel} 
+                            </p:columns>  
 
-                        <p:columns value="#{target.termColumns}" var="term" columnIndexVar="ci" style="text-align: center;"  >
-                            #{target.getGradeValueAt(student, term).shortLabel} 
-                        </p:columns>  
+                            <p:columns value="#{config.targetTypes}" 
+                                       var="targetType" 
+                                       columnIndexVar="ci"
+                                       styleClass="ui-editable-column" 
+                                       style="text-align: center;" 
+                                       rendered="#{target.editableTermColumns.get(targetType) ne null}">  
+                                <p:cellEditor rendered="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
+                                    <f:facet name="output" >
+                                        <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
+                                                      style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" />
+                                    </f:facet>  
+                                    <f:facet name="input">    
+                                        <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).id}" 
+                                                         style="width: 96% !important">  
+                                            <f:selectItem itemLabel="#{bundle[targetType += '.noSelectionLabel']}" 
+                                                          noSelectionOption="true" />
+                                            <f:selectItems value="#{target.editableTermColumns.get(targetType).grades}" 
+                                                           var="grade" 
+                                                           itemLabel="#{target.resolveShortLabel(student, target.editableTermColumns.get(targetType), grade)}" 
+                                                           itemValue="#{grade.id}" />  
 
-                        <p:columns value="#{config.targetTypes}" 
-                                   var="targetType" 
-                                   columnIndexVar="ci"
-                                   styleClass="ui-editable-column" 
-                                   style="text-align: center;" 
-                                   rendered="#{target.editableTermColumns.get(targetType) ne null}">  
-                            <p:cellEditor rendered="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
-                                <f:facet name="output" >
-                                    <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
-                                                  style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" />
-                                </f:facet>  
-                                <f:facet name="input">    
-                                    <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).id}" 
-                                                     style="width: 96% !important">  
-                                        <f:selectItem itemLabel="#{bundle[targetType += '.noSelectionLabel']}" 
-                                                      noSelectionOption="true" />
-                                        <f:selectItems value="#{target.editableTermColumns.get(targetType).grades}" 
-                                                       var="grade" 
-                                                       itemLabel="#{target.resolveShortLabel(student, target.editableTermColumns.get(targetType), grade)}" 
-                                                       itemValue="#{grade.id}" />  
+                                            <p:ajax event="itemSelect" 
+                                                    process="@this" 
+                                                    update="@none"
+                                                    oncomplete="document.activeElement.blur()" />
 
-                                        <p:ajax event="itemSelect" 
-                                                process="@this" 
-                                                update="@none"
-                                                oncomplete="document.activeElement.blur()" />
+                                        </p:selectOneMenu>   
+                                    </f:facet>       
+                                </p:cellEditor> 
+                                <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
+                                              style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" 
+                                              rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}"/>
 
-                                    </p:selectOneMenu>   
-                                </f:facet>       
-                            </p:cellEditor> 
-                            <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
-                                          style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" 
-                                          rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}"/>
+                            </p:columns> 
 
-                        </p:columns> 
+                            <p:rowExpansion rendered="#{target.hasComments() or target.isCrossMarksEnabled()}">
 
-                        <p:rowExpansion rendered="#{target.hasComments() or target.isCrossMarksEnabled()}">
+                                <!-- Comments Section with PrimeFlex -->
+                                <div class="p-fluid" rendered="#{target.hasComments()}" style="margin-bottom: 1.5rem;">
+                                    <p:panel header="#{bundle['availableTarget.datatable.comments.label']}" 
+                                             styleClass="p-mb-3">
+                                        <p:inputTextarea id="comments" 
+                                                         rows="3" 
+                                                         value="#{student.comment}" 
+                                                         disabled="#{!student.commentsEnabled}" 
+                                                         autoResize="true" 
+                                                         style="width: 100%;">
+                                            <p:ajax event="blur" update="@this" />
+                                        </p:inputTextarea>
+                                    </p:panel>
+                                </div>
 
-                            <!-- Comments Section with PrimeFlex -->
-                            <div class="p-fluid" rendered="#{target.hasComments()}" style="margin-bottom: 1.5rem;">
-                                <p:panel header="#{bundle['availableTarget.datatable.comments.label']}" 
-                                         styleClass="p-mb-3">
-                                    <p:inputTextarea id="comments" 
-                                                     rows="3" 
-                                                     value="#{student.comment}" 
-                                                     disabled="#{!student.commentsEnabled}" 
-                                                     autoResize="true" 
-                                                     style="width: 100%;">
-                                        <p:ajax event="blur" update="@this" />
-                                    </p:inputTextarea>
-                                </p:panel>
-                            </div>
+                                <!-- Cross Marks DataTable -->
+                                <p:dataTable id="crossMarks" 
+                                             rendered="#{target.isCrossMarksEnabled()}"
+                                             var="crossMarkSubject" 
+                                             value="#{target.crossMarkSubjects}" 
+                                             editable="true"  
+                                             emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
+                                             editMode="cell"                              
+                                             rowIndexVar="crossMarksRowIndex" 
+                                             styleClass="p-datatable-striped p-datatable-gridlines"
+                                             rowStyleClass="#{empty crossMarksRowIndex or crossMarksRowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}">
 
-                            <!-- Cross Marks DataTable -->
-                            <p:dataTable id="crossMarks" 
-                                         rendered="#{target.isCrossMarksEnabled()}"
-                                         var="crossMarkSubject" 
-                                         value="#{target.crossMarkSubjects}" 
-                                         editable="true"  
-                                         emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
-                                         editMode="cell"                              
-                                         rowIndexVar="crossMarksRowIndex" 
-                                         styleClass="p-datatable-striped p-datatable-gridlines"
-                                         rowStyleClass="#{empty crossMarksRowIndex or crossMarksRowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}">
+                                    <f:facet name="header">
+                                        #{bundle['crossMarks.title']}
+                                    </f:facet>
 
-                                <f:facet name="header">
-                                    #{bundle['crossMarks.title']}
-                                </f:facet>
+                                    <p:columnGroup type="header">   
+                                        <p:row>  
+                                            <p:column rowspan="2" 
+                                                      headerText="#{bundle['crossMarks.skill']}" 
+                                                      style="min-width: 150px;" />   
+                                            <p:column colspan="#{target.termColumns.size()}" 
+                                                      rendered="#{!target.termColumns.isEmpty()}" 
+                                                      headerText="#{bundle['column.header.vorzensuren']}" />  
+                                            <p:column colspan="1" 
+                                                      headerText="#{target.editTerm.displayName}" 
+                                                      style="width: 150px;" /> 
+                                        </p:row>  
+                                        <p:row>   
+                                            <p:column headerText="#{target.termColumns[0].displayName}" 
+                                                      rendered="#{target.termColumns.size() ge 1}" 
+                                                      style="width: 100px;"/>  
+                                            <p:column headerText="#{target.termColumns[1].displayName}" 
+                                                      rendered="#{target.termColumns.size() ge 2}" 
+                                                      style="width: 100px;" />  
+                                            <p:column headerText="#{target.termColumns[2].displayName}" 
+                                                      rendered="#{target.termColumns.size() ge 3}" 
+                                                      style="width: 100px;" />     
+                                        </p:row>  
+                                    </p:columnGroup> 
 
-                                <p:columnGroup type="header">   
-                                    <p:row>  
-                                        <p:column rowspan="2" 
-                                                  headerText="#{bundle['crossMarks.skill']}" 
-                                                  style="min-width: 150px;" />   
-                                        <p:column colspan="#{target.termColumns.size()}" 
-                                                  rendered="#{!target.termColumns.isEmpty()}" 
-                                                  headerText="#{bundle['column.header.vorzensuren']}" />  
-                                        <p:column colspan="1" 
-                                                  headerText="#{target.editTerm.displayName}" 
-                                                  style="width: 150px;" /> 
-                                    </p:row>  
-                                    <p:row>   
-                                        <p:column headerText="#{target.termColumns[0].displayName}" 
-                                                  rendered="#{target.termColumns.size() ge 1}" 
-                                                  style="width: 100px;"/>  
-                                        <p:column headerText="#{target.termColumns[1].displayName}" 
-                                                  rendered="#{target.termColumns.size() ge 2}" 
-                                                  style="width: 100px;" />  
-                                        <p:column headerText="#{target.termColumns[2].displayName}" 
-                                                  rendered="#{target.termColumns.size() ge 3}" 
-                                                  style="width: 100px;" />     
-                                    </p:row>  
-                                </p:columnGroup> 
+                                    <p:column>  
+                                        <h:outputText value="#{crossMarkSubject.displayName}" 
+                                                      style="font-weight: 500;" />  
+                                    </p:column>   
 
-                                <p:column>  
-                                    <h:outputText value="#{crossMarkSubject.displayName}" 
-                                                  style="font-weight: 500;" />  
-                                </p:column>   
+                                    <p:columns value="#{target.termColumns}" 
+                                               var="term" 
+                                               columnIndexVar="ci" 
+                                               style="text-align: center;">
+                                        <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject, term).shortLabel}" />
+                                    </p:columns>  
 
-                                <p:columns value="#{target.termColumns}" 
-                                           var="term" 
-                                           columnIndexVar="ci" 
-                                           style="text-align: center;">
-                                    <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject, term).shortLabel}" />
-                                </p:columns>  
+                                    <p:column styleClass="ui-editable-column" 
+                                              style="text-align: center;">  
+                                        <p:cellEditor rendered="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}">  
+                                            <f:facet name="output">
+                                                <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
+                                                              style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" />
+                                            </f:facet>  
+                                            <f:facet name="input">    
+                                                <p:selectOneMenu value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).id}" 
+                                                                 style="width: 100%;">  
+                                                    <f:selectItem itemLabel="#{bundle['zeugnisnoten.noSelectionLabel']}" 
+                                                                  noSelectionOption="true" />
+                                                    <f:selectItems value="#{config.crossMarkGrades}" 
+                                                                   var="grade" 
+                                                                   itemLabel="#{target.resolveCrossMarkGradeLabel(grade)}" 
+                                                                   itemValue="#{grade.id}" />  
+                                                    <p:ajax event="itemSelect" process="@this" update="@this" />
+                                                </p:selectOneMenu>   
+                                            </f:facet>       
+                                        </p:cellEditor> 
+                                        <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
+                                                      style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" 
+                                                      rendered="#{!target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}"/>
+                                    </p:column> 
 
-                                <p:column styleClass="ui-editable-column" 
-                                          style="text-align: center;">  
-                                    <p:cellEditor rendered="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}">  
-                                        <f:facet name="output">
-                                            <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
-                                                          style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" />
-                                        </f:facet>  
-                                        <f:facet name="input">    
-                                            <p:selectOneMenu value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).id}" 
-                                                             style="width: 100%;">  
-                                                <f:selectItem itemLabel="#{bundle['zeugnisnoten.noSelectionLabel']}" 
-                                                              noSelectionOption="true" />
-                                                <f:selectItems value="#{config.crossMarkGrades}" 
-                                                               var="grade" 
-                                                               itemLabel="#{target.resolveCrossMarkGradeLabel(grade)}" 
-                                                               itemValue="#{grade.id}" />  
-                                                <p:ajax event="itemSelect" process="@this" update="@this" />
-                                            </p:selectOneMenu>   
-                                        </f:facet>       
-                                    </p:cellEditor> 
-                                    <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
-                                                  style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" 
-                                                  rendered="#{!target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}"/>
-                                </p:column> 
+                                </p:dataTable>                        
+                            </p:rowExpansion>
 
-                            </p:dataTable>                        
-                        </p:rowExpansion>
+                        </p:dataTable>  
 
-                    </p:dataTable>  
-
-                </p:tab>
-            </p:accordionPanel>
+                    </p:tab>
+                </p:accordionPanel>
+            </ui:fragment>
 
         </div>
     </ui:composition>
