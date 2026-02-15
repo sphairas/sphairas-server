@@ -15,10 +15,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.primefaces.model.DashboardColumn;
-import org.primefaces.model.DashboardModel;
-import org.primefaces.model.DefaultDashboardColumn;
-import org.primefaces.model.DefaultDashboardModel;
+import org.primefaces.model.dashboard.DashboardModel;
+import org.primefaces.model.dashboard.DefaultDashboardModel;
+import org.primefaces.model.dashboard.DefaultDashboardWidget;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.MarkerConvention;
@@ -60,12 +59,12 @@ public class ApplicationUser implements Serializable {
     public DashboardModel getDashboard() {
         if (dashboard == null) {
             dashboard = new DefaultDashboardModel();
-            DashboardColumn column1 = new DefaultDashboardColumn();
+            DefaultDashboardWidget column1 = new DefaultDashboardWidget();
 
             column1.addWidget("sports");
             column1.addWidget("finance");
 
-            dashboard.addColumn(column1);
+            dashboard.addWidget(column1);
         }
         return dashboard;
     }
