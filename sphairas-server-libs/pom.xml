@@ -70,19 +70,19 @@
         <dependency>
             <groupId>fish.payara.server.internal.web</groupId>
             <artifactId>web-naming</artifactId>
-            <version>6.2025.11</version>
+            <version>${payara.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
-            <version>10.0.0</version>
+            <version>${jakartaee}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-web-api</artifactId>
-            <version>10.0.0</version>
+            <version>${jakartaee}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
