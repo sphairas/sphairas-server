@@ -1,3 +1,7 @@
+:root {
+    /* Ensure theme variables are preserved -> Prüfen, ob wirklich gebraucht */
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -262,4 +266,45 @@ body {
 
 .ui-menubar .ui-menuitem {
     white-space: nowrap;
+}
+
+/* Style the entire cell based on grade */
+/*.p-datatable td.grade-excellent {
+    background-color: #c8e6c9 !important;  Light green 
+}*/
+
+.ui-datatable .cell-highlightable {
+    display: block;
+    margin: -0.571rem 0rem;
+    padding: 0.571rem 0rem;
+}
+
+.ui-datatable .cell-highlightable.grade-pending {
+    /*background-color: var(--yellow-100) !important;*/
+    background-color: #ffe0b2 !important;
+}
+
+.ui-datatable .cell-highlightable.grade-poor {
+    color: red !important;
+}
+
+.ui-datatable .cell-readonly {
+    cursor: not-allowed;
+    filter: grayscale(40%) brightness(95%);
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(0, 0, 0, 0.03) 10px,
+        rgba(0, 0, 0, 0.03) 20px
+        );
+}
+
+.ui-datatable .cell-editable {
+    cursor: pointer;
+}
+
+.ui-datatable .cell-editable:hover {
+    border-color: rgba(59, 130, 246, 0.6) !important;
+    box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.2);
 }

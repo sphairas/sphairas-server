@@ -210,11 +210,11 @@ public class GradeValue extends AbstractGradeWrapper {
         }
     }
 
-    public String getStyle() {
+    public String getStyleClass() {
         if (isPending()) {
-            return "display: block; background-color: #F5DEB3;";
+            return "grade-pending";
         } else if (getShortLabel().startsWith("5") || getShortLabel().startsWith("6")) {
-            return "color: red";
+            return "grade-poor";
         } else {
             return "";
         }
@@ -223,5 +223,4 @@ public class GradeValue extends AbstractGradeWrapper {
     private boolean isPending() {
         return "pending".equals(getId());
     }
-
 }

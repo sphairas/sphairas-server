@@ -88,7 +88,7 @@
                                 <p:cellEditor rendered="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
                                     <f:facet name="output" >
                                         <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
-                                                      style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" />
+                                                      styleClass="cell-editable cell-highlightable #{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).styleClass}" />
                                     </f:facet>  
                                     <f:facet name="input">    
                                         <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).id}" 
@@ -109,7 +109,7 @@
                                     </f:facet>       
                                 </p:cellEditor> 
                                 <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
-                                              style="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).style}" 
+                                              styleClass="cell-readonly cell-highlightable #{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).styleClass}" 
                                               rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}"/>
 
                             </p:columns> 
