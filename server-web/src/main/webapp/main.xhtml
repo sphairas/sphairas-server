@@ -28,7 +28,7 @@
         <p:growl widgetVar="growl" showDetail="true" />
 
         <div class="app-container">
-            
+
             <!-- Top Bar -->
             <div class="app-topbar">
                 <div class="app-logo">
@@ -149,14 +149,16 @@
                   widgetVar="sessionExpired" 
                   modal="true"
                   closable="false">
-            <h:panelGrid columns="1" style="text-align: center;">
-                <i class="pi pi-info-circle" style="font-size: 3rem; color: #2196F3;"></i>
-                <h:outputText value="#{bundle['session.expired.page.message']}" style="margin-top: 1rem;"/>
-                <p:commandButton value="#{bundle['session.expired.page.button.login']}" 
-                                 action="#{app.logout}"
-                                 icon="pi pi-sign-in"
-                                 style="margin-top: 1rem;"/>
-            </h:panelGrid>
+            <h:form>
+                <h:panelGrid columns="1" style="text-align: center;">
+                    <i class="pi pi-info-circle" style="font-size: 3rem; color: #2196F3;"></i>
+                    <h:outputText value="#{bundle['session.expired.page.message']}" style="margin-top: 1rem;"/>
+                    <p:commandButton value="#{bundle['session.expired.page.button.login']}" 
+                                     action="#{app.logout}"
+                                     icon="pi pi-sign-in"
+                                     style="margin-top: 1rem;"/>
+                </h:panelGrid>
+            </h:form>
         </p:dialog>
 
         <!-- General Error Dialog -->
@@ -164,15 +166,17 @@
                   header="Error #{bundle['error.page.title']}" 
                   widgetVar="errorDialog" 
                   modal="true">
-            <h:panelGrid columns="1" style="text-align: center;">
-                <i class="pi pi-times-circle" style="font-size: 3rem; color: #f44336;"></i>
-                <h:outputText value="#{bundle['error.page.message']}" style="margin-top: 1rem;"/>
-                <h:outputText value="#{pfExceptionHandler.message}" 
-                              style="font-weight: 600; margin-top: 0.5rem;"/>
-                <p:commandButton value="#{bundle['main.error.dialog.close']}" 
-                                 onclick="PF('errorDialog').hide();"
-                                 style="margin-top: 1rem;"/>
-            </h:panelGrid>
+            <h:form>
+                <h:panelGrid columns="1" style="text-align: center;">
+                    <i class="pi pi-times-circle" style="font-size: 3rem; color: #f44336;"></i>
+                    <h:outputText value="#{bundle['error.page.message']}" style="margin-top: 1rem;"/>
+                    <h:outputText value="#{pfExceptionHandler.message}" 
+                                  style="font-weight: 600; margin-top: 0.5rem;"/>
+                    <p:commandButton value="#{bundle['main.error.dialog.close']}" 
+                                     onclick="PF('errorDialog').hide();"
+                                     style="margin-top: 1rem;"/>
+                </h:panelGrid>
+            </h:form>
         </p:dialog>
 
         <!-- PrimeFaces Idle Monitor -->
