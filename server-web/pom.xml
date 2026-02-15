@@ -62,13 +62,13 @@
         <dependency>
             <groupId>fish.payara.server.internal.web</groupId>
             <artifactId>web-core</artifactId>
-            <version>6.2025.11</version>
+            <version>${payara.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>fish.payara.server.internal.web</groupId>
             <artifactId>web-naming</artifactId>
-            <version>6.2025.11</version>
+            <version>${payara.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
