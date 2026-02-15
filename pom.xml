@@ -23,9 +23,9 @@
       
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jakartaee>10.0.0</jakartaee>
-        <maven.compiler.release>11</maven.compiler.release>
-        <payara.version>6.2025.11</payara.version>
+        <jakartaee>11.0.0</jakartaee>
+        <maven.compiler.release>21</maven.compiler.release>
+        <payara.version>7.2026.1</payara.version>
     </properties>
       
     <dependencies>
