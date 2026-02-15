@@ -30,9 +30,9 @@ public class TermGradeExtTargetAssessmentEntity extends GradeTargetAssessmentEnt
 
     private static final long serialVersionUID = 1L;
     @OneToMany(mappedBy = "document", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private final Set<TermAssessmentEntry2Ext> entries = new HashSet<>();
+    private Set<TermAssessmentEntry2Ext> entries = new HashSet<>();
     @OneToMany(mappedBy = "target", orphanRemoval = true)
-    private final Set<TermGradeTargAssessTicketEnt> tickets = new HashSet<>();
+    private Set<TermGradeTargAssessTicketEnt> tickets = new HashSet<>();
 
     public TermGradeExtTargetAssessmentEntity() {
     }

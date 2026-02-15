@@ -52,7 +52,7 @@ public abstract class BaseTargetAssessmentEntity<G, I extends Identity> extends 
                 @JoinColumn(name = "UNIT_DOCUMENT_ID", referencedColumnName = "DOCUMENT_ID"),
                 @JoinColumn(name = "UNIT_DOCUMENT_AUTHORITY", referencedColumnName = "DOCUMENT_AUTHORITY"),
                 @JoinColumn(name = "UNIT_DOCUMENT_VERSION", referencedColumnName = "DOCUMENT_VERSION")})
-    private final Set<UnitDocumentEntity> unitDocs = new HashSet<>();
+    private Set<UnitDocumentEntity> unitDocs = new HashSet<>();
     @Embedded
     @ElementCollection
     @MapKey(name = "type")
@@ -72,7 +72,7 @@ public abstract class BaseTargetAssessmentEntity<G, I extends Identity> extends 
                 @JoinColumn(name = "SIGNEE_ID", referencedColumnName = "SIGNEE_ID"),
                 @JoinColumn(name = "SIGNEE_AUTHORITY", referencedColumnName = "SIGNEE_AUTHORITY"),
                 @JoinColumn(name = "SIGNEE_ALIAS", referencedColumnName = "SIGNEE_ALIAS")})
-    private final Set<SigneeEntity> signees = new HashSet<>();
+    private Set<SigneeEntity> signees = new HashSet<>();
     @Column(name = "CONVENTION", length = 64)
     private String preferredConvention;
     @Column(name = "TARGET_TYPE_DISPLAY_HINT")

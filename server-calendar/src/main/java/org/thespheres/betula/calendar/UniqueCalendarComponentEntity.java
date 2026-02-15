@@ -57,7 +57,7 @@ public class UniqueCalendarComponentEntity<C extends BaseCalendarEntity> extends
     @OrderColumn(name = "PROPERTY_ORDER")
     protected List<EmbeddableComponentProperty> cmpr = new ArrayList<>();
     @ManyToMany(mappedBy = "collectionComponents")
-    protected final Set<CalendarCollectionEntity> collections = new HashSet<>();
+    protected Set<CalendarCollectionEntity> collections = new HashSet<>();
     @ManyToOne(targetEntity = BaseCalendarEntity.class)
     @JoinColumns({
         @JoinColumn(name = "BASECALENDAR_ID", referencedColumnName = "CALENDAR_ID"),

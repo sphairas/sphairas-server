@@ -51,10 +51,10 @@ public class TermReportDocumentEntity2 extends BaseDocumentEntity implements Ser
     private static final long serialVersionUID = 1L;
     @MapKey(name = "mapKey")
     @OneToMany(mappedBy = "document", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private final Map<String, TermReportDocumentEntity2TextEntry2> reportTextValues = new HashMap<>();
+    private Map<String, TermReportDocumentEntity2TextEntry2> reportTextValues = new HashMap<>();
     @MapKey(name = "mapKey")
     @OneToMany(mappedBy = "document", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private final Map<String, TermReportDocumentEntity2GradeEntry2> reportGradeValues = new HashMap<>();
+    private Map<String, TermReportDocumentEntity2GradeEntry2> reportGradeValues = new HashMap<>();
     private EmbeddableStudentId student;
     private EmbeddableTermId term;
 

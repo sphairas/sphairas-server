@@ -78,7 +78,7 @@ public class TermReportDocumentEntity extends BaseDocumentEntity implements Seri
         @JoinColumn(name = "TERMREPORT_DOCUMENT_ID", referencedColumnName = "DOCUMENT_ID", updatable = false, insertable = false),
         @JoinColumn(name = "TERMREPORT_DOCUMENT_AUTHORITY", referencedColumnName = "DOCUMENT_AUTHORITY", updatable = false, insertable = false),
         @JoinColumn(name = "TERMREPORT_DOCUMENT_VERSION", referencedColumnName = "DOCUMENT_VERSION", updatable = false, insertable = false)})
-    private final Map<Integer, String> freeNotes = new HashMap<>();
+    private Map<Integer, String> freeNotes = new HashMap<>();
     @ElementCollection
     @MapKeyColumn(name = "NOTE_KEY")
     @Column(name = "NOTE_VALUE", length = 1500)
@@ -86,7 +86,7 @@ public class TermReportDocumentEntity extends BaseDocumentEntity implements Seri
         @JoinColumn(name = "TERMREPORT_DOCUMENT_ID", referencedColumnName = "DOCUMENT_ID", updatable = false, insertable = false),
         @JoinColumn(name = "TERMREPORT_DOCUMENT_AUTHORITY", referencedColumnName = "DOCUMENT_AUTHORITY", updatable = false, insertable = false),
         @JoinColumn(name = "TERMREPORT_DOCUMENT_VERSION", referencedColumnName = "DOCUMENT_VERSION", updatable = false, insertable = false)})
-    private final Map<String, String> notes = new HashMap<>();
+    private Map<String, String> notes = new HashMap<>();
     private EmbeddableStudentId student;
     private EmbeddableTermId term;
 

@@ -31,7 +31,7 @@ public class EmbeddableComponentProperty implements Serializable {
     @Column(name = "PROPERTY_VALUE")
     private String propValue;
     @Column(name = "PROPERTY_PARAMETERS")
-    private final ParameterList propParameters = new ParameterList();
+    private ParameterList propParameters = new ParameterList();
 
     public EmbeddableComponentProperty() {
     }

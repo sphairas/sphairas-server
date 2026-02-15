@@ -78,9 +78,9 @@ public class TermTextTargetAssessmentEntity extends BaseTargetAssessmentEntity<S
 //                @JoinColumn(name = "TERMTEXT_TARGETASSESSMENT_DOCUMENT_VERSION", referencedColumnName = "DOCUMENT_VERSION", updatable = false, insertable = false)})
 //    private final Set<TermTextAssessmentEntry> entries = new HashSet<>();
     @OneToMany(mappedBy = "document", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private final Set<TermTextAssessmentEntry2> entries = new HashSet<>();
+    private Set<TermTextAssessmentEntry2> entries = new HashSet<>();
     @OneToMany(mappedBy = "target", orphanRemoval = true)
-    private final Set<TermGradeTargAssessTicketEnt> tickets = new HashSet<>();
+    private Set<TermGradeTargAssessTicketEnt> tickets = new HashSet<>();
     @Embedded
     private TermTextTargetAssessmentEntityLock lock;
 

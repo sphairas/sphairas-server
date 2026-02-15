@@ -51,10 +51,10 @@ public abstract class BaseCalendarEntity<C extends UniqueCalendarComponentEntity
     private long entityVersion;
     @OneToMany(mappedBy = "calendar")
     @OrderColumn(name = "BASE_CALENDAR_COMPONENT_ORDER")
-    private final List<UniqueCalendarComponentEntity> components = new ArrayList<>();
+    private List<UniqueCalendarComponentEntity> components = new ArrayList<>();
     @ManyToMany(mappedBy = "calendars")
     @OrderColumn(name = "BASE_CALENDAR_TIMEZONE_ORDER")
-    protected final List<TimezoneEntity> timezones = new ArrayList<>();
+    protected List<TimezoneEntity> timezones = new ArrayList<>();
 
     public BaseCalendarEntity() {
     }

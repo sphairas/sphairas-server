@@ -49,7 +49,7 @@ public class CalendarCollectionEntity implements Serializable {
             inverseJoinColumns = {
                 @JoinColumn(name = "CALENDARCOMPONENT_SYSUID", referencedColumnName = "UID_SYSID"),
                 @JoinColumn(name = "CALENDARCOMPONENT_HOST", referencedColumnName = "UID_HOST")})
-    protected final Set<UniqueCalendarComponentEntity> collectionComponents = new HashSet<>();
+    protected Set<UniqueCalendarComponentEntity> collectionComponents = new HashSet<>();
 
     public CalendarCollectionEntity() {
         this(null);

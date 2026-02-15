@@ -41,7 +41,7 @@ public class RecordTargetAssessmentEntity extends GradeTargetAssessmentEntity<Re
                 @JoinColumn(name = "RECORD_TARGETASSESSMENT_DOCUMENT_ID", referencedColumnName = "DOCUMENT_ID", updatable = false, insertable = false),
                 @JoinColumn(name = "RECORD_TARGETASSESSMENT_DOCUMENT_AUTHORITY", referencedColumnName = "DOCUMENT_AUTHORITY", updatable = false, insertable = false),
                 @JoinColumn(name = "RECORD_TARGETASSESSMENT_DOCUMENT_VERSION", referencedColumnName = "DOCUMENT_VERSION", updatable = false, insertable = false)})
-    private final Set<RecordAssessmentEntry2> entries = new HashSet<>();
+    private Set<RecordAssessmentEntry2> entries = new HashSet<>();
 
     public RecordTargetAssessmentEntity() {
         super();

@@ -29,7 +29,7 @@ public abstract class AbstractCalendarComponent {
     @Column(name = "COMPONENT_VERSION")
     private long version;
     @Column(name = "COMPONENT_NAME", length = 64)
-    private final String name;
+    private String name;
     @Column(name = "DTSTAMP_VALUE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dtstamp;
@@ -48,7 +48,7 @@ public abstract class AbstractCalendarComponent {
     @Column(name = "SUMMARY_VALUE")
     private String summary;
     @Column(name = "SUMMARY_PARAMETERS")
-    private final ParameterList summaryParameters = new ParameterList();
+    private ParameterList summaryParameters = new ParameterList();
 
     protected AbstractCalendarComponent(String name) {
         this.name = name;

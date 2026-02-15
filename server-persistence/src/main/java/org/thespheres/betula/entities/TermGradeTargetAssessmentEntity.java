@@ -140,9 +140,9 @@ public class TermGradeTargetAssessmentEntity extends GradeTargetAssessmentEntity
 //                @JoinColumn(name = "TERMGRADE_TARGETASSESSMENT_DOCUMENT_VERSION", referencedColumnName = "DOCUMENT_VERSION", updatable = false, insertable = false)})
 //    private final Set<TermAssessmentEntry> entries = new HashSet<>();
     @OneToMany(mappedBy = "document", cascade = {CascadeType.ALL}, orphanRemoval = true)
-    private final Set<TermAssessmentEntry2> entries = new HashSet<>();
+    private Set<TermAssessmentEntry2> entries = new HashSet<>();
     @OneToMany(mappedBy = "target", orphanRemoval = true)
-    private final Set<TermGradeTargAssessTicketEnt> tickets = new HashSet<>();
+    private Set<TermGradeTargAssessTicketEnt> tickets = new HashSet<>();
 
     public TermGradeTargetAssessmentEntity() {
     }
