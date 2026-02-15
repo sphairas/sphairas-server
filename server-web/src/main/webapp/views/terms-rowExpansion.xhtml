@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:composition>
+        <!-- Comments Section with PrimeFlex -->
+        <div class="p-fluid" rendered="#{target.hasComments()}" style="margin-bottom: 1.5rem;">
+            <p:panel header="#{bundle['availableTarget.datatable.comments.label']}" 
+                     styleClass="p-mb-3">
+                <p:inputTextarea id="comments" 
+                                 rows="3" 
+                                 value="#{student.comment}" 
+                                 disabled="#{!student.commentsEnabled}" 
+                                 autoResize="true" 
+                                 style="width: 100%;">
+                    <p:ajax event="blur" update="@this" />
+                </p:inputTextarea>
+            </p:panel>
+        </div>
+
+        <!-- Cross Marks DataTable -->
+        <p:dataTable id="crossMarks" 
+                     rendered="#{target.isCrossMarksEnabled()}"
+                     var="crossMarkSubject" 
+                     value="#{target.crossMarkSubjects}" 
+                     editable="true"  
+                     emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
+                     editMode="cell"                              
+                     rowIndexVar="crossMarksRowIndex" 
+                     styleClass="p-datatable-striped p-datatable-gridlines"
+                     rowStyleClass="#{empty crossMarksRowIndex or crossMarksRowIndex mod 2 ne 0 ? 'even-row' : 'odd-row'}">
+
+            <f:facet name="header">
+                #{bundle['crossMarks.title']}
+            </f:facet>
+
+            <p:columnGroup type="header">   
+                <p:row>  
+                    <p:column rowspan="2" 
+                              headerText="#{bundle['crossMarks.skill']}" 
+                              style="min-width: 150px;" />   
+                    <p:column colspan="#{target.termColumns.size()}" 
+                              rendered="#{!target.termColumns.isEmpty()}" 
+                              headerText="#{bundle['column.header.vorzensuren']}" />  
+                    <p:column colspan="1" 
+                              headerText="#{target.editTerm.displayName}" 
+                              style="width: 150px;" /> 
+                </p:row>  
+                <p:row>   
+                    <p:column headerText="#{target.termColumns[0].displayName}" 
+                              rendered="#{target.termColumns.size() ge 1}" 
+                              style="width: 100px;"/>  
+                    <p:column headerText="#{target.termColumns[1].displayName}" 
+                              rendered="#{target.termColumns.size() ge 2}" 
+                              style="width: 100px;" />  
+                    <p:column headerText="#{target.termColumns[2].displayName}" 
+                              rendered="#{target.termColumns.size() ge 3}" 
+                              style="width: 100px;" />     
+                </p:row>  
+            </p:columnGroup> 
+
+            <p:column>  
+                <h:outputText value="#{crossMarkSubject.displayName}" 
+                              style="font-weight: 500;" />  
+            </p:column>   
+
+            <p:columns value="#{target.termColumns}" 
+                       var="term" 
+                       columnIndexVar="ci" 
+                       style="text-align: center;">
+                <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject, term).shortLabel}" />
+            </p:columns>  
+
+            <p:column styleClass="ui-editable-column" 
+                      style="text-align: center;">  
+                <p:cellEditor rendered="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}">  
+                    <f:facet name="output">
+                        <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
+                                      style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" />
+                    </f:facet>  
+                    <f:facet name="input">    
+                        <p:selectOneMenu value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).id}" 
+                                         style="width: 100%;">  
+                            <f:selectItem itemLabel="#{bundle['zeugnisnoten.noSelectionLabel']}" 
+                                          noSelectionOption="true" />
+                            <f:selectItems value="#{config.crossMarkGrades}" 
+                                           var="grade" 
+                                           itemLabel="#{target.resolveCrossMarkGradeLabel(grade)}" 
+                                           itemValue="#{grade.id}" />  
+                            <p:ajax event="itemSelect" process="@this" update="@this" />
+                        </p:selectOneMenu>   
+                    </f:facet>       
+                </p:cellEditor> 
+                <h:outputText value="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).longLabel}" 
+                              style="#{target.getCrossMarkGradeValueAt(student, crossMarkSubject).style}" 
+                              rendered="#{!target.getCrossMarkGradeValueAt(student, crossMarkSubject).editable}"/>
+            </p:column> 
+
+        </p:dataTable>     
+    </ui:composition>
+</html>
