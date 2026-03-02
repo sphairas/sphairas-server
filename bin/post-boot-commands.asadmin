@@ -1,5 +1,3 @@
-#start-database --dbhome ${PAYARA_PATH}/databases/ funktioniert nicht
-
 #Set location of keystores here, for all listeners and outgoing connections
 create-system-properties javax.net.ssl.keyStore=${ENV=SECRETS_DIR}/keystore.p12
 create-system-properties javax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.p12
@@ -8,7 +6,7 @@ create-system-properties com.sun.enterprise.security.httpsOutboundKeyAlias=${ENV
 set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=${ENV=CERT_ALIAS}
 #protocol http-listener-2: key-store="ssl/keystore.jks" trust-store="ssl/cacerts.jks"
 
-set configs.config.server-config.iiop-service.iiop-listener.SECRETS_MUTUALAUTH.ssl.cert-nickname=${ENV=CERT_ALIAS}
+#set configs.config.server-config.iiop-service.iiop-listener.SECRETS_MUTUALAUTH.ssl.cert-nickname=${ENV=CERT_ALIAS}
 
 #Muss javax.sql.XADataSource bleiben!
 create-jdbc-connection-pool --datasourceclassname com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype javax.sql.XADataSource --property port=${ENV=DB_PORT}:password=${ENV=DB_PASSWORD}:user=${ENV=DB_USER}:serverName=${ENV=DB_HOST}:databaseName=${ENV=DB_NAME} mysql_pool
@@ -18,16 +16,6 @@ create-jdbc-resource --connectionpoolid mysql_pool jdbc/studdb
 create-jdbc-resource --connectionpoolid mysql_pool jdbc/calendar
 create-jdbc-resource --connectionpoolid mysql_pool jdbc/messages
 
-#set resources.jdbc-resource.jdbc/betuladb.pool-name=mysql_pool
-#set resources.jdbc-resource.jdbc/studdb.pool-name=mysql_pool
-#set resources.jdbc-resource.jdbc/calendar.pool-name=mysql_pool
-#set resources.jdbc-resource.jdbc/messages.pool-name=mysql_pool
-#
-#set resources.jdbc-connection-pool.betuladb_connection_pool.property.ServerName=${DB_HOST}
-#set resources.jdbc-connection-pool.calendar_connection.property.ServerName=${DB_HOST}
-#set resources.jdbc-connection-pool.studdb_connection.property.ServerName=${DB_HOST}
-#set resources.jdbc-connection-pool.messages_connection.property.ServerName=${DB_HOST}
-#
 #funktioniert nicht -> domain.xml
 #set configs.config.server-config.jms-service.start-args=-Dimq.service.activelist=jms,admin,wsjms -Dimq.wsjms.ws.port=7681 -vmargs -d64
 
@@ -60,18 +48,7 @@ create-jms-resource --restype jakarta.jms.Topic --enabled=true --property=Name=s
 
 set configs.config.server-config.ejb-container.ejb-timer-service.timer-datasource=jdbc/calendar
 
-#create-system-properties betula.web.ui.current-term=2018/1
-create-system-properties untis.schoolyear.id=20142015
-create-system-properties betula.security.x500login.authenticate.unknown.principals=true
-
-create-system-properties untis.enable.database.updates=true
-create-system-properties untis.updates.create.orphan.updates=true
 #Deprecated
 create-system-properties secure.signee.types=entitled.signee,trusted.signee
 #?
 create-system-properties com.sun.ejb.timer.ReadDBBeforeTimeout=true
-
-#create-system-properties push.document.events=false
-
-#not working, move to preboot
-#set configs.config.server-config.network-config.protocols.protocol.http-listener-2.http.encoded-slash-enabled=true
