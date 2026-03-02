@@ -26,6 +26,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.primefaces.PrimeFaces;
@@ -101,6 +102,8 @@ public class BetulaWebApplication implements Serializable {
     private CommonDocuments commonDocuments;
     @Inject
     private LocalProperties properties;
+    @Inject
+    private SecurityContext securityContext;
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
     private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
 
@@ -126,6 +129,10 @@ public class BetulaWebApplication implements Serializable {
     }
 
     public String getUsername() {
+        //TODO: prüfen
+        if (!securityContext.isCallerInRole("signee")) {
+            return "unbekannt";
+        }
         return getUser() != null ? getUser().getDisplayName() : "";
     }
 
