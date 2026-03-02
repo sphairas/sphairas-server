@@ -1,4 +1,4 @@
-FROM payara/server-full:7.2026.1
+FROM payara/server-full:7.2026.2
 
 MAINTAINER boris.heithecer "b.heithecker@gmail.com"
 
