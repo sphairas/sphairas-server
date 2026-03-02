@@ -43,8 +43,6 @@ public class InternalAPI {
     @Path("ping")
     @Produces(MediaType.TEXT_PLAIN)
     public String ping() {
-        final boolean isInternal = securityContext.isUserInRole("internal");
-        final boolean isUnitadmin = securityContext.isUserInRole("unitadmin");
         return "Hello from " + Optional.ofNullable(securityContext.getUserPrincipal())
                 .map(Principal::getName)
                 .orElse("unknown");

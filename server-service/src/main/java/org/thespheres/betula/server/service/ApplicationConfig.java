@@ -23,10 +23,9 @@ public class ApplicationConfig extends Application {
     }
 
     /**
-     * Do not modify addRestResourceClasses() method.
-     * It is automatically populated with
-     * all resources defined in the project.
-     * If required, comment out calling this method in getClasses().
+     * Do not modify addRestResourceClasses() method. It is automatically
+     * populated with all resources defined in the project. If required, comment
+     * out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(org.thespheres.betula.server.beans.InternalParamConverterProvider.class);
@@ -35,5 +34,5 @@ public class ApplicationConfig extends Application {
         resources.add(org.thespheres.betula.server.service.InternalAPI.class);
         resources.add(org.thespheres.betula.server.service.UnitsServiceResource.class);
     }
-    
+
 }

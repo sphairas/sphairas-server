@@ -37,8 +37,8 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>        
     </security-constraint>
-    <login-config>
+<!--    <login-config>
         <auth-method>CLIENT-CERT</auth-method>
         <realm-name>certificate</realm-name>
-    </login-config>
+    </login-config>-->
 </web-app>
