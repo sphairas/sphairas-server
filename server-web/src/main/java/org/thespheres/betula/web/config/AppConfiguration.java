@@ -87,14 +87,14 @@ public class AppConfiguration implements Serializable {
 //  Siehe Anmerkung bei ServiceInternalClient.java  
 //    @Inject
 //    @RestClient
-    private ServiceInternalClient client;
+    private ServiceInternalClient internalClient;
     private CrossmarkSettings crossmarks;
     private List<Grade> crossMarkGrade;
     private NdsReportBuilderFactory reportBuilderFactory;
 
     @PostConstruct
     public void initialize() {
-        client = RestClientBuilder.newBuilder()
+        internalClient = RestClientBuilder.newBuilder()
                 .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
                 .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
                 .build(ServiceInternalClient.class);
@@ -121,7 +121,7 @@ public class AppConfiguration implements Serializable {
     }
 
     public ServiceInternalClient getInternalClient() {
-        return client;
+        return internalClient;
     }
 
     @Produces
@@ -405,7 +405,7 @@ public class AppConfiguration implements Serializable {
     }
 
     public boolean isSettingsEnabled() {
-                return false;
+        return false;
 //        return true;
     }
 
@@ -417,7 +417,7 @@ public class AppConfiguration implements Serializable {
     public String getCopyrightFooter() {
         return "© sphairas";
     }
-    
+
     public String getPrivacyPolicyUrl() {
         return null;
     }
