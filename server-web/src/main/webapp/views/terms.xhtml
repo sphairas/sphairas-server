@@ -10,23 +10,23 @@
             <h2><i class="pi pi-list"></i> #{bundle['main.menu.terms.label']}</h2>
 
             <!-- Simple empty message -->
-            <ui:fragment rendered="#{app.user ne null and empty app.user.targetUnits.tabs}">
+            <ui:fragment rendered="#{empty user.targetUnits.tabs}">
                 <div class="flex justify-content-start m-2">
                     <h:outputText value="#{bundle['terms.tabs.emptyMessage']}" />
                 </div>
             </ui:fragment>
 
-            <ui:fragment rendered="#{app.user ne null and not empty app.user.targetUnits.tabs}">
+            <ui:fragment rendered="#{not empty user.targetUnits.tabs}">
                 <p:blockUI block="termsAccordionPanel" trigger="termsAccordionPanel">
                     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
                 </p:blockUI>
 
                 <p:accordionPanel id="termsAccordionPanel" 
                                   dynamic="true" 
-                                  value="#{app.user.targetUnits.tabs}" 
+                                  value="#{user.targetUnits.tabs}" 
                                   var="target" 
-                                  rendered="#{app.user ne null and not empty app.user.targetUnits.tabs}" 
-                                  activeIndex="#{app.user.targetUnits.activeTabIndex}" > 
+                                  rendered="#{not empty user.targetUnits.tabs}" 
+                                  activeIndex="#{user.targetUnits.activeTabIndex}" > 
 
                     <p:tab title="#{target.displayTitle}">   
 
@@ -38,6 +38,7 @@
                         <p:dataTable id="datatable" 
                                      var="student" 
                                      value="#{target.students}" 
+                                     rowKey="#{student.id}"
                                      editable="true"  
                                      emptyMessage="#{bundle['terms.datatable.emptyMessage']}" 
                                      editMode="cell" 
