@@ -402,7 +402,8 @@ public class PrimaryUnit extends AbstractData<Subject> {
     @Override
     protected HashSet<StudentId> createStudents() {
         studIds = new HashSet<>();
-        studIds.addAll(application.getStudents(docIdName)); //Arrays.asList(unitDocumentBeanRemote.getStudents(unit)));
+//        studIds.addAll(application.getStudents(docIdName));
+        studIds.addAll(application.getService().getStudents(unit)); //Arrays.asList(unitDocumentBeanRemote.getStudents(unit)));
         return studIds;
     }
 
