@@ -27,6 +27,7 @@
             <p:dataTable id="primaryUnitTable" 
                          var="student" 
                          value="#{primaryUnit.students}" 
+                         rowKey="#{student.id}"
                          rowExpandMode="single" 
                          rowIndexVar="rowIndex" 
                          styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm">
