@@ -5,19 +5,29 @@
  */
 package org.thespheres.betula.web;
 
+import org.thespheres.betula.web.rest.DocumentsService;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.security.enterprise.SecurityContext;
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.primefaces.model.dashboard.DashboardModel;
 import org.primefaces.model.dashboard.DefaultDashboardModel;
-import org.primefaces.model.dashboard.DefaultDashboardWidget;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.MarkerConvention;
@@ -28,56 +38,97 @@ import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.server.beans.config.ConfiguredModelException;
+import org.thespheres.betula.services.AppPropertyNames;
+import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.ws.CommonDocuments;
+import org.thespheres.betula.web.config.AppConfiguration;
 
 /**
  *
  * @author boris.heithecker
  */
+@Named("user")
+@SessionScoped
 public class ApplicationUser implements Serializable {
 
+    private Signee signee;
+    private String commonName;
     private TabArrayList<AvailableTarget> units;
     private DefaultDashboardModel dashboard;
     private PrimaryUnit[] primaryUnits;
-    private final BetulaWebApplication application;
-    private final Signee signee;
+    @Inject
+    private BetulaWebApplication application;
+    @Inject
+    private DocumentsService service;
+    @Inject
+    private SecurityContext securityContext;
+    @Inject
+    private AppConfiguration config;
+    @Inject
+    private LocalProperties lp;
 
-    ApplicationUser(BetulaWebApplication app, Signee sig) {
-        this.application = app;
-        this.signee = sig;
+    @PostConstruct
+    public void init() {
+        Principal principal = securityContext.getCallerPrincipal();
+        if (principal == null) {
+            throw new SecurityException("Principal is null.");
+        }
+        final String prefix = principal.getName();
+        String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+        if (suffix == null) {//Legacy case
+            suffix = lp.getProperty(AppPropertyNames.LP_DEFAULT_SIGNEE_SUFFIX);
+        }
+        if (suffix == null) {
+            throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+        }
+        signee = new Signee(prefix, suffix, true);
+        commonName = config.getInternalClient().getSigneeCommonName(signee);
+    }
+
+    @PreDestroy
+    public void sessionDestroyed() {
+        logout();
+        Logger.getLogger(ApplicationUser.class.getName()).log(Level.INFO, "LOGGED OUT {0} {1}", new Object[]{signee.getId(), new Date().toLocaleString()});
     }
 
     public Signee getSignee() {
+        //securityContext.isCallerInRole("signee") return false immediately after login, after refresh is true
+//        if (!securityContext.isCallerInRole("signee")) {
+//            CallerPrincipal callerPrincipal = (CallerPrincipal) securityContext.getCallerPrincipal();
+        ////            throw new SecurityException("User not in role signee");
+//            Logger.getLogger(ApplicationUser.class.getName()).log(Level.INFO, "User not in role signee");
+//            Principal p = FacesContext.getCurrentInstance().getExternalContext().getUserPrincipal();//Principal is not null and name is correct immediately after login
+//            p.getName();
+//        }
+//        if (signee == null && securityContext.isCallerInRole("signee")) {
+//            final Signee sig = loginBeanImpl.getSigneePrincipal(false);
+//            signee = sig;
+//            config.getInternalClient().getSigneeCommonName(signee);
+//        }
         return signee;
     }
 
-    public String getDisplayName() {
-        return signee.getId();
-    }
-
-    public DashboardModel getDashboard() {
-        if (dashboard == null) {
-            dashboard = new DefaultDashboardModel();
-            DefaultDashboardWidget column1 = new DefaultDashboardWidget();
-
-            column1.addWidget("sports");
-            column1.addWidget("finance");
-
-            dashboard.addWidget(column1);
+    public String getCommonName() {
+        if (commonName != null) {
+            return commonName;
         }
-        return dashboard;
+        return getSignee().getId();
     }
 
-//    public synchronized List<FastMessage> getFastMessages() {
-//        List<FastMessage> ret = application.getFastMessages().getFastMessages(!isInitMessages);
-//        isInitMessages = true;
-//        return ret;
+//    public DashboardModel getDashboard() {
+//        if (dashboard == null) {
+//            dashboard = new DefaultDashboardModel();
+//            DefaultDashboardWidget column1 = new DefaultDashboardWidget();
+//
+//            column1.addWidget("sports");
+//            column1.addWidget("finance");
+//
+//            dashboard.addWidget(column1);
+//        }
+//        return dashboard;
 //    }
-
-    void invalidateMessages() {
-    }
-
     //schedule, terms, primaryUnits
     public boolean renderMenu(String menu) {
         switch (menu) {
@@ -93,10 +144,11 @@ public class ApplicationUser implements Serializable {
 
     public synchronized TabArrayList<AvailableTarget> getTargetUnits() {
         if (units == null) {
-
             units = new TabArrayList<>();
             final DocumentsModel docModel = application.getDocumentsModel();
-            final Map<DocumentId, Set<DocumentId>> map = application.getDocuments().stream()
+//            final Collection<DocumentId> documents = application.getDocuments();
+            final Collection<DocumentId> documents = service.getDocuments(signee);
+            final Map<DocumentId, Set<DocumentId>> map = documents.stream()
                     .collect(Collectors.groupingBy(docModel::convert, Collectors.toSet()));
 
             final Map<DocumentId, AvailableTarget> tabs = new HashMap<>();
@@ -202,7 +254,6 @@ public class ApplicationUser implements Serializable {
 //        }
 //        return null;
 //    }
-
     void logout() {
         dashboard = null;
         if (units != null) {

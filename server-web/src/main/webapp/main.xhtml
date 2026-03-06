@@ -42,7 +42,7 @@
                 <h:form class="app-user-section">
                     <div class="user-info">
                         <i class="pi pi-user"></i>
-                        <span>#{app.username}</span>
+                        <span>#{user.commonName}</span>
                     </div>
                     <p:commandButton 
                         value="#{bundle['main.logout']}" 
@@ -66,7 +66,7 @@
                             <span>#{bundle['main.menu.terms.label']}</span>
                         </p:commandLink>
 
-                        <ui:repeat value="#{app.user.primaryUnits}" var="primaryUnit" varStatus="status">
+                        <ui:repeat value="#{user.primaryUnits}" var="primaryUnit" varStatus="status">
                             <!--rendered="{app.user.primaryUnitsSize > 0}"-->
                             <p:commandLink 
                                 styleClass="menu-item #{app.activePage eq 'primaryUnit' ? 'active' : ''}"
@@ -108,7 +108,7 @@
                             <ui:include src="views/terms.xhtml"/>
                         </ui:fragment>
 
-                        <ui:repeat value="#{app.user.primaryUnits}" var="primaryUnit" varStatus="status">
+                        <ui:repeat value="#{user.primaryUnits}" var="primaryUnit" varStatus="status">
                             <ui:fragment rendered="#{app.activePage == 'primaryUnit_'.concat(status.index)}">
                                 <ui:include src="views/primaryUnit.xhtml"/>
                             </ui:fragment>

@@ -8,14 +8,11 @@ package org.thespheres.betula.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.annotation.PreDestroy;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
@@ -26,7 +23,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.security.enterprise.SecurityContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.primefaces.PrimeFaces;
@@ -37,13 +33,11 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
-import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
-import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.annot.Current;
@@ -57,12 +51,14 @@ import org.thespheres.betula.web.docsrv.DocumentMapper;
 import org.thespheres.ical.VCard;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.web.config.AppConfiguration;
+import org.thespheres.betula.web.rest.DocumentsService;
 
 /**
  *
  * @author boris.heithecker
  */
-@RolesAllowed("signee")
+//@RolesAllowed("signee")
+//@RolesPermitted("signee")
 @Named("app")
 @ViewScoped//@SessionScoped //Vor Jakarta: javax.faces.bean.SessionScoped;
 public class BetulaWebApplication implements Serializable {
@@ -73,8 +69,6 @@ public class BetulaWebApplication implements Serializable {
     @Any
     @Inject
     private Instance<VorschlagDecoration> extraAssessment;
-    @EJB
-    private SigneeLocal loginBeanImpl;
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentVCardsImpl;
     @EJB(beanName = "StudentsListsLocalBeanImpl")
@@ -95,7 +89,8 @@ public class BetulaWebApplication implements Serializable {
     @Inject
     private DocumentsModel docModel;
     private String activePage = "";
-    private ApplicationUser currentUser;
+    @Inject
+    private ApplicationUser user;
     @Inject
     private AppConfiguration config;
     @Inject
@@ -103,7 +98,7 @@ public class BetulaWebApplication implements Serializable {
     @Inject
     private LocalProperties properties;
     @Inject
-    private SecurityContext securityContext;
+    private DocumentsService service;
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
     private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
 
@@ -111,29 +106,8 @@ public class BetulaWebApplication implements Serializable {
         return config;
     }
 
-    public ApplicationUser getUser() {
-        if (currentUser == null) {
-            final Signee sig = loginBeanImpl.getSigneePrincipal(false);
-            currentUser = new ApplicationUser(this, sig);
-        }
-        return currentUser;
-    }
-
-    @PreDestroy
-    public void sessionDestroyed() {
-        if (currentUser != null) {
-//            eventDispatch.unregister(messages);
-            currentUser.logout();
-            Logger.getLogger(BetulaWebApplication.class.getName()).log(Level.INFO, "LOGGED OUT {0} {1}", new Object[]{currentUser.getSignee().getId(), new Date().toLocaleString()});
-        }
-    }
-
-    public String getUsername() {
-        //TODO: prüfen
-        if (!securityContext.isCallerInRole("signee")) {
-            return "unbekannt";
-        }
-        return getUser() != null ? getUser().getDisplayName() : "";
+    public DocumentsService getService() {
+        return service;
     }
 
     public String getActivePage() {
@@ -152,7 +126,7 @@ public class BetulaWebApplication implements Serializable {
         final String prefix = "primaryUnits_";
         if (getActivePage().startsWith(prefix)) {
             int index = Integer.parseInt(getActivePage().substring(prefix.length()));
-            return Optional.of(currentUser.getPrimaryUnits()[index]);
+            return Optional.of(user.getPrimaryUnits()[index]);
         }
         return Optional.empty();
     }
@@ -190,9 +164,9 @@ public class BetulaWebApplication implements Serializable {
         return studentVCardsImpl.get(student);
     }
 
-    Collection<DocumentId> getDocuments() { //Signee signee) {
-        return bean.getTargetAssessmentDocuments();  //findTargetAssessmentDocuments(signee);
-    }
+//    Collection<DocumentId> getDocuments() { //Signee signee) {
+//        return bean.getTargetAssessmentDocuments();  //findTargetAssessmentDocuments(signee);
+//    }
 
     FastTermTargetDocument getFastDocument(DocumentId id) {
         return fastDocs.computeIfAbsent(id, d -> bean.getFastTermTargetDocument(id));
@@ -203,12 +177,12 @@ public class BetulaWebApplication implements Serializable {
     }
 
     Collection<DocumentId> getTargetAssessmentDocuments(UnitId primaryUnit) {
-        return bean.getTargetAssessmentDocuments(primaryUnit);
+        return bean.getTargetAssessmentDocuments(primaryUnit); //Paths.UNITS_TARGET_DOCUMENTS_PATH
     }
 
-    Collection<StudentId> getStudents(final String docIdName) { //Signee signee) {
-        return bean.getPrimaryUnitStudents(docIdName);
-    }
+//    Collection<StudentId> getStudents(final String docIdName) { //Signee signee) {
+//        return bean.getPrimaryUnitStudents(docIdName);
+//    }
 
     Marker getStudentMarkerEntry(StudentId sid, DocumentId studentSGLMarkerDocId) {
         return studentsLists.getMarkerEntry(sid, studentSGLMarkerDocId, null);
