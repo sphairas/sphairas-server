@@ -43,6 +43,8 @@ services:
             max-file: "20"
   db:
     image: "mysql:5.7.30"
+    ports:
+      - "3306:3306"
     volumes:
       - "mysql-data:/var/lib/mysql"
     environment:
