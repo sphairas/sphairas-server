@@ -31,6 +31,7 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(org.thespheres.betula.server.beans.InternalParamConverterProvider.class);
         resources.add(org.thespheres.betula.web.rest.CORSFilter.class);
+        resources.add(org.thespheres.betula.web.rest.ContainerLegacyJAXBProvider.class);
         resources.add(org.thespheres.betula.web.rest.InstanceInfo.class);
     }
     
