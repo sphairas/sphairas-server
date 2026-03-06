@@ -65,7 +65,7 @@
         <param-value>org.primefaces.cache.DefaultCacheProvider</param-value>
     </context-param>
     <servlet>
-        <servlet-name>BetulaWebApplication</servlet-name>
+        <servlet-name>FacesServlet</servlet-name>
         <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
         <!--Evtl. anpassen für Performance-->
         <load-on-startup>1</load-on-startup>
@@ -91,12 +91,9 @@
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>BetulaWebApplication</servlet-name>
+        <servlet-name>FacesServlet</servlet-name>
         <url-pattern>/ui/*</url-pattern>
-    </servlet-mapping>
-    <!-- ADD THIS: Map JSF servlet to handle error pages -->
-    <servlet-mapping>
-        <servlet-name>BetulaWebApplication</servlet-name>
+        <!-- ADD THIS: Map JSF servlet to handle error pages -->
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
@@ -111,12 +108,12 @@
         <session-timeout>2</session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>ui/main.xhtml</welcome-file>
+        <welcome-file>index.xhtml</welcome-file>
     </welcome-file-list>
     <security-constraint>
-        <display-name>Default</display-name>
+        <display-name>Secure all paths</display-name>
         <web-resource-collection>
-            <web-resource-name>Site</web-resource-name>
+            <web-resource-name>Restricted</web-resource-name>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
@@ -127,15 +124,14 @@
     <security-constraint>
         <display-name>Exclude resource paths</display-name>
         <web-resource-collection>
-            <web-resource-name>Site</web-resource-name>
+            <web-resource-name>Excluded</web-resource-name>
+            <url-pattern>/ui/index.xhtml</url-pattern>
             <url-pattern>/ui/login.xhtml</url-pattern>
             <url-pattern>/resources/*</url-pattern>
             <url-pattern>/ui/jakarta.faces.resource/*</url-pattern>
-            <url-pattern>/primepush/*</url-pattern>
+            <!--<url-pattern>/primepush/*</url-pattern>-->
             <!-- ADD ERROR PAGES TO EXCLUSION -->
-            <url-pattern>/error-pages/error.xhtml</url-pattern>
-            <url-pattern>/error-pages/sessionExpired.xhtml</url-pattern>
-            <url-pattern>/error-pages/notFound.xhtml</url-pattern>
+            <url-pattern>/error-pages/*</url-pattern>
         </web-resource-collection>
     </security-constraint>
     
@@ -172,7 +168,7 @@
         </auth-constraint>
     </security-constraint>
     
-    <security-constraint>
+    <!--    <security-constraint>
         <display-name>WebDav public resources.</display-name>
         <web-resource-collection>
             <web-resource-name>Site</web-resource-name>
@@ -180,8 +176,8 @@
             <http-method>GET</http-method>
             <http-method>OPTIONS</http-method>
         </web-resource-collection>
-    </security-constraint>
-    <security-constraint>
+    </security-constraint>-->
+    <!--    <security-constraint>
         <display-name>WebDav for signees.</display-name>
         <web-resource-collection>
             <web-resource-name>Login Resources</web-resource-name>
@@ -192,7 +188,7 @@
             <role-name>signee</role-name>
             <role-name>unitadmin</role-name>
         </auth-constraint>
-    </security-constraint>
+    </security-constraint>-->
     <security-constraint>
         <display-name>WebDav for unitadmins</display-name>
         <web-resource-collection>
@@ -203,7 +199,7 @@
             <role-name>unitadmin</role-name>
         </auth-constraint>
     </security-constraint>
-<!--    <login-config>
+    <!--    <login-config>
         <auth-method>FORM</auth-method>
         <realm-name>${web.module.authentication.realm}</realm-name>
         <form-login-config>

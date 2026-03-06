@@ -14,6 +14,7 @@ import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
+import java.io.IOException;
 import org.thespheres.betula.services.web.WebUIConfiguration;
 
 @Named("login")
@@ -49,7 +50,6 @@ public class UserLogin implements Serializable {
 //            this.originalURL = url;
 //        }
 //    }
-
     public String getHeaderLabel() {
         return facesContext.getApplication()
                 .getResourceBundle(facesContext, "bundle")
@@ -74,22 +74,25 @@ public class UserLogin implements Serializable {
         this.password = password;
     }
 
-    public void doLogin() {
+    public void doLogin() throws IOException {
 //        FacesContext facesContext = FacesContext.getCurrentInstance();
-        ExternalContext externalContext = facesContext.getExternalContext();
-        HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
-        HttpServletResponse response = (HttpServletResponse) externalContext.getResponse();
+        final ExternalContext externalContext = facesContext.getExternalContext();
+        final HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
+        final HttpServletResponse response = (HttpServletResponse) externalContext.getResponse();
 
-        UsernamePasswordCredential credential = new UsernamePasswordCredential(username, password);
-        AuthenticationStatus status = securityContext.authenticate(
+        final UsernamePasswordCredential credential = new UsernamePasswordCredential(username, password);
+        final AuthenticationStatus status = securityContext.authenticate(
                 request,
                 response,
                 AuthenticationParameters.withParams().credential(credential)
         );
 
+        final String redirect = externalContext.getRequestContextPath();// + "/main.xhtml"; //?faces-redirect=true";
+
         switch (status) {
             case SUCCESS:
 //                redirectAfterLogin(externalContext);
+                externalContext.redirect(redirect);
                 facesContext.responseComplete();
                 break;
             case SEND_FAILURE:
@@ -98,6 +101,7 @@ public class UserLogin implements Serializable {
                 break;
             case SEND_CONTINUE:
                 // The mechanism is taking over (e.g., redirecting to a multi-factor page)
+                externalContext.redirect(redirect);
                 facesContext.responseComplete();
                 break;
         }
@@ -107,7 +111,7 @@ public class UserLogin implements Serializable {
 //        try {
 //            String redirectURL = externalContext.getRequestContextPath() + "/ui/main.xhtml";// determineRedirectURL(externalContext);
 //            externalContext.redirect(redirectURL);
-////            FacesContext.getCurrentInstance().responseComplete();
+    ////            FacesContext.getCurrentInstance().responseComplete();
 //        } catch (IOException e) {
 //            LOGGER.log(Level.SEVERE, "Redirect failed after login", e);
 //            addErrorMessage("login.redirect.failed");
