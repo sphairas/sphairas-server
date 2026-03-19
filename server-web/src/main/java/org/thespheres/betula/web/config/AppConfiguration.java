@@ -58,6 +58,7 @@ import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate;
+import org.thespheres.betula.server.beans.clients.InternalParamConverterProvider;
 import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.ServiceConstants;
@@ -96,6 +97,8 @@ public class AppConfiguration implements Serializable {
     public void initialize() {
         internalClient = RestClientBuilder.newBuilder()
                 .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
+//                .property(SERVER_CRT_FILE, this)
+                .register(InternalParamConverterProvider.class)
                 .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
                 .build(ServiceInternalClient.class);
         try {

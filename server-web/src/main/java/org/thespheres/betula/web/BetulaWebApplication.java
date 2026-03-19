@@ -25,23 +25,23 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import org.primefaces.PrimeFaces;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.Ticket;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.assess.Grade;
+import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.services.NamingResolver;
-import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.annot.Current;
-import org.thespheres.betula.server.beans.annot.DocumentsSession;
 import org.thespheres.betula.server.beans.annot.Preceding;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.scheme.spi.Term;
@@ -63,9 +63,9 @@ import org.thespheres.betula.web.rest.DocumentsService;
 @ViewScoped//@SessionScoped //Vor Jakarta: javax.faces.bean.SessionScoped;
 public class BetulaWebApplication implements Serializable {
 
-    @DocumentsSession
-    @Inject
-    private FastTargetDocuments2 bean;
+//    @DocumentsSession
+//    @Inject
+//    private FastTargetDocuments2 bean;
     @Any
     @Inject
     private Instance<VorschlagDecoration> extraAssessment;
@@ -99,6 +99,8 @@ public class BetulaWebApplication implements Serializable {
     private LocalProperties properties;
     @Inject
     private DocumentsService service;
+
+    //Move to User
     private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
     private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
 
@@ -167,23 +169,21 @@ public class BetulaWebApplication implements Serializable {
 //    Collection<DocumentId> getDocuments() { //Signee signee) {
 //        return bean.getTargetAssessmentDocuments();  //findTargetAssessmentDocuments(signee);
 //    }
-
     FastTermTargetDocument getFastDocument(DocumentId id) {
-        return fastDocs.computeIfAbsent(id, d -> bean.getFastTermTargetDocument(id));
+        return fastDocs.computeIfAbsent(id, d -> service.getFastTermTargetDocument(id));
     }
 
     FastTextTermTargetDocument getFastTextDocument(final DocumentId id) {
-        return fastTextDocs.computeIfAbsent(id, d -> bean.getFastTextTermTargetDocument(id));
+        return fastTextDocs.computeIfAbsent(id, d -> service.getFastTextTermTargetDocument(id));
     }
 
     Collection<DocumentId> getTargetAssessmentDocuments(UnitId primaryUnit) {
-        return bean.getTargetAssessmentDocuments(primaryUnit); //Paths.UNITS_TARGET_DOCUMENTS_PATH
+        return service.getTargetAssessmentDocuments(primaryUnit);
     }
 
 //    Collection<StudentId> getStudents(final String docIdName) { //Signee signee) {
 //        return bean.getPrimaryUnitStudents(docIdName);
 //    }
-
     Marker getStudentMarkerEntry(StudentId sid, DocumentId studentSGLMarkerDocId) {
         return studentsLists.getMarkerEntry(sid, studentSGLMarkerDocId, null);
     }
@@ -197,23 +197,36 @@ public class BetulaWebApplication implements Serializable {
     }
 
     UnitId getPrimaryUnit(final String docIdName) {
-        return bean.getPrimaryUnit(docIdName);
+        final DocumentId klDoc = commonDocuments.forName(docIdName);
+        final String unit = config.getInternalClient().getSigneePrimaryUnit(klDoc, user.getSignee());
+        return UnitId.valueOf(unit);
+//        return service.getPrimaryUnit(docIdName);
     }
 
+    //Internal
     Grade selectGrade(DocumentId docId, TermId termId, StudentId studId) throws IOException {
-        return bean.selectSingle(docId, studId, termId);// bean.select(docId, studId, termId);
+        final String g = config.getInternalClient().selectSingle(docId, studId, termId); // bean.select(docId, studId, termId);
+        return GradeFactory.resolve(g);
     }
 
+    //Internal
     boolean submitGrade(DocumentId docId, TermId termId, StudentId studId, Grade grade) throws IOException {
-        return bean.submitSingle(docId, studId, termId, grade); //submit(docId, studId, termId, grade, new Timestamp());
+        final String r = config.getInternalClient().submitSingleGradeValue(docId, studId, termId, grade); //submit(docId, studId, termId, grade, new Timestamp());
+        return Boolean.parseBoolean(r);
     }
 
+    //Internal
     boolean submitText(final DocumentId docId, final TermId termId, final Marker section, final StudentId studId, final String text) {
-        return bean.submitSingle(docId, studId, termId, null, text);
+        final String r = config.getInternalClient().submitSingleTextValue(docId, studId, termId, null, text);
+        return Boolean.parseBoolean(r);
     }
 
+    //Internal
     Ticket[] findApplicableTickets(DocumentId docId, TermId termId, StudentId studId) {
-        return bean.getTickets(docId, termId, studId);
+        final String t = config.getInternalClient().findApplicableTickets(docId, termId, studId);
+        return Arrays.stream(t.split("\n"))
+                .map(Ticket::valueOf)
+                .toArray(Ticket[]::new);
     }
 
     VorschlagDecoration getAssessmentDecoration(Extra extra) {

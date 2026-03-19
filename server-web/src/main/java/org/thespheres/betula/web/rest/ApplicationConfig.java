@@ -29,7 +29,7 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(org.thespheres.betula.server.beans.InternalParamConverterProvider.class);
+        resources.add(org.thespheres.betula.server.beans.clients.InternalParamConverterProvider.class);
         resources.add(org.thespheres.betula.web.rest.CORSFilter.class);
         resources.add(org.thespheres.betula.web.rest.ContainerLegacyJAXBProvider.class);
         resources.add(org.thespheres.betula.web.rest.InstanceInfo.class);
