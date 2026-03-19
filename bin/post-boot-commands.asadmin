@@ -19,7 +19,7 @@ create-jdbc-resource --connectionpoolid mysql_pool jdbc/messages
 #funktioniert nicht -> domain.xml
 #set configs.config.server-config.jms-service.start-args=-Dimq.service.activelist=jms,admin,wsjms -Dimq.wsjms.ws.port=7681 -vmargs -d64
 
-create-system-properties web.module.authentication.realm=${ENV=WEB_MODULE_AUTHENTICATION}
+#create-system-properties web.module.authentication.realm=${ENV=WEB_MODULE_AUTHENTICATION}
 create-system-properties web.module.context.root=/web
 #
 create-system-properties user.language=de
@@ -27,9 +27,9 @@ create-system-properties assess.entries.replace.equal.timestamp=true
 create-system-properties betula.web.ui.enable.details-list=true
 
 #Conditionally create realms
-###[ ${WEB_MODULE_AUTHENTICATION} == 'iserv' ]###create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ENV=ISERV_IMAP_HOST}:iserv.imap.port=${ENV=ISERV_IMAP_PORT}:iserv.imap.signee-suffix=${ENV=LOGINDOMAIN} iserv
+# ###[ ${WEB_MODULE_AUTHENTICATION} == 'iserv' ]###create-auth-realm --classname org.thespheres.betula.security.iservlogin.IservRealm --property iserv.imap.host=${ENV=ISERV_IMAP_HOST}:iserv.imap.port=${ENV=ISERV_IMAP_PORT}:iserv.imap.signee-suffix=${ENV=LOGINDOMAIN} iserv
 #
-###[ ${WEB_MODULE_AUTHENTICATION} == 'ldap' ]###create-auth-realm --classname com.sun.enterprise.security.auth.realm.ldap.LDAPRealm --property jaas-context=ldapRealm:base-dn="${ENV=LDAP_BASE_DN}":directory="${ENV=LDAP_URL}":group-search-filter="member=%d":search-bind-dn="${ENV=LDAP_BIND_USER}":search-bind-password="${ENV=LDAP_PASSWORD}" ldap
+# ###[ ${WEB_MODULE_AUTHENTICATION} == 'ldap' ]###create-auth-realm --classname com.sun.enterprise.security.auth.realm.ldap.LDAPRealm --property jaas-context=ldapRealm:base-dn="${ENV=LDAP_BASE_DN}":directory="${ENV=LDAP_URL}":group-search-filter="member=%d":search-bind-dn="${ENV=LDAP_BIND_USER}":search-bind-password="${ENV=LDAP_PASSWORD}" ldap
 
 create-jms-resource --restype jakarta.jms.TopicConnectionFactory jms/app-resources-topic-factory
 create-jms-resource --restype jakarta.jms.Topic --enabled=true --property Name=appResourcesTopic jms/app-resources-topic
