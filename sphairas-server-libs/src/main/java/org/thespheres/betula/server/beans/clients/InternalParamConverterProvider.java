@@ -1,4 +1,4 @@
-package org.thespheres.betula.server.beans;
+package org.thespheres.betula.server.beans.clients;
 
 import jakarta.ws.rs.core.Configuration;
 import jakarta.ws.rs.core.Context;
@@ -7,7 +7,9 @@ import jakarta.ws.rs.ext.ParamConverterProvider;
 import jakarta.ws.rs.ext.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.Marker;
 
@@ -31,13 +33,17 @@ public class InternalParamConverterProvider implements ParamConverterProvider {
         return null;
     }
 
+    private Map<String, Object> properties() {
+        return Optional.ofNullable(configuration)
+                .map(Configuration::getProperties)
+                .orElse(Collections.EMPTY_MAP);
+    }
+
     protected ParamConverter<Marker> getMarkerConverter() {
-        final Map<String, Object> props = configuration.getProperties();
-        return new MarkerConverter(props);
+        return new MarkerConverter(properties());
     }
 
     protected ParamConverter<Grade> getGradeConverter() {
-        final Map<String, Object> props = configuration.getProperties();
-        return new GradeConverter(props);
+        return new GradeConverter(properties());
     }
 }

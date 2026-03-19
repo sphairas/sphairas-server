@@ -1,4 +1,4 @@
-package org.thespheres.betula.server.beans;
+package org.thespheres.betula.server.beans.clients;
 
 import jakarta.ws.rs.ext.ParamConverter;
 import java.util.Collections;
