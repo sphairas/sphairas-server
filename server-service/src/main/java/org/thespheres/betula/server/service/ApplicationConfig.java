@@ -28,7 +28,7 @@ public class ApplicationConfig extends Application {
      * out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
-        resources.add(org.thespheres.betula.server.beans.InternalParamConverterProvider.class);
+        resources.add(org.thespheres.betula.server.beans.clients.InternalParamConverterProvider.class);
         resources.add(org.thespheres.betula.server.service.DbServiceResource.class);
         resources.add(org.thespheres.betula.server.service.FastTargetDocumentsRestService.class);
         resources.add(org.thespheres.betula.server.service.InternalAPI.class);
