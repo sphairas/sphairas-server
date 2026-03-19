@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author boris.heithecker
  */
-@WebFilter(dispatcherTypes = {DispatcherType.FORWARD, DispatcherType.REQUEST}, urlPatterns = {"/", "/ui/login.xhtml"}, servletNames = {"BetulaWebApplication", "ZeugnisServlet"})
+@WebFilter(dispatcherTypes = {DispatcherType.FORWARD, DispatcherType.REQUEST}, urlPatterns = {"/", "/login.xhtml", "/ui/login.xhtml"}, servletNames = {"FacesServlet", "ZeugnisServlet"})
 public class NoCacheFilter implements Filter {
 
     @Override
