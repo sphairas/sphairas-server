@@ -8,24 +8,18 @@ package org.thespheres.betula.web;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jakarta.ejb.EJB;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
 import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.ExternalContext;
-import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.primefaces.PrimeFaces;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -37,8 +31,9 @@ import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
-import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
+import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.annot.Current;
@@ -49,7 +44,6 @@ import org.thespheres.betula.services.ws.CommonDocuments;
 import org.thespheres.betula.web.config.Extra;
 import org.thespheres.betula.web.docsrv.DocumentMapper;
 import org.thespheres.ical.VCard;
-import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.web.config.AppConfiguration;
 import org.thespheres.betula.web.rest.DocumentsService;
 
@@ -234,32 +228,4 @@ public class BetulaWebApplication implements Serializable {
         return (!select.isUnsatisfied() && !select.isAmbiguous()) ? select.get() : null;
     }
 
-    public void logout() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        ExternalContext externalContext = facesContext.getExternalContext();
-        HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
-
-        try {
-            // Logout from Jakarta Security (if using container-managed security)
-            request.logout();
-
-            // Invalidate the session
-            externalContext.invalidateSession();
-
-            // Redirect to context root
-            String contextPath = externalContext.getRequestContextPath();
-            externalContext.redirect(contextPath);
-
-            facesContext.responseComplete();
-
-        } catch (ServletException | IOException e) {
-            // Log the error properly
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Logout failed", e);
-
-            // Show error message to user
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Logout Error", "Unable to logout. Please try again.");
-            facesContext.addMessage(null, message);
-        }
-    }
 }

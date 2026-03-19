@@ -48,7 +48,7 @@
                         value="#{bundle['main.logout']}" 
                         icon="pi pi-sign-out" 
                         styleClass="p-button-sm p-button-outlined p-button-secondary"
-                        action="#{app.logout}"
+                        action="#{user.logout}"
                         ajax="false" />
                 </h:form>
             </div>
@@ -154,7 +154,7 @@
                     <i class="pi pi-info-circle" style="font-size: 3rem; color: #2196F3;"></i>
                     <h:outputText value="#{bundle['session.expired.page.message']}" style="margin-top: 1rem;"/>
                     <p:commandButton value="#{bundle['session.expired.page.button.login']}" 
-                                     action="#{app.logout}"
+                                     action="#{user.logout}"
                                      icon="pi pi-sign-in"
                                      style="margin-top: 1rem;"/>
                 </h:panelGrid>

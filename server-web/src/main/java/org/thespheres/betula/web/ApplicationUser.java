@@ -9,9 +9,15 @@ import org.thespheres.betula.web.rest.DocumentsService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.security.enterprise.SecurityContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -27,7 +33,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.primefaces.model.dashboard.DefaultDashboardModel;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.MarkerConvention;
@@ -38,6 +43,8 @@ import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.document.Marker;
+import org.thespheres.betula.server.beans.FastTermTargetDocument;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.config.ConfiguredModelException;
 import org.thespheres.betula.services.AppPropertyNames;
 import org.thespheres.betula.services.LocalProperties;
@@ -56,7 +63,6 @@ public class ApplicationUser implements Serializable {
     private Signee signee;
     private String commonName;
     private TabArrayList<AvailableTarget> units;
-    private DefaultDashboardModel dashboard;
     private PrimaryUnit[] primaryUnits;
     @Inject
     private BetulaWebApplication application;
@@ -68,6 +74,8 @@ public class ApplicationUser implements Serializable {
     private AppConfiguration config;
     @Inject
     private LocalProperties lp;
+    private final Map<DocumentId, FastTermTargetDocument> fastDocs = new HashMap<>();
+    private final Map<DocumentId, FastTextTermTargetDocument> fastTextDocs = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -89,8 +97,25 @@ public class ApplicationUser implements Serializable {
 
     @PreDestroy
     public void sessionDestroyed() {
-        logout();
+        unregister();
         Logger.getLogger(ApplicationUser.class.getName()).log(Level.INFO, "LOGGED OUT {0} {1}", new Object[]{signee.getId(), new Date().toLocaleString()});
+    }
+
+    private void unregister() {
+        if (units != null) {
+            units.getTabs().stream().forEach((ad) -> {
+                ad.valid = false;
+                application.getEventDispatch().unregister(ad);
+            });
+        }
+        units = null;
+        if (primaryUnits != null) {
+            Arrays.stream(primaryUnits).forEach(pu -> {
+                pu.valid = false;
+                application.getEventDispatch().unregister(pu);
+            });
+        }
+        primaryUnits = null;
     }
 
     public Signee getSignee() {
@@ -117,18 +142,6 @@ public class ApplicationUser implements Serializable {
         return getSignee().getId();
     }
 
-//    public DashboardModel getDashboard() {
-//        if (dashboard == null) {
-//            dashboard = new DefaultDashboardModel();
-//            DefaultDashboardWidget column1 = new DefaultDashboardWidget();
-//
-//            column1.addWidget("sports");
-//            column1.addWidget("finance");
-//
-//            dashboard.addWidget(column1);
-//        }
-//        return dashboard;
-//    }
     //schedule, terms, primaryUnits
     public boolean renderMenu(String menu) {
         switch (menu) {
@@ -244,6 +257,14 @@ public class ApplicationUser implements Serializable {
         return null;
     }
 
+    FastTermTargetDocument getFastDocument(DocumentId id) {
+        return fastDocs.computeIfAbsent(id, d -> service.getFastTermTargetDocument(id));
+    }
+
+    FastTextTermTargetDocument getFastTextDocument(final DocumentId id) {
+        return fastTextDocs.computeIfAbsent(id, d -> service.getFastTextTermTargetDocument(id));
+    }
+
 //    public PrimaryUnit getCurrentPrimaryUnit() {
 //        final String page = application.getCurrentPrimaryUnit();
 //        if (page != null) {
@@ -254,22 +275,25 @@ public class ApplicationUser implements Serializable {
 //        }
 //        return null;
 //    }
-    void logout() {
-        dashboard = null;
-        if (units != null) {
-            units.getTabs().stream().forEach((ad) -> {
-                ad.valid = false;
-                application.getEventDispatch().unregister(ad);
-            });
+    public void logout(BetulaWebApplication betulaWebApplication) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
+        try {
+            // Logout from Jakarta Security (if using container-managed security)
+            request.logout();
+            // Invalidate the session
+            externalContext.invalidateSession();
+            // Redirect to context root
+            String contextPath = externalContext.getRequestContextPath();
+            externalContext.redirect(contextPath);
+            facesContext.responseComplete();
+        } catch (ServletException | IOException e) {
+            // Log the error properly
+            Logger.getLogger(betulaWebApplication.getClass().getName()).log(Level.SEVERE, "Logout failed", e);
+            // Show error message to user
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Logout Error", "Unable to logout. Please try again.");
+            facesContext.addMessage(null, message);
         }
-        units = null;
-        if (primaryUnits != null) {
-            Arrays.stream(primaryUnits).forEach(pu -> {
-                pu.valid = false;
-                application.getEventDispatch().unregister(pu);
-            });
-        }
-        primaryUnits = null;
     }
-
 }
