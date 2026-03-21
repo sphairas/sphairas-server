@@ -8,10 +8,10 @@
         <div class="grid">
 
             <!-- Left Side: Student Details -->
-            <div class="col-6">
+            <div class="col-6 flex flex-column gap-3">
 
                 <!-- Fehltage Section -->
-                <p:panel header="Attendance" styleClass="mb-3">
+                <p:panel header="#{bundle['primaryUnit.rowExpansion.attendance']}" styleClass="mb-3">
                     <div class="grid">
                         <div class="col-6 md-3">
                             <p:outputLabel for="fehltage" value="#{bundle['primunit.fehltage']}" />
@@ -42,7 +42,7 @@
                 </p:panel>
 
                 <!-- Arbeitsverhalten & Sozialverhalten -->
-                <p:panel header="Behavior Assessment" styleClass="mb-3">
+                <p:panel header="#{bundle['primaryUnit.rowExpansion.avsv']}" styleClass="mb-3">
                     <div class="grid">
                         <!-- Arbeitsverhalten -->
                         <div class="col-6 md-3">
@@ -66,7 +66,8 @@
                                              rows="2" 
                                              value="#{student.avReason}" 
                                              disabled="#{!student.avReasonEnabled}" 
-                                             autoResize="true">
+                                             autoResize="true"
+                                             styleClass="w-full">
                                 <p:ajax event="blur" update="@this" />
                             </p:inputTextarea>
                         </div>
@@ -93,7 +94,8 @@
                                              rows="2" 
                                              value="#{student.svReason}" 
                                              disabled="#{!student.svReasonEnabled}" 
-                                             autoResize="true">
+                                             autoResize="true"
+                                             styleClass="w-full">
                                 <p:ajax event="blur" update="@this" />
                             </p:inputTextarea>
                         </div>
@@ -101,7 +103,7 @@
                 </p:panel>
 
                 <!-- Notes & Text Fields -->
-                <p:panel header="Notes" styleClass="mb-3">
+                <p:panel header="#{bundle['primaryUnit.rowExpansion.comment']}" styleClass="mb-3">
                     <div class="grid">
                         <div class="col-12 md-3">
                             <p:outputLabel for="notes" value="#{bundle['primaryUnits.notes.label']}" />
@@ -111,7 +113,8 @@
                                              rows="3" 
                                              value="#{student.notes}" 
                                              disabled="#{!student.notesEnabled}" 
-                                             autoResize="true">
+                                             autoResize="true"
+                                             styleClass="w-full">
                                 <p:ajax event="blur" update="@this" />
                             </p:inputTextarea>
                         </div>
@@ -128,7 +131,8 @@
                                 <p:inputTextarea id="textfield_#{repeatStatus.index}" 
                                                  rows="3" 
                                                  value="#{student.textFieldValues[textid].value}" 
-                                                 autoResize="true">
+                                                 autoResize="true"
+                                                 styleClass="w-full">
                                     <p:ajax event="blur" update="@this" />
                                 </p:inputTextarea>
                             </div>
@@ -140,11 +144,14 @@
 
             <!-- Right Side: Report Notes -->
             <div class="col-6">
-                <p:panel header="Report Notes" binding="#{reportNotes2.panel}">
+                <p:panel header="#{bundle['primaryUnit.rowExpansion.reportNotes']}" 
+                         binding="#{reportNotes2.panel}"
+                         styleClass="stretch-panel">
+                    
                     <!--<f:attribute name="primaryUnit" value="#{primaryUnit}" />-->
                     <f:attribute name="student" value="#{student}" />
-                    <p:scrollPanel mode="native" 
-                                   style="width: 100%; max-height: 500px;">
+                    <p:scrollPanel mode="native"
+                                   styleClass="report-notes-panel">
                         <ui:repeat value="#{reportNotes2.elements}" 
                                    var="element" 
                                    varStatus="repeatStatus">
@@ -154,8 +161,7 @@
                                 <div class="mb-3" rendered="#{element.multiple}">
                                     <p:outputLabel for="checkbox" 
                                                    value="#{element.elementDisplayName}" 
-                                                   styleClass="d-block mb-2" 
-                                                   style="font-weight: 600;" />
+                                                   styleClass="d-block mb-2 font-semibold" />
                                     <p:selectManyCheckbox id="checkbox" 
                                                           value="#{element.selected}" 
                                                           layout="pageDirection"
@@ -173,8 +179,7 @@
                                 <div class="mb-3" rendered="#{!element.multiple}">
                                     <p:outputLabel for="radio" 
                                                    value="#{element.elementDisplayName}" 
-                                                   styleClass="d-block mb-2" 
-                                                   style="font-weight: 600;" />
+                                                   styleClass="d-block mb-2 font-semibold" />
                                     <p:selectOneRadio id="radio" 
                                                       value="#{element.selectedItem}" 
                                                       layout="pageDirection" 
