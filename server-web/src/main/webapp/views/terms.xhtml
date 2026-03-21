@@ -55,16 +55,16 @@
 
                             <p:columnGroup type="header">   
                                 <p:row>  
-                                    <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled() or target.hasComments()}" style="width:2%" />   
+                                    <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled() or target.hasComments()}" style="width: 2em;" />   
                                     <p:column rowspan="2" headerText="#{bundle['student.name']}" />   
                                     <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
                                     <p:column colspan="#{target.editableTermColumns.size()}" rendered="#{!target.editableTermColumns.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
                                 </p:row>  
                                 <p:row>   
-                                    <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%" width="10%"/>  
-                                    <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%" />  
-                                    <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%" />     
-                                    <p:columns value="#{config.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%" />  
+                                    <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%;" />  
+                                    <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%;" />  
+                                    <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%;" />     
+                                    <p:columns value="#{config.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%;" />  
                                 </p:row>  
                             </p:columnGroup> 
 
@@ -75,15 +75,17 @@
                                 <h:outputText value="#{student.directoryName}"/>  
                             </p:column>   
 
-                            <p:columns value="#{target.termColumns}" var="term" columnIndexVar="ci" style="text-align: center;"  >
+                            <p:columns value="#{target.termColumns}" 
+                                       var="term" 
+                                       columnIndexVar="ci" 
+                                       styleClass="grades-column"  >
                                 #{target.getGradeValueAt(student, term).shortLabel} 
                             </p:columns>  
 
                             <p:columns value="#{config.targetTypes}" 
                                        var="targetType" 
                                        columnIndexVar="ci"
-                                       styleClass="ui-editable-column" 
-                                       style="text-align: center;" 
+                                       styleClass="ui-editable-column grades-column" 
                                        rendered="#{target.editableTermColumns.get(targetType) ne null}">  
                                 <p:cellEditor rendered="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
                                     <f:facet name="output" >

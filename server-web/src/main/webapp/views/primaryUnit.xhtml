@@ -13,8 +13,7 @@
             <p:menubar model="#{primaryUnit.menu}" styleClass="mb-3">  
                 <f:facet name="options">  
                     <p:selectOneMenu value="#{primaryUnit.editingDocType}" 
-                                     required="true" 
-                                     style="margin-right: 10px;"> 
+                                     required="true" > 
                         <f:selectItems value="#{primaryUnit.editingDocTypes}" 
                                        var="type" 
                                        itemLabel="#{primaryUnit.getDocTypeDisplayName(type)}" />  
@@ -29,24 +28,23 @@
                          value="#{primaryUnit.students}" 
                          rowKey="#{student.id}"
                          rowExpandMode="single" 
-                         rowIndexVar="rowIndex" 
-                         styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm">
+                         rowIndexVar="rowIndex" >
 
                 <f:event type="preRenderComponent" listener="#{primaryUnit.onPreRenderComponent}"/>
                 <p:ajax event="rowToggle" listener="#{primaryUnit.onRowToggle}" />
 
-                <p:column style="width: 50px;">  
+                <p:column style="width: 2rem;">  
                     <p:rowToggler />  
                 </p:column>  
 
-                <p:column headerText="Name" style="min-width: 150px;">  
+                <p:column headerText="Name">  
                     <h:outputText value="#{student.directoryName}" />  
                 </p:column> 
 
                 <p:columns value="#{primaryUnit.subjects}" 
                            var="subject" 
                            columnIndexVar="ci" 
-                           style="text-align: center; min-width: 80px;">
+                           styleClass="grades-column" >
                     <f:facet name="header">
                         <h:outputText id="subject" value="#{util.label(subject)}" />
                         <p:tooltip for="subject" 
