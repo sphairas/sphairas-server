@@ -98,7 +98,14 @@ public class ApplicationUser implements Serializable {
     @PreDestroy
     public void sessionDestroyed() {
         unregister();
-        Logger.getLogger(ApplicationUser.class.getName()).log(Level.INFO, "LOGGED OUT {0} {1}", new Object[]{signee.getId(), new Date().toLocaleString()});
+        // @PreDestroy is invoked by the container (often on a background timer thread)
+        // when the session expires.  Do NOT call logout() here: that method relies on
+        // FacesContext / ExternalContext which are NOT available outside a request thread.
+        // Calling it here either causes a NullPointerException or – if session expiry is
+        // detected lazily on the next user request – grabs that request's FacesContext and
+        // invalidates the *new* authenticated session, which is the root cause of the blank
+        // page seen after re-login following a session timeout.
+        Logger.getLogger(ApplicationUser.class.getName()).log(Level.INFO, "SESSION DESTROYED {0} {1}", new Object[]{signee != null ? signee.getId() : "unknown", new Date().toLocaleString()});
     }
 
     private void unregister() {
@@ -275,8 +282,12 @@ public class ApplicationUser implements Serializable {
 //        }
 //        return null;
 //    }
-    public void logout(BetulaWebApplication betulaWebApplication) {
+    public void logout() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
+        if (facesContext == null) {
+            Logger.getLogger(ApplicationUser.class.getName()).log(Level.WARNING, "logout() called without an active FacesContext – skipping redirect");
+            return;
+        }
         ExternalContext externalContext = facesContext.getExternalContext();
         HttpServletRequest request = (HttpServletRequest) externalContext.getRequest();
         try {
@@ -290,7 +301,7 @@ public class ApplicationUser implements Serializable {
             facesContext.responseComplete();
         } catch (ServletException | IOException e) {
             // Log the error properly
-            Logger.getLogger(betulaWebApplication.getClass().getName()).log(Level.SEVERE, "Logout failed", e);
+            Logger.getLogger(BetulaWebApplication.class.getName()).log(Level.SEVERE, "Logout failed", e);
             // Show error message to user
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Logout Error", "Unable to logout. Please try again.");
             facesContext.addMessage(null, message);

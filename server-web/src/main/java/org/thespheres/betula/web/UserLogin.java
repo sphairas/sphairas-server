@@ -87,11 +87,10 @@ public class UserLogin implements Serializable {
                 AuthenticationParameters.withParams().credential(credential)
         );
 
-        final String redirect = externalContext.getRequestContextPath();// + "/main.xhtml"; //?faces-redirect=true";
+        final String redirect = externalContext.getRequestContextPath() + "/ui/index.xhtml";
 
         switch (status) {
             case SUCCESS:
-//                redirectAfterLogin(externalContext);
                 externalContext.redirect(redirect);
                 facesContext.responseComplete();
                 break;
@@ -100,10 +99,14 @@ public class UserLogin implements Serializable {
                 password = null;
                 break;
             case SEND_CONTINUE:
-                // The mechanism is taking over (e.g., redirecting to a multi-factor page)
-                externalContext.redirect(redirect);
+                // SEND_CONTINUE means the mechanism already wrote its redirect response
+                // (LoginToContinue redirected to the saved original URL).
+                // Do NOT issue a second redirect – just tell JSF the response is done.
                 facesContext.responseComplete();
                 break;
+                case NOT_DONE:
+                    // No authentication was attempted (e.g. unprotected resource) – nothing to do.
+                    break;
         }
     }
 

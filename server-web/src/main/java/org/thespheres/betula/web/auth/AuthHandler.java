@@ -39,7 +39,7 @@ public class AuthHandler implements HttpAuthenticationMechanismHandler {
 
     @Override
     public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext context) throws AuthenticationException {
-//        final String path = request.getRequestURI();
+        final String path = request.getRequestURI();
 
         // 1. Check for manual/programmatic login (UserLogin Bean)
         // If the bean just sent credentials, we MUST validate them now.

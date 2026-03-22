@@ -128,6 +128,7 @@
             <url-pattern>/ui/index.xhtml</url-pattern>
             <url-pattern>/ui/login.xhtml</url-pattern>
             <url-pattern>/resources/*</url-pattern>
+            <url-pattern>/jakarta.faces.resource/*</url-pattern>
             <url-pattern>/ui/jakarta.faces.resource/*</url-pattern>
             <!--<url-pattern>/primepush/*</url-pattern>-->
             <!-- ADD ERROR PAGES TO EXCLUSION -->
@@ -161,6 +162,7 @@
         <display-name>El-injection-CVE</display-name>
         <web-resource-collection>
             <web-resource-name>Site</web-resource-name>
+            <url-pattern>/jakarta.faces.resource/dynamiccontent.properties.xhtml</url-pattern>
             <url-pattern>/ui/jakarta.faces.resource/dynamiccontent.properties.xhtml</url-pattern>
         </web-resource-collection>
         <auth-constraint>
@@ -221,11 +223,6 @@
     <error-page>
         <error-code>500</error-code>
         <location>/error-pages/error.xhtml</location>
-    </error-page>
-    <!-- Session Expired (ViewExpiredException) -->
-    <error-page>
-        <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
-        <location>/error-pages/sessionExpired.xhtml</location>
     </error-page>
     <!-- General Exception -->
     <error-page>
