@@ -27,7 +27,7 @@
     </application>
     <factory>       
         <exception-handler-factory>
-            org.primefaces.application.exceptionhandler.PrimeExceptionHandlerFactory
+            org.thespheres.betula.web.config.ViewExpiredExceptionHandlerFactory
         </exception-handler-factory>        
     </factory>
 </faces-config>

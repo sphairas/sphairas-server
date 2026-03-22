@@ -193,10 +193,6 @@ body.error-page {
     .error-actions {
         flex-direction: column;
     }
-    
-    .error-actions .p-button {
-        width: 100%;
-    }
 }
 
 @media (max-width: 480px) {

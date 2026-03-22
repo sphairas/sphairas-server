@@ -5,7 +5,7 @@
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-       <title>#{bundle['session.expired.page.title']}</title>
+        <title>#{bundle['session.expired.page.title']}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <meta name="context-path" content="#{request.contextPath}/"/>
         <link rel="icon" type="image/x-icon" href="#{resource['favicon.ico']}"/>
@@ -26,15 +26,13 @@
             </p>
 
             <div class="error-actions">
-                <p:button value="#{bundle['session.expired.page.button.login']}" 
-                          icon="pi pi-sign-in" 
-                          href="#{request.contextPath}/login.xhtml"
+                <p:button value="#{bundle['session.expired.page.button.login']}"
+                          icon="pi pi-sign-in"
+                          href="#{request.contextPath}/ui/login.xhtml"
                           styleClass="p-button-lg p-button-warning"/>
             </div>
 
         </div>
-
-        <f:event type="preRenderView" listener="#{errors.logError}" />
 
     </h:body>
 </html>
