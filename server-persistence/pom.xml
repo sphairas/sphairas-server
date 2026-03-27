@@ -22,13 +22,13 @@
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
-        <dependency>
+<!--        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>iserv-login</artifactId>
             <version>0.1.2</version>
             <scope>provided</scope>
             <type>jar</type>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>

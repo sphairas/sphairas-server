@@ -1,15 +1,14 @@
 package org.thespheres.betula.web.auth;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStore;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.InvalidKeyException;
 import java.security.KeyStore;
@@ -24,18 +23,23 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.login.LoginException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.imap.AuthenticatingIMAPClient;
 import org.apache.commons.net.imap.IMAPSClient;
-import org.thespheres.betula.security.iservlogin.IservLogin;
+import org.thespheres.betula.document.Signee;
+import org.thespheres.betula.web.config.AppConfiguration;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @ApplicationScoped
 public class IServIMAPIdentityStore implements IdentityStore {
 
-//    final static String LOGIN_BEAN_NAME = "java:global/Betula_Server/Betula_Persistence/IservLoginImpl!org.thespheres.betula.security.iservlogin.IservLogin";
+    private static final String[] LOGIN_BEAN_NAMES = {
+        "java:global/Betula_Server/Betula_Persistence/IservLoginImpl!org.thespheres.betula.security.iservlogin.IservLogin",
+        "java:global/Betula_Persistence/IservLoginImpl!org.thespheres.betula.security.iservlogin.IservLogin"
+    };
     static final String DEFAULT_PASSWORD = "changeit";
     static final String[] GROUPS = {"signees"};
     private boolean initialized = false;
@@ -45,8 +49,8 @@ public class IServIMAPIdentityStore implements IdentityStore {
     private String signeeSuffix;
 //    private String endpoints;
     private SSLContext ssl;
-    @EJB
-    IservLogin iservLogin;
+    @Inject
+    private AppConfiguration config;
 
     @PostConstruct
     public void init() {
@@ -58,11 +62,16 @@ public class IServIMAPIdentityStore implements IdentityStore {
         final String hv = System.getenv("ISERV_IMAP_CHECK_ENDPOINT");
         final String suffix = System.getenv("LOGINDOMAIN");
 //        final String ep = props.getProperty("com.sun.appserv.iiop.endpoints");
-        if (h == null || pt == null || h.isEmpty() || pt.isEmpty()) {
+        if (StringUtils.isBlank(h)) {
             Logger.getLogger(IServIMAPIdentityStore.class.getName()).info("IServ-Login nicht initializiert.");
             return;
         }
-        int p = Integer.parseInt(pt);
+        int p;
+        if (StringUtils.isBlank(pt)) {
+            p = 993;
+        } else {
+            p = Integer.parseInt(pt);
+        }
         AuthenticatingIMAPClient cl = null;
         try {
             initSSLContext();
@@ -112,7 +121,6 @@ public class IServIMAPIdentityStore implements IdentityStore {
     }
 
     public CredentialValidationResult validate(final UsernamePasswordCredential credential) throws LoginException {
-//        return new CredentialValidationResult("test", Set.of("signees"));
         if (!initialized) {
             return CredentialValidationResult.NOT_VALIDATED_RESULT;
         }
@@ -157,12 +165,11 @@ public class IServIMAPIdentityStore implements IdentityStore {
     }
 
     private String[] authorize(final UsernamePasswordCredential credential) throws LoginException {
-        //            final Properties props = new Properties();
-//            addProperties(props);
-//            final IservLogin lb = (IservLogin) new InitialContext(props).lookup(LOGIN_BEAN_NAME);
         final String sfx = getSigneeSuffix();
         final String suffix = sfx != null ? sfx : getIservImapHost();
-        return iservLogin.getGroups(credential.getCaller(), suffix);
+        final String grp = config.getInternalClient().getSigneeGroups(new Signee(credential.getCaller(), suffix, true));
+        return StringUtils.split(grp, ',');
+//        return lookupIservLogin().getGroups(credential.getCaller(), suffix);
     }
 
     @Override
@@ -170,16 +177,44 @@ public class IServIMAPIdentityStore implements IdentityStore {
         return 10;
     }
 
+//    private IservLogin lookupIservLogin() throws LoginException {
+//        NamingException nex = null;
+//        try {
+//            final Context context = new InitialContext();
+//            for (final String jndiName : LOGIN_BEAN_NAMES) {
+//                try {
+//                    return (IservLogin) context.lookup(jndiName);
+//                } catch (NamingException ex) {
+//                    nex = ex;
+//                }
+//            }
+//        } catch (NamingException ex) {
+//            nex = ex;
+//        }
+//        Logger.getLogger(IServIMAPIdentityStore.class.getName()).log(Level.SEVERE, "IservLogin lookup failed.", nex);
+//        final LoginException lex = new LoginException("IservLogin lookup failed.");
+//        if (nex != null) {
+//            lex.initCause(nex);
+//        }
+//        throw lex;
+//    }
+
+    /* Der Authenticator braucht einen SSLContext mit den Standard-Zertifikaten.
+    * Es wird der eingebaute cacert-Store von Payara verwendet. 
+     */
     private void initSSLContext() throws Exception {
+        final Path configBase = Path.of(System.getProperty("com.sun.aas.instanceRoot") + "/config/");
         final SSLContext ctx = SSLContext.getInstance("TLSv1.3");
         final KeyManagerFactory kstorefac = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        final Path kspath = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+//        final Path kspath = Paths.get(System.getProperty("javax.net.ssl.keyStore"));
+        final Path kspath = configBase.resolve("keystore.p12");
         final KeyStore kstore = KeyStore.getInstance(System.getProperty("javax.net.ssl.keyStoreType", KeyStore.getDefaultType()));
         kstore.load(Files.newInputStream(kspath, StandardOpenOption.READ), DEFAULT_PASSWORD.toCharArray());
         kstorefac.init(kstore, DEFAULT_PASSWORD.toCharArray());
         final KeyManager[] kms = kstorefac.getKeyManagers();
         final TrustManagerFactory tstorefac = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        final Path tspath = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+//        final Path tspath = Paths.get(System.getProperty("javax.net.ssl.trustStore"));
+        final Path tspath = configBase.resolve("cacerts.p12");
         final KeyStore tstore = KeyStore.getInstance(System.getProperty("javax.net.ssl.trustStoreType", KeyStore.getDefaultType()));
         tstore.load(Files.newInputStream(tspath, StandardOpenOption.READ), DEFAULT_PASSWORD.toCharArray());
         tstorefac.init(tstore);

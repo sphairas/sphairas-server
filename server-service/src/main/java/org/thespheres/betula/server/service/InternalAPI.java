@@ -74,13 +74,23 @@ public class InternalAPI {
     }
 
     @GET
+    @Path("signee-groups")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getSigneeGroups(
+            @QueryParam("signee") Signee signee) {
+        final String[] ret = signeeLocal.getSigneeGroups(signee);
+        return ret != null ? Arrays.stream(ret)
+                .collect(Collectors.joining(",")) : null;
+    }
+
+    @GET
     @Path("signee-primary-unit")
     @Produces(MediaType.TEXT_PLAIN)
     public String getSigneePrimaryUnit(
             @QueryParam("primary-unit-head-teachers-document") DocumentId klassenlehrerDoc,
             @QueryParam("signee") Signee signee) {
         final UnitId ret = ubean.getPrimaryUnit(klassenlehrerDoc, signee);
-        return ret.toString();
+        return ret != null ? ret.toString() : UnitId.NULL.toString();
     }
 
     @GET

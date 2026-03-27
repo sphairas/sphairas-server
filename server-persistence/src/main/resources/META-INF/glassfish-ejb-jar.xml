@@ -13,7 +13,7 @@
         <role-name>timer</role-name>
         <principal-name>timer-principal</principal-name>
     </security-role-mapping>
-    <enterprise-beans>
+<!--    <enterprise-beans>
         <ejb>
             <ejb-name>IservLoginImpl</ejb-name>
             <transport-config>
@@ -22,7 +22,7 @@
                 <caller-propagation>NONE</caller-propagation>
             </sas-context>
         </ejb>
-    </enterprise-beans>
+    </enterprise-beans>-->
     <!-- Muss eingeschaltet sein, sonst kann ein remote interface nicht zweimal gebunden werden -->
     <disable-nonportable-jndi-names>true</disable-nonportable-jndi-names>
 </glassfish-ejb-jar>

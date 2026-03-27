@@ -19,4 +19,6 @@ public interface SigneeLocal {
     public Signee getSigneePrincipal(final boolean requireSigneeEntity);
 
     public String getSigneeCommonName(Signee signee);
+
+    public String[] getSigneeGroups(final Signee signee);
 }

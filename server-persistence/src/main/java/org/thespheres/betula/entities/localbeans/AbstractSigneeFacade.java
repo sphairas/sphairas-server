@@ -6,7 +6,6 @@ import jakarta.ejb.SessionContext;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.validation.constraints.NotNull;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.server.beans.config.ConfiguredModelException;
@@ -48,13 +47,13 @@ public class AbstractSigneeFacade {
             throw new EJBAccessException();
         }
         final String prefix = context.getCallerPrincipal().getName();
-            String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);
-            if (suffix == null) {//Legacy case
-                suffix = lp.getProperty(AppPropertyNames.LP_DEFAULT_SIGNEE_SUFFIX);
-            }
-            if (suffix == null) {
-                throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
-            }
+        String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+        if (suffix == null) {//Legacy case
+            suffix = lp.getProperty(AppPropertyNames.LP_DEFAULT_SIGNEE_SUFFIX);
+        }
+        if (suffix == null) {
+            throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+        }
         return new Signee(prefix, suffix, true);
     }
 
@@ -63,4 +62,8 @@ public class AbstractSigneeFacade {
         return se != null ? se.getCommonName() : null;
     }
 
+    public String[] getSigneeGroups(final Signee signee) {
+        final SigneeEntity se = em.find(SigneeEntity.class, signee);
+        return se != null ? se.getGroups() : null;
+    }
 }
