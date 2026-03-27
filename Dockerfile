@@ -56,13 +56,17 @@ COPY --chown=payara:payara target/lib/* ${DOMAIN_DIR}/lib/
 #    };" >> ${DOMAIN_DIR}/config/login.conf
 
 #TODO use JAVA_HOME for /usr/lib/jvm/zulu11-ca-amd64/ 
+#RUN rm ${DOMAIN_DIR}/lib/mysql-connector-java-*.jar && \
+#    ln -s /app-resources/ $APP_RESOURCES && \
+#    mkdir -p ${SECRETS_DIR} && \
+#    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-jrehome /usr/lib/jvm/zulu21-ca-amd64/ -Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.p12 -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.p12"#' ${DOMAIN_DIR}/config/domain.xml && \
+#    printf "iservRealm { \n\
+#	org.thespheres.betula.security.iservlogin.IservLoginModule required; \n\
+#    };" >> ${DOMAIN_DIR}/config/login.conf
 RUN rm ${DOMAIN_DIR}/lib/mysql-connector-java-*.jar && \
     ln -s /app-resources/ $APP_RESOURCES && \
     mkdir -p ${SECRETS_DIR} && \
-    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-jrehome /usr/lib/jvm/zulu21-ca-amd64/ -Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.p12 -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.p12"#' ${DOMAIN_DIR}/config/domain.xml && \
-    printf "iservRealm { \n\
-	org.thespheres.betula.security.iservlogin.IservLoginModule required; \n\
-    };" >> ${DOMAIN_DIR}/config/login.conf
+    sed -i 's#\bdefault-jms-host="default_JMS_host"#& start-args="-jrehome /usr/lib/jvm/zulu21-ca-amd64/ -Dimq.service.activelist=jms,admin,wssjms,wsjms -Dimq.wssjms.wss.port=7781 -Dimq.wsjms.ws.port=7681 -Dimq.keystore.file.dirpath=${ENV=SECRETS_DIR} -Dimq.keystore.file.name=keystore.p12 -passfile /tmp/imqpwdfile -Dimq.wssjms.wss.requireClientAuth=true -Djavax.net.ssl.trustStore=${ENV=SECRETS_DIR}/cacerts.p12"#' ${DOMAIN_DIR}/config/domain.xml
 
 COPY --chown=payara:payara bin/pre-boot-commands.asadmin bin/post-boot-commands.asadmin ${CONFIG_DIR}/
 
