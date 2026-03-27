@@ -41,7 +41,7 @@ public class LdapEnvIdentityStore implements IdentityStore {
                 case "groupMemberOfAttribute" ->
                     "";
                 case "priority" ->
-                    10;
+                    1000;
                 case "toString" ->
                     "DynamicLdapConfig";
                 case "annotationType" ->
@@ -71,6 +71,15 @@ public class LdapEnvIdentityStore implements IdentityStore {
             return ret;
         } else {
             return Collections.EMPTY_SET;
+        }
+    }
+
+    @Override
+    public int priority() {
+        if (delegate != null) {
+            return delegate.priority();
+        } else {
+            return IdentityStore.super.priority();
         }
     }
 
