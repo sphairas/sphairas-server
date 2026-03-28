@@ -19,7 +19,7 @@ RUN echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula selec
 
 COPY bin/generate-admin-key /usr/local/bin
 
-VOLUME ["/app-resources" "/run/secrets"]
+VOLUME ["/app-resources", "/run/secrets"]
 
 RUN chmod +x /usr/local/bin/generate-admin-key && \
     mkdir /app-resources && \
