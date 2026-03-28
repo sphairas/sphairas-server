@@ -387,11 +387,11 @@ public class AppConfiguration implements Serializable {
     }
 
     public List<String> getCrossMarkSubjectConventions() {
-        return Arrays.asList(crossmarks.conventions());
+        return Arrays.asList(getCrossmarkSettings().conventions());
     }
 
     public AssessmentConvention getCrossMarkAssessmentConvention() {
-        return crossmarks.getAssessmentConvention();
+        return getCrossmarkSettings().getAssessmentConvention();
     }
 
     public String[] getTargetTypes() {
