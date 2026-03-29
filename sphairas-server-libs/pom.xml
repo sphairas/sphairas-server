@@ -18,13 +18,13 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>library</artifactId>
-            <version>0.2.15</version>
+            <version>0.2.16</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>services</artifactId>
-            <version>0.2.22</version>
+            <version>0.2.23</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>niedersachsen</artifactId>
-            <version>0.2.13</version>
+            <version>0.2.14</version>
             <type>jar</type>
         </dependency>
         <dependency>
