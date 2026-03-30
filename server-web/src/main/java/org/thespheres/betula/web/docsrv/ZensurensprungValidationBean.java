@@ -18,7 +18,7 @@ import org.thespheres.betula.validation.impl.ZensurensprungValidation;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 //@Startup
 //@Singleton

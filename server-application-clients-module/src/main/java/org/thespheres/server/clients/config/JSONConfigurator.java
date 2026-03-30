@@ -18,7 +18,7 @@ import org.thespheres.server.clients.model.MarkerAdapter;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @Provider
 public class JSONConfigurator implements ContextResolver<Jsonb> {

@@ -9,7 +9,7 @@ import jakarta.security.enterprise.CallerPrincipal;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class JWTCallerPrincipal extends CallerPrincipal {
 

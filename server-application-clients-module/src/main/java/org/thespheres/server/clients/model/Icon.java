@@ -10,7 +10,7 @@ import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class Icon {
 

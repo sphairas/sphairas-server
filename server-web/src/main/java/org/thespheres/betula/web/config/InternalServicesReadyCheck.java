@@ -10,7 +10,7 @@ import org.eclipse.microprofile.health.Readiness;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @Readiness
 @ApplicationScoped

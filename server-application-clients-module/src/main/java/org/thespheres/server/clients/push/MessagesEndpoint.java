@@ -19,7 +19,7 @@ import org.thespheres.betula.services.jms.AbstractDocumentEvent;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @RolesAllowed({"signee"})
 @ServerEndpoint("/messages")

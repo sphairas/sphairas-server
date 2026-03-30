@@ -21,7 +21,7 @@ import org.thespheres.server.clients.model.Property;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class ClientConfiguration implements Serializable {
 

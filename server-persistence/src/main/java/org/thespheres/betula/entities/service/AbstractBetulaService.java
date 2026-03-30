@@ -31,7 +31,7 @@ import org.thespheres.betula.services.ws.UnauthorizedException;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public abstract class AbstractBetulaService {
 

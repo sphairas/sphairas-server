@@ -20,7 +20,7 @@ import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @LocalBean
 @Stateless

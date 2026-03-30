@@ -19,7 +19,7 @@ import org.thespheres.betula.entities.UnitTicketEntity;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class TicketsProcessorUtils {
 

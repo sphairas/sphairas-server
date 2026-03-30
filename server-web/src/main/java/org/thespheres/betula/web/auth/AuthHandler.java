@@ -21,7 +21,7 @@ import java.util.Set;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @AutoApplySession
 @CustomFormAuthenticationMechanismDefinition(

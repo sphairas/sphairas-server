@@ -15,7 +15,7 @@ import org.thespheres.betula.services.LocalProperties;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @ApplicationScoped
 public class ClientConfigurationBuilder {

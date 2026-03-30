@@ -15,7 +15,7 @@ import org.thespheres.server.clients.ClientConfiguration;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class BaseTargetDocument extends BaseDocument {
 

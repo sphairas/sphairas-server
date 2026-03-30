@@ -17,7 +17,7 @@ import org.thespheres.betula.validation.impl.ZensurensprungResult;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 class OneZensurensprungResult extends ZensurensprungResult<VCardStudent, FastTermTargetDocument> {
 

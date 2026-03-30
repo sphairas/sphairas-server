@@ -11,7 +11,7 @@ import org.thespheres.betula.document.MarkerFactory;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class MarkerAdapter implements JsonbAdapter<Marker, String> {
 

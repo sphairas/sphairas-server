@@ -25,7 +25,7 @@ import org.thespheres.server.clients.model.Icon;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @Path("settings")
 @RolesAllowed("signee")

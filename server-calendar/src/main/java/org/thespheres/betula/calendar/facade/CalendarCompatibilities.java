@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 public class CalendarCompatibilities {
     

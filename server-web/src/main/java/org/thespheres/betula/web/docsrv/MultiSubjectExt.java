@@ -11,7 +11,7 @@ import org.thespheres.betula.document.model.MultiSubject;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 class MultiSubjectExt extends MultiSubject {
 

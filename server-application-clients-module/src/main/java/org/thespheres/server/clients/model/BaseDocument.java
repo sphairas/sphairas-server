@@ -14,7 +14,7 @@ import org.thespheres.server.clients.ClientConfiguration;
 
 /**
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @JsonbPropertyOrder(PropertyOrderStrategy.ANY)
 public abstract class BaseDocument {
