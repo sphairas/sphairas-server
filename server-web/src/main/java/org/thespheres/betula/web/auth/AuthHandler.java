@@ -41,14 +41,14 @@ public class AuthHandler implements HttpAuthenticationMechanismHandler {
     public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext context) throws AuthenticationException {
         final String path = request.getRequestURI();
 
-        // 1. Check for manual/programmatic login (UserLogin Bean)
+        // Check for manual/programmatic login (UserLogin Bean)
         // If the bean just sent credentials, we MUST validate them now.
         if (context.getAuthParameters().getCredential() != null) {
             Credential c = context.getAuthParameters().getCredential();
             c.isValid();
         }
 
-        // 1. If the user is already authenticated (via session), STOP here.
+        // If the user is already authenticated (via session), STOP here.
         // This prevents the mechanism from trying to re-authenticate or redirect.
         if (context.getCallerPrincipal() != null) {
             return context.doNothing();
@@ -56,11 +56,14 @@ public class AuthHandler implements HttpAuthenticationMechanismHandler {
 
         final Object certs = request.getAttribute("jakarta.servlet.request.X509Certificate");
         if (certs != null && ((X509Certificate[]) certs).length > 0) {
+//            request.getAttribute("jakarta.servlet.request.X509Certificate") 
+//            is only populated if the Payara SSL listener (Port 8181) successfully completed a TLS handshake, 
+//            the certificate has already been cryptographically verified against your TrustStore.
             final X509Certificate cert = ((X509Certificate[]) certs)[0];
             final String name = cert.getSubjectX500Principal().getName();
-//            return context.notifyContainerAboutLogin(name, Set.of("unitadmins"));
+            return context.notifyContainerAboutLogin(name, Set.of("unitadmins"));
         }
-        
+
         AuthenticationStatus ret = formAuth.validateRequest(request, response, context);
 //        Principal callerPrincipal = context.getCallerPrincipal();
 //        Set<String> groups = context.getGroups();

@@ -20,7 +20,7 @@ import javax.naming.ldap.LdapName;
 
 /**
  *
- * @author boris
+ * @author boris.heithecker
  */
 @ApplicationScoped
 @Alternative
@@ -37,7 +37,7 @@ public class ServiceAuthHandler implements HttpAuthenticationMechanismHandler {
 //            the certificate has already been cryptographically verified against your TrustStore.
             final X509Certificate cert = ((X509Certificate[]) certs)[0];
             final String name = cert.getSubjectX500Principal().getName();
-            Set<String> groups = rolesForPrincipal(name);
+            final Set<String> groups = rolesForPrincipal(name);
             return context.notifyContainerAboutLogin(name, groups);
         }
         return context.doNothing();
