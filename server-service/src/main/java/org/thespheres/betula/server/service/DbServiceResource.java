@@ -22,7 +22,7 @@ import org.thespheres.betula.database.DbAdminService;
 /**
  * REST Web Service
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @Path("db")
 public class DbServiceResource {

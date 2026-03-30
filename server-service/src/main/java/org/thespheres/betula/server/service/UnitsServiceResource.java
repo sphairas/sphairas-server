@@ -18,7 +18,7 @@ import org.thespheres.betula.services.ws.BetulaWebService;
 /**
  * REST Web Service
  *
- * @author boris.heithecker@gmx.net
+ * @author boris.heithecker
  */
 @Path("units")
 public class UnitsServiceResource {
