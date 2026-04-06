@@ -292,7 +292,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                 addUrlToSubmenu(downloadMenu, "primaryUnits.menu.download.detailListen", "pi pi-file-excel", getDetailsDownload(null));
             }
             for (final String template : getDetailsTemplates()) {
-                addUrlToSubmenu(downloadMenu, template, "pi pi-file", getDetailsDownload(template));
+                addUrlToSubmenuResolved(downloadMenu, template, "pi pi-file", getDetailsDownload(template));
             }
             addUrlToSubmenu(downloadMenu, "primaryUnits.menu.download.allezgn", "pi pi-file", getZgnDownload());
 
@@ -301,9 +301,13 @@ public class PrimaryUnit extends AbstractData<Subject> {
         return menu;
     }
 
-    private void addUrlToSubmenu(final DefaultSubMenu downloadMenu, String value, String icon, String url) {
+    private void addUrlToSubmenu(final DefaultSubMenu downloadMenu, String bundleKey, String icon, String url) {
+        addUrlToSubmenuResolved(downloadMenu, Util.getBundleValue(bundleKey), icon, url);
+    }
+
+    private void addUrlToSubmenuResolved(final DefaultSubMenu downloadMenu, String value, String icon, String url) {
         DefaultMenuItem item = DefaultMenuItem.builder()
-                .value(Util.getBundleValue(value))
+                .value(value)
                 .icon(icon)
                 .url(url)
                 .target("_blank")
