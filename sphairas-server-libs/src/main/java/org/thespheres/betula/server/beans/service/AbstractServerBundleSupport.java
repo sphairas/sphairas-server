@@ -7,8 +7,7 @@ package org.thespheres.betula.server.beans.service;
 
 import java.util.Date;
 import java.util.Map;
-import javax.naming.directory.Attributes;
-//import org.apache.naming.resources.ResourceAttributes;
+import org.apache.naming.resources.ResourceAttributes;
 import org.openide.util.lookup.ServiceProvider;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.services.util.BundleSupport;
@@ -22,7 +21,7 @@ public abstract class AbstractServerBundleSupport<M extends Marker> extends Bund
 
     protected final String resource;
     protected Date resourceLm;
-    protected Attributes resAttr;
+    protected ResourceAttributes resAttr;
 
     protected AbstractServerBundleSupport(String resource) {
         super();
@@ -37,7 +36,7 @@ public abstract class AbstractServerBundleSupport<M extends Marker> extends Bund
     }
 
     protected Date getModified() {
-        return null; //resAttr.getCreationOrLastModifiedDate();
+        return resAttr.getCreationOrLastModifiedDate();
     }
 
     @Override

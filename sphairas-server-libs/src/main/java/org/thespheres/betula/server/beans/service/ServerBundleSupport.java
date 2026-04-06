@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import org.openide.util.Exceptions;
 //import org.apache.naming.resources.ProxyDirContext;
 import org.apache.naming.resources.Resource;
 import org.apache.naming.resources.ResourceAttributes;
