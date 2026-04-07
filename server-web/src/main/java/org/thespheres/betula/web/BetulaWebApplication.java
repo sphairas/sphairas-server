@@ -20,6 +20,7 @@ import jakarta.inject.Named;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -219,6 +220,7 @@ public class BetulaWebApplication implements Serializable {
     Ticket[] findApplicableTickets(DocumentId docId, TermId termId, StudentId studId) {
         final String t = config.getInternalClient().findApplicableTickets(docId, termId, studId);
         return Arrays.stream(t.split("\n"))
+                .filter(StringUtils::isNotBlank)
                 .map(Ticket::valueOf)
                 .toArray(Ticket[]::new);
     }
