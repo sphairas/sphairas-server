@@ -63,7 +63,7 @@ public class IServIMAPIdentityStore implements IdentityStore {
         final String suffix = System.getenv("LOGINDOMAIN");
 //        final String ep = props.getProperty("com.sun.appserv.iiop.endpoints");
         if (StringUtils.isBlank(h)) {
-            Logger.getLogger(IServIMAPIdentityStore.class.getName()).info("IServ-Login nicht initializiert.");
+            Logger.getLogger(IServIMAPIdentityStore.class.getName()).info("IServ-Login nicht initialisiert.");
             return;
         }
         int p;
@@ -89,7 +89,7 @@ public class IServIMAPIdentityStore implements IdentityStore {
 //                this.endpoints = ep.trim();
 //            }
             this.initialized = true;
-            Logger.getLogger(IServIMAPIdentityStore.class.getName()).info("IServ-Login nicht initializiert.");
+            Logger.getLogger(IServIMAPIdentityStore.class.getName()).info("IServ-Login initializiert.");
         } catch (Exception ex) {
             Logger.getLogger(IServIMAPIdentityStore.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
             Logger.getLogger(IServIMAPIdentityStore.class.getName()).info("IServ-Login nicht initializiert.");

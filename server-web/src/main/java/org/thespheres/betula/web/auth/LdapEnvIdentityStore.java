@@ -9,6 +9,7 @@ import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Set;
+import java.util.logging.Logger;
 import org.glassfish.soteria.identitystores.LdapIdentityStore;
 
 /**
@@ -22,6 +23,13 @@ public class LdapEnvIdentityStore implements IdentityStore {
 
     @PostConstruct
     public void produceLdapConfig() {
+        if (System.getenv("LDAP_URL") == null
+                || System.getenv("LDAP_CALLER_BASE_DN") == null
+                || System.getenv("LDAP_BIND_USER") == null
+                || System.getenv("LDAP_PASSWORD") == null) {
+            Logger.getLogger(LdapEnvIdentityStore.class.getName()).info("Ldap-Login nicht initialisiert.");
+            return;
+        }
         final LdapIdentityStoreDefinition definition = (LdapIdentityStoreDefinition) Proxy.newProxyInstance(LdapIdentityStoreDefinition.class.getClassLoader(),
                 new Class[]{LdapIdentityStoreDefinition.class},
                 (proxy, method, args) -> {
@@ -52,13 +60,13 @@ public class LdapEnvIdentityStore implements IdentityStore {
                 }
         );
         delegate = new LdapIdentityStore(definition);
+        Logger.getLogger(LdapEnvIdentityStore.class.getName()).info("Ldap-Login initialisiert.");
     }
 
     @Override
     public CredentialValidationResult validate(Credential credential) {
         if (delegate != null) {
-            CredentialValidationResult rer = delegate.validate(credential);
-            return rer;
+            return delegate.validate(credential);
         } else {
             return CredentialValidationResult.NOT_VALIDATED_RESULT;
         }
@@ -67,8 +75,7 @@ public class LdapEnvIdentityStore implements IdentityStore {
     @Override
     public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
         if (delegate != null) {
-            Set<String> ret = delegate.getCallerGroups(validationResult);
-            return ret;
+            return delegate.getCallerGroups(validationResult);
         } else {
             return Collections.EMPTY_SET;
         }
@@ -79,7 +86,7 @@ public class LdapEnvIdentityStore implements IdentityStore {
         if (delegate != null) {
             return delegate.priority();
         } else {
-            return IdentityStore.super.priority();
+            return Integer.MAX_VALUE;
         }
     }
 
