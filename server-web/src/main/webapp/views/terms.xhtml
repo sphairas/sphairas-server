@@ -58,13 +58,13 @@
                                     <p:column rowspan="2" rendered="#{target.isCrossMarksEnabled() or target.hasComments()}" style="width: 2em;" />   
                                     <p:column rowspan="2" headerText="#{bundle['student.name']}" />   
                                     <p:column colspan="#{target.termColumns.size()}" rendered="#{!target.termColumns.isEmpty()}" headerText="#{bundle['column.header.vorzensuren']}" />  
-                                    <p:column colspan="#{target.editableTermColumns.size()}" rendered="#{!target.editableTermColumns.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
+                                    <p:column colspan="#{target.renderedEditableTargetTypes.size()}" rendered="#{!target.renderedEditableTargetTypes.isEmpty()}" headerText="#{target.editTerm.displayName}" /> 
                                 </p:row>  
                                 <p:row>   
                                     <p:column headerText="#{target.termColumns[0].displayName}" rendered="#{target.termColumns.size() ge 1}" style="width: 10%;" />  
                                     <p:column headerText="#{target.termColumns[1].displayName}" rendered="#{target.termColumns.size() ge 2}" style="width: 10%;" />  
                                     <p:column headerText="#{target.termColumns[2].displayName}" rendered="#{target.termColumns.size() ge 3}" style="width: 10%;" />     
-                                    <p:columns value="#{config.targetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" rendered="#{target.editableTermColumns.get(targetType) ne null}" style="width: 10%;" />  
+                                    <p:columns value="#{target.renderedEditableTargetTypes}" var="targetType" headerText="#{bundle['column.header.' += targetType]}" style="width: 10%;" />  
                                 </p:row>  
                             </p:columnGroup> 
 
@@ -72,7 +72,8 @@
                                 <p:rowToggler />
                             </p:column>   
                             <p:column>  
-                                <h:outputText value="#{student.directoryName}"/>  
+                             
+                            <h:outputText value="#{student.directoryName}"/>  
                             </p:column>   
 
                             <p:columns value="#{target.termColumns}" 
@@ -82,19 +83,19 @@
                                 #{target.getGradeValueAt(student, term).shortLabel} 
                             </p:columns>  
 
-                            <p:columns value="#{config.targetTypes}" 
+                            <p:columns value="#{target.renderedEditableTargetTypes}" 
                                        var="targetType" 
                                        columnIndexVar="ci"
-                                       styleClass="ui-editable-column grades-column" 
-                                       rendered="#{target.editableTermColumns.get(targetType) ne null}">  
-                                <p:cellEditor rendered="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
+                                       styleClass="ui-editable-column grades-column">  
+                                <p:cellEditor>  
                                     <f:facet name="output" >
                                         <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
-                                                      styleClass="cell-editable cell-highlightable #{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).styleClass}" />
+                                                      styleClass="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable ? 'cell-editable cell-highlightable ' : 'cell-readonly cell-highlightable '}#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).styleClass}" />
                                     </f:facet>  
                                     <f:facet name="input">    
                                         <p:selectOneMenu value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).id}" 
-                                                         style="width: 96% !important">  
+                                                         style="width: 96% !important"
+                                                         rendered="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}">  
                                             <f:selectItem itemLabel="#{bundle[targetType += '.noSelectionLabel']}" 
                                                           noSelectionOption="true" />
                                             <f:selectItems value="#{target.editableTermColumns.get(targetType).grades}" 
@@ -110,10 +111,6 @@
                                         </p:selectOneMenu>   
                                     </f:facet>       
                                 </p:cellEditor> 
-                                <h:outputText value="#{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).shortLabel}" 
-                                              styleClass="cell-readonly cell-highlightable #{target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).styleClass}" 
-                                              rendered="${!target.getGradeValueAt(student, target.editableTermColumns.get(targetType)).editable}"/>
-
                             </p:columns> 
 
                             <p:rowExpansion rendered="#{target.hasComments() or target.isCrossMarksEnabled()}">

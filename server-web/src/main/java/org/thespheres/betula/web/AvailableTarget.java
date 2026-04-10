@@ -73,6 +73,7 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
     private final Map<StudentId, Map<CrossMarkSubject, GradeValue>> crossMarkGradeValues = new HashMap<>();
     private ArrayList<AvailableTermColumn> gradeColumns;
     private HashMap<String, AvailableTermColumn> editableGradeColumns;
+    private List<String> renderedEditableTargetTypes;
     private DocumentId[] target;
     private final List<CrossMarkSubject> crossMarkSubjects = new ArrayList<>();
     private String entitlementTitle = null;
@@ -313,6 +314,16 @@ public class AvailableTarget extends AbstractData<AvailableTermColumn> {
             }
         }
         return editableGradeColumns;
+    }
+
+    public synchronized List<String> getRenderedEditableTargetTypes() {
+        if (renderedEditableTargetTypes == null) {
+            final Map<String, AvailableTermColumn> m = getEditableTermColumns();
+            renderedEditableTargetTypes = Arrays.stream(application.getAppConfiguration().getWebUIConfiguration().getCommitTargetTypes())
+                    .filter(m::containsKey)
+                    .collect(Collectors.toList());
+        }
+        return renderedEditableTargetTypes;
     }
 
     boolean addToRenderedTerms(final TermId t, final DocumentId d) {
