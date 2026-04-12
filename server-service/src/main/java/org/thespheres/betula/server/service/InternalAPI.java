@@ -11,11 +11,15 @@ import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -31,12 +35,16 @@ import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.TicketFacade;
 import org.thespheres.betula.entities.facade.UnitDocumentFacade;
+import org.thespheres.betula.server.beans.AmbiguousDateException;
+import org.thespheres.betula.server.beans.CalendarsBean;
 import org.thespheres.betula.server.beans.SigneeLocal;
+import org.thespheres.betula.server.beans.StudentsLocalBean;
+import org.thespheres.ical.VCard;
 
 /**
  * REST Web Service
  *
- * @author boris
+ * @author boris.heithecker
  */
 @Path("internal")
 public class InternalAPI {
@@ -55,6 +63,10 @@ public class InternalAPI {
     protected GradeTargetDocumentFacade facade;
     @EJB
     protected TextTargetDocumentFacade textFacade;
+    @EJB(beanName = "StudentVCardsImpl")
+    private StudentsLocalBean studentVCardsImpl;
+    @EJB(beanName = "CalendarsBeanImpl")
+    private CalendarsBean calendars;
 
     @GET
     @Path("unit-common-name")
@@ -154,6 +166,33 @@ public class InternalAPI {
         } else {
             throw new IllegalArgumentException("DocumentId, StudentId, and TermId cannot be null.");
         }
+    }
+
+    @GET
+    @Path("student-vcard")
+    @Produces(VCard.MIME)
+    public Response getStudentVCard(@QueryParam("student") StudentId student) {
+        final VCard ret = studentVCardsImpl.get(student);
+        return Response.ok(ret.toString())
+                .build();
+    }
+
+    //Wird nicht gebraucht!!
+    public Collection<VCard> getAllVCards() {
+        final Collection<VCard> ret = studentVCardsImpl.getAll();
+        return ret;
+    }
+
+    @GET
+    @Path("report-date")
+    public Date getReportDate(
+            @QueryParam("category") String category,
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("term") TermId termId,
+            @QueryParam("document") DocumentId zgn,
+            @QueryParam("cat") String moreCategories) throws AmbiguousDateException {
+        final String[] cat = StringUtils.split(moreCategories, ",");
+        return calendars.getDate(category, unit, termId, zgn, cat);
     }
 
     @GET
