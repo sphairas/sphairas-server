@@ -183,18 +183,15 @@ public class AppResourcesResource {
                         .status(423)
                         .build();
             }
-            LOCKS.put(key, current.refresh(timeout));
-            return Response
-                    .ok()
-                    .header("Lock-Token", "<" + current.token + ">").build();
+            final DavLock refreshed = current.refresh(timeout);
+            LOCKS.put(key, refreshed);
+            return lockResponse(Response.Status.OK, refreshed);
         }
 
         final String owner = extractOwner(body);
         final DavLock lock = DavLock.create(owner, timeout);
         LOCKS.put(key, lock);
-        return Response.status(Response.Status.CREATED)
-                .header("Lock-Token", "<" + lock.token + ">")
-                .build();
+        return lockResponse(Response.Status.CREATED, lock);
     }
 
     @UNLOCK
@@ -348,6 +345,31 @@ public class AppResourcesResource {
                     appendDescendantsRecursive(ms, child);
                 }
             }
+        }
+    }
+
+    private Response lockResponse(Response.Status status, DavLock lock) {
+        try {
+            final StringWriter writer = new StringWriter();
+            final DAVProp prop = new DAVProp();
+            prop.setLockDiscovery(lock.toDiscovery());
+
+            final SupportedLock supportedLock = new SupportedLock();
+            final LockEntry entry = new LockEntry();
+            entry.setLockScope(new LockScope());
+            entry.setLockType(new LockType());
+            supportedLock.getLockEntry().add(entry);
+            prop.setSupportedLock(supportedLock);
+
+            getDavJAXB().createMarshaller().marshal(prop, writer);
+            return Response.status(status)
+                    .header("Lock-Token", "<" + lock.token + ">")
+                    .type(MediaType.APPLICATION_XML)
+                    .entity(writer.toString())
+                    .build();
+        } catch (JAXBException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+            return Response.serverError().build();
         }
     }
 
