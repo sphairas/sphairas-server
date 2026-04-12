@@ -12,8 +12,11 @@ import org.thespheres.betula.server.beans.annot.Delegate;
 import java.util.Collections;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.thespheres.betula.Identity;
@@ -53,17 +56,21 @@ public class NamingResolverImpl implements Serializable, NamingResolver {
     @Override
     public Result resolveDisplayNameResult(Identity id) throws IllegalAuthorityException {
         UnitId uid = null;
-        if (id instanceof UnitId) {
-            uid = (UnitId) id;
+        if (id instanceof UnitId unitId) {
+            uid = unitId;
 
-        } else if (id instanceof DocumentId) {
-            uid = dm.convertToUnitId((DocumentId) id);
+        } else if (id instanceof DocumentId documentId) {
+            uid = dm.convertToUnitId(documentId);
         }
         final DocumentId cNames = cd.forName(CommonDocuments.COMMON_NAMES_DOCID);
         if (uid != null && cNames != null) {
-            final String cn = client.getUnitCommonName(cNames, uid);
-            if (!StringUtils.isBlank(cn)) {
-                return new SimpleResult(cn);
+            try {
+                final String cn = client.getUnitCommonName(cNames, uid);
+                if (!StringUtils.isBlank(cn)) {
+                    return new SimpleResult(cn);
+                }
+            } catch (final WebApplicationException wex) {
+                Logger.getLogger(NamingResolverImpl.class.getName()).log(Level.SEVERE, "Error invoking unit-common-name on " + uid.toString() + " with common names document " + cNames.toString(), wex);
             }
         }
         if (delegate != null) {
