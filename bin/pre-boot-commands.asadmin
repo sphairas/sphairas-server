@@ -1,5 +1,7 @@
 set configs.config.server-config.jms-service.type=LOCAL
 
+set configs.config.server-config.admin-service.jmx-connector.system.enabled=false
+
 delete-auth-realm certificate
 create-auth-realm --classname com.sun.enterprise.security.auth.realm.certificate.CertificateRealm --property assign-groups=unitadmins:common-name-as-principal-name=true certificate
 
