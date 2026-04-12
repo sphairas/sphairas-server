@@ -2,6 +2,7 @@ package org.thespheres.betula.server.beans.clients;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import java.util.Date;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
@@ -9,6 +10,7 @@ import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
+import org.thespheres.ical.VCard;
 
 //Annotation wird in Payara Server gebraucht, in Payara Micro angeblich nicht
 //@Dependent
@@ -81,6 +83,20 @@ public interface ServiceInternalClient {
             @QueryParam("term") TermId term,
             @QueryParam("section") Marker section,
             @QueryParam("text") String text);
+
+    @GET
+    @Path("student-vcard")
+    @Produces(VCard.MIME)
+    public String getStudentVCard(@QueryParam("student") StudentId student);
+
+    @GET
+    @Path("report-date")
+    public Date getReportDate(
+            @QueryParam("category") String category,
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("term") TermId termId,
+            @QueryParam("document") DocumentId zgn,
+            @QueryParam("cat") String moreCategories) throws BadRequest;
 
     @GET
     @Path("ping")
