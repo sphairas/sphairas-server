@@ -19,11 +19,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
 import jakarta.ejb.NoSuchEntityException;
-import jakarta.ejb.PostActivate;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.inject.Default;
@@ -87,27 +85,27 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
     protected final Map<UnitId, Map<TermId, Set<DocumentId>>> unitTermTargetDocs = new HashMap<>();
     protected final Map<String, UnitId> primaryUnits = new HashMap<>();
 
-    @EJB
-    FastTargetDocuments2Facade security;
+//    @EJB
+//    FastTargetDocuments2Facade security;
     @Default
     @Inject
     protected transient DocumentsModel docModel;
     @Inject
     protected CommonDocuments cd;
 
-    @PostConstruct
-    public void logConstruct() {
-        String sig = security.getName();
-        String mess = resultList == null ? "null" : "size: " + resultList.size();
-        Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Constructed FastTargetDocuments2Impl for {0}; \"resultList\" is {1}.", new String[]{sig, mess});
-    }
-
-    @PostActivate
-    public void logActivate() {
-        String sig = security.getName();
-        String mess = resultList == null ? "null" : "size: " + resultList.size();
-        Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Activated FastTargetDocuments2Impl for {0}; \"resultList\" is {1}.", new String[]{sig, mess});
-    }
+//    @PostConstruct
+//    public void logConstruct() {
+//        String sig = security.getName();
+//        String mess = resultList == null ? "null" : "size: " + resultList.size();
+//        Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Constructed FastTargetDocuments2Impl for {0}; \"resultList\" is {1}.", new String[]{sig, mess});
+//    }
+//
+//    @PostActivate
+//    public void logActivate() {
+//        String sig = security.getName();
+//        String mess = resultList == null ? "null" : "size: " + resultList.size();
+//        Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Activated FastTargetDocuments2Impl for {0}; \"resultList\" is {1}.", new String[]{sig, mess});
+//    }
 
     //facade.findAll is an implicit security check
     protected List<TermGradeTargetAssessmentEntity> getTargetAssessmentDocumentResultList() {
@@ -121,8 +119,8 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
             } else {
                 resultList = Collections.EMPTY_LIST;
             }
-            String sig = security.getName();
-            Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Loaded \"resultList\"  in FastTargetDocuments2Impl for {0} in {1} ms.", new String[]{sig, Long.toString(System.currentTimeMillis() - start)});
+//            String sig = security.getName();
+//            Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Loaded \"resultList\"  in FastTargetDocuments2Impl for {0} in {1} ms.", new String[]{sig, Long.toString(System.currentTimeMillis() - start)});
         }
         return resultList;
     }
@@ -174,8 +172,8 @@ public class FastTargetDocuments2Impl implements FastTargetDocuments2, Serializa
             }
             final long start = System.currentTimeMillis();
             final FastTermTargetDocument ret = createFastTermTargetDocument(s, login.getCurrent());
-            final String sig = security.getName();
-            Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Created FastTermTargetDocument {0} in FastTargetDocuments2Impl for {1} in {2} ms.", new String[]{d.getId(), sig, Long.toString(System.currentTimeMillis() - start)});
+//            final String sig = security.getName();
+//            Logger.getLogger(FastTargetDocuments2Impl.class.getName()).log(Level.INFO, "Created FastTermTargetDocument {0} in FastTargetDocuments2Impl for {1} in {2} ms.", new String[]{d.getId(), sig, Long.toString(System.currentTimeMillis() - start)});
             return ret;
         } else {
             checkDocumentAccess(d);
