@@ -99,6 +99,7 @@ public class AppConfiguration implements Serializable {
                 .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
 //                .property(SERVER_CRT_FILE, this)
                 .register(InternalParamConverterProvider.class)
+                .register(BadRequestResponseMapper.class)
                 .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
                 .build(ServiceInternalClient.class);
         try {
