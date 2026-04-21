@@ -147,8 +147,8 @@
                 <p:panel header="#{bundle['primaryUnit.rowExpansion.reportNotes']}" 
                          binding="#{reportNotes2.panel}"
                          styleClass="stretch-panel">
-                    
-                    <!--<f:attribute name="primaryUnit" value="#{primaryUnit}" />-->
+
+<!--<f:attribute name="primaryUnit" value="#{primaryUnit}" />-->
                     <f:attribute name="student" value="#{student}" />
                     <p:scrollPanel mode="native"
                                    styleClass="report-notes-panel">
@@ -158,40 +158,44 @@
                             <ui:fragment rendered="#{reportNotes2.renderElement(element)}">
 
                                 <!-- Multiple Selection (Checkboxes) -->
-                                <div class="mb-3" rendered="#{element.multiple}">
-                                    <p:outputLabel for="checkbox" 
-                                                   value="#{element.elementDisplayName}" 
-                                                   styleClass="d-block mb-2 font-semibold" />
-                                    <p:selectManyCheckbox id="checkbox" 
-                                                          value="#{element.selected}" 
-                                                          layout="pageDirection"
-                                                          columns="1">
-                                        <f:selectItems value="#{element.markers}" 
-                                                       var="marker" 
-                                                       itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
-                                                       itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
-                                                       itemValue="#{marker.id}"/>
-                                        <p:ajax update="@this" />
-                                    </p:selectManyCheckbox>
-                                </div>
+                                <ui:fragment rendered="#{element.multiple}">
+                                    <div class="mb-3">
+                                        <p:outputLabel for="checkbox" 
+                                                       value="#{element.elementDisplayName}" 
+                                                       styleClass="d-block mb-2 font-semibold" />
+                                        <p:selectManyCheckbox id="checkbox" 
+                                                              value="#{element.selected}" 
+                                                              layout="pageDirection"
+                                                              columns="1">
+                                            <f:selectItems value="#{element.markers}" 
+                                                           var="marker" 
+                                                           itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
+                                                           itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
+                                                           itemValue="#{marker.id}"/>
+                                            <p:ajax update="@this" />
+                                        </p:selectManyCheckbox>
+                                    </div>
+                                </ui:fragment>
 
                                 <!-- Single Selection (Radio Buttons) -->
-                                <div class="mb-3" rendered="#{!element.multiple}">
-                                    <p:outputLabel for="radio" 
-                                                   value="#{element.elementDisplayName}" 
-                                                   styleClass="d-block mb-2 font-semibold" />
-                                    <p:selectOneRadio id="radio" 
-                                                      value="#{element.selectedItem}" 
-                                                      layout="pageDirection" 
-                                                      columns="1">
-                                        <f:selectItems value="#{element.markers}" 
-                                                       var="marker" 
-                                                       itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
-                                                       itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
-                                                       itemValue="#{marker.id}"/>
-                                        <p:ajax update="@this" />
-                                    </p:selectOneRadio>
-                                </div>
+                                <ui:fragment rendered="#{!element.multiple}">
+                                    <div class="mb-3">
+                                        <p:outputLabel for="radio" 
+                                                       value="#{element.elementDisplayName}" 
+                                                       styleClass="d-block mb-2 font-semibold" />
+                                        <p:selectOneRadio id="radio" 
+                                                          value="#{element.selectedItem}" 
+                                                          layout="pageDirection" 
+                                                          columns="1">
+                                            <f:selectItems value="#{element.markers}" 
+                                                           var="marker" 
+                                                           itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
+                                                           itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
+                                                           itemValue="#{marker.id}"/>
+                                            <p:ajax update="@this" />
+                                        </p:selectOneRadio>
+                                    </div>
+                                </ui:fragment>
 
                                 <p:divider rendered="#{!repeatStatus.last}" />
                             </ui:fragment>
