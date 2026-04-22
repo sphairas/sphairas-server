@@ -1,6 +1,7 @@
 package org.thespheres.betula.web.auth;
 
 import jakarta.annotation.Priority;
+import jakarta.annotation.security.DeclareRoles;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Alternative;
 import jakarta.inject.Inject;
@@ -23,6 +24,7 @@ import java.util.Set;
  *
  * @author boris.heithecker
  */
+@DeclareRoles({"unitadmin", "signee"})
 @AutoApplySession
 @CustomFormAuthenticationMechanismDefinition(
         loginToContinue = @LoginToContinue(loginPage = "/ui/login.xhtml", errorPage = "/error-pages/error.xhtml", useForwardToLogin = true),

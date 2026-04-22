@@ -243,9 +243,10 @@ public class NdsFormatter {
             rMap = Collections.EMPTY_MAP;
         }
         
+        final boolean isUnitAdmin = context.isCallerInRole("unitadmin");        
         final boolean setBackground = !builderFactory.getSchulvorlage().getProperty(NdsZeugnisSchulvorlage.PROP_SIGNEES_NO_BACKGROUND)
                 .map(p -> Boolean.valueOf(p.getValue()))
-                .orElse(false) && !context.isCallerInRole("unitadmin");
+                .orElse(false) && !isUnitAdmin;
 
         final boolean toXml = "text/xml".equals(mime);
 
