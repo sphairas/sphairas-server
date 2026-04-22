@@ -15,7 +15,7 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import jakarta.ejb.EJB;
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
@@ -31,7 +31,7 @@ import org.thespheres.betula.util.CollectionUtil;
  *
  * @author boris.heithecker
  */
-@RequestScoped
+@Dependent
 public class BemerkungenBean {
 
     @EJB(beanName = "ReportsBeanImpl")
