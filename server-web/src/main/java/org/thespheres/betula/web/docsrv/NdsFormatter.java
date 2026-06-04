@@ -99,6 +99,7 @@ import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.ws.CommonDocuments;
+import org.thespheres.betula.web.rest.DocumentsService;
 import org.xml.sax.SAXException;
 
 /**
@@ -154,6 +155,8 @@ public class NdsFormatter {
     private Templates detailsTemplate;
     @Inject
     private SecurityContext context;
+//    @Inject
+//    private DocumentsService documents;
 
     public NdsFormatter() {
     }
@@ -231,6 +234,7 @@ public class NdsFormatter {
         final Map<DocumentId, FastTermTargetDocument> map = new HashMap<>();
         docMap.values().stream()
                 .flatMap(Set::stream)
+//Replace with                                .forEach(d -> map.putIfAbsent(d, documents.getFastTermTargetDocument(d)));
                 .forEach(d -> map.putIfAbsent(d, tgtae.getFastTermTargetDocument(d)));
 
         final Map<DocumentId, FastTextTermTargetDocument> rMap;
@@ -238,15 +242,18 @@ public class NdsFormatter {
             rMap = reports.values().stream()
                     .flatMap(Set::stream)
                     .distinct()
+//Replace with                                        .collect(Collectors.toMap(Function.identity(), documents::getFastTextTermTargetDocument));
                     .collect(Collectors.toMap(Function.identity(), tgtae::getFastTextTermTargetDocument));
         } else {
             rMap = Collections.EMPTY_MAP;
         }
-        
-        final boolean isUnitAdmin = context.isCallerInRole("unitadmin");        
-        final boolean setBackground = !builderFactory.getSchulvorlage().getProperty(NdsZeugnisSchulvorlage.PROP_SIGNEES_NO_BACKGROUND)
-                .map(p -> Boolean.valueOf(p.getValue()))
-                .orElse(false) && !isUnitAdmin;
+
+        final boolean isUnitAdmin = context.isCallerInRole("unitadmin");
+        Logger.getLogger(NdsFormatter.class.getCanonicalName()).log(Level.INFO, () -> "Caller " + context.getCallerPrincipal().toString() + " in role unitadmin: " + isUnitAdmin);
+        //Replace later againg, when isCallerInRole is working
+        final boolean setBackground = false; //!builderFactory.getSchulvorlage().getProperty(NdsZeugnisSchulvorlage.PROP_SIGNEES_NO_BACKGROUND)
+              //  .map(p -> Boolean.valueOf(p.getValue()))
+              //  .orElse(false) && !isUnitAdmin;
 
         final boolean toXml = "text/xml".equals(mime);
 
@@ -341,6 +348,7 @@ public class NdsFormatter {
                 .map(Map::values)
                 .flatMap(Collection::stream)
                 .flatMap(Collection::stream)
+                //Replace with .forEach(d -> fttd.putIfAbsent(d, documents.getFastTermTargetDocument(d)));
                 .forEach(d -> fttd.putIfAbsent(d, tgtae.getFastTermTargetDocument(d)));
 
         final ZensurenListenCollectionXml collection = new ZensurenListenCollectionXml();
@@ -400,6 +408,7 @@ public class NdsFormatter {
                 .map(Map::values)
                 .flatMap(Collection::stream)
                 .flatMap(Collection::stream)
+                //Replace with .forEach(d -> fttd.putIfAbsent(d, documents.getFastTermTargetDocument(d)));
                 .forEach(d -> fttd.putIfAbsent(d, tgtae.getFastTermTargetDocument(d)));
 
         final List<ZensurenListeCsv> coll = new ArrayList<>();
@@ -531,6 +540,7 @@ public class NdsFormatter {
     public byte[] formatCSVListe(FastTargetDocuments2 tgtae, DocumentId[] target, NamingResolver resolver, Term current, Term[] before, String mime, final String encoding) throws IOException {
 
         final FastTermTargetDocument[] fttds = Arrays.stream(target)
+                //Replace with .map(documents::getFastTermTargetDocument)
                 .map(tgtae::getFastTermTargetDocument)
                 .filter(Objects::nonNull)
                 .toArray(FastTermTargetDocument[]::new);
@@ -647,11 +657,13 @@ public class NdsFormatter {
     public byte[] formatKursListe(final FastTargetDocuments2 tgtae, final DocumentId[] targets, final DocumentId[] textDocs, final Term[] before, final String mime, final DocumentId docBase) throws IOException {
 
         final FastTermTargetDocument[] fttds = Arrays.stream(targets)
+                //Replace with .map(documents::getFastTermTargetDocument)
                 .map(tgtae::getFastTermTargetDocument)
                 .filter(Objects::nonNull)
                 .toArray(FastTermTargetDocument[]::new);
 
         final FastTextTermTargetDocument[] texts = Arrays.stream(textDocs)
+                //Replace with .map(documents::getFastTextTermTargetDocument)
                 .map(tgtae::getFastTextTermTargetDocument)
                 .filter(Objects::nonNull)
                 .toArray(FastTextTermTargetDocument[]::new);
