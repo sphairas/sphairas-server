@@ -53,6 +53,10 @@ public class EmbeddableComponentProperty implements Serializable {
         return propValue;
     }
 
+    public void setValue(String value) {
+        this.propValue = value;
+    }
+
     public List<Parameter> getParameters() {
         return propParameters.getList();
     }

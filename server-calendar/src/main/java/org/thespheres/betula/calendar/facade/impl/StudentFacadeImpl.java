@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
+import java.util.List;
+import java.util.Objects;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.services.jms.StudentEvent;
@@ -132,6 +134,30 @@ public class StudentFacadeImpl extends BaseComponentFacade<StudentEntity, Studen
                         merge = true;
                     }
                     break;
+                case "X-STUDENT":
+                    break;
+                    //Uncomment later for Schulconnex
+//                default:
+//                    final List<EmbeddableComponentProperty> found = se.getProperties().stream()
+//                            .filter(p -> name.equals(p.getName()))
+//                            .collect(Collectors.toList());
+//                    if (found.isEmpty()) {
+//                        se.getProperties().add(new EmbeddableComponentProperty(name, value));
+//                        merge = true;
+//                    } else if (found.size() == 1) {
+//                        final EmbeddableComponentProperty ep = found.get(0);
+//                        if (!Objects.equals(ep.getValue(), value)) {
+//                            ep.setValue(value);
+//                            merge = true;
+//                        }
+//                    } else {
+//                        final boolean replace = true;
+//                        if (replace) {
+//                            se.getProperties().removeAll(found);
+//                        }
+//                        se.getProperties().add(new EmbeddableComponentProperty(name, value));
+//                        merge = true;
+//                    }
             }
         }
         if (merge) {
