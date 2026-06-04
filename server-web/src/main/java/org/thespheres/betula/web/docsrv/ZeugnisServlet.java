@@ -52,6 +52,7 @@ import org.thespheres.betula.server.beans.annot.Preceding;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.scheme.spi.TermNotFoundException;
 import org.thespheres.betula.web.config.WebAppProperties;
+//import org.thespheres.betula.web.rest.DocumentsService;
 
 /**
  *
@@ -84,7 +85,9 @@ public class ZeugnisServlet extends HttpServlet {
     @DocumentsRequest
     @Inject
     private Instance<FastTargetDocuments2> ftd2RequestInstance;
-
+//    @Inject
+//    private DocumentsService documents;
+    
     private FastTargetDocuments2 getFastTargetDocuments2() {
         return ftd2RequestInstance.get();
     }
@@ -288,6 +291,7 @@ public class ZeugnisServlet extends HttpServlet {
             if (currentTerm.equals(t)) {
                 final Set<DocumentId> ag = documentMapper.filterAGs(coll);
                 ag.stream()
+//Replace with                                                .forEach(d -> agTargets.put(d, documents.getFastTermTargetDocument(d)));
                         .forEach(d -> agTargets.put(d, ftd2.getFastTermTargetDocument(d)));
             }
         }
