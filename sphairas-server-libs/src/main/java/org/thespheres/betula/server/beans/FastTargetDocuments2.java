@@ -39,27 +39,35 @@ public interface FastTargetDocuments2 {
 
     public UnitId getPrimaryUnit(final String docIdName);
 
+    //Replace in web
     public Collection<DocumentId> getTargetAssessmentDocuments(UnitId primaryUnit);
 
+    //Replace in web
     public Collection<DocumentId> getTargetAssessmentDocumentsForTerm(UnitId unit, TermId term);
 
+    //Replace in web
     public Collection<Marker> getDocumentMarkers(DocumentId d);
 
+    //Replace in web, calendar
     public Collection<StudentId> getStudents(UnitId pu, Date asOf);
 
     public Ticket[] getTickets(DocumentId docId, TermId termId, StudentId studId);
 
     public Grade selectSingle(DocumentId d, StudentId student, TermId term);
 
+    //Replace in web -> selectSingle
     public Grade findSingle(StudentId student, TermId term, Marker fach, String suffix);
 
     public boolean submitSingle(DocumentId docId, StudentId studId, TermId termId, Grade grade);
 
     public boolean submitSingle(DocumentId docId, StudentId studId, TermId termId, Marker section, String text);
 
+    //Replace in web
     public Grade[] findSingleChecked(UnitId unit, TermId term, StudentId student, Collection<DocumentId> selectFrom);
 
+    //Replace in web
     Collection<DocumentId> getTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTermTargetDocument> map);
 
+    //Replace in web
     Collection<DocumentId> getTextTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTextTermTargetDocument> map);
 }
