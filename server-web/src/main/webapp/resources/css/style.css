@@ -34,6 +34,23 @@ body {
     justify-content: space-between;
 }
 
+.sidebar-toggle-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.25rem 0.5rem 0.25rem 0;
+    margin-right: 0.5rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-toggle-btn:hover {
+    opacity: 0.8;
+}
+
 .app-logo {
     display: flex;
     align-items: center;
@@ -69,6 +86,15 @@ body {
     background: var(--surface-100);
     border-right: 1px solid var(--surface-300);
     padding: 1rem 0;
+    overflow: hidden;
+    transition: width 0.25s ease;
+    flex-shrink: 0;
+}
+
+.app-container.sidebar-collapsed .app-sidebar {
+    width: 0;
+    padding: 0;
+    border-right: none;
 }
 
 .menu-item {
@@ -149,7 +175,7 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .app-sidebar {
+    .app-sidebar:not(.sidebar-collapsed .app-sidebar) {
         width: 200px;
     }
 
@@ -218,8 +244,8 @@ body {
 
 /*Migrated css*/
 
-/* DataTable auto-sizing columns */
-.p-datatable table {
+/* DataTable auto-sizing columns (non-scrollable tables only) */
+.p-datatable:not(.primaryunit-table) table {
     table-layout: auto !important;
 }
 
@@ -233,6 +259,98 @@ body {
     max-height: 100%;
     overflow-y: auto;
 }
+
+/* ===== Primary Unit wide-matrix table (Phase 1) ===== */
+
+/* Make the table fill the available width and scroll horizontally */
+.primaryunit-table.p-datatable {
+    width: 100%;
+}
+
+/* Fixed layout is required for explicit column widths to be honoured in scrollable mode */
+.primaryunit-table .p-datatable-table {
+    table-layout: fixed;
+}
+
+/* Only scroll horizontally — let the page handle vertical scrolling */
+.primaryunit-table .p-datatable-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Sticky header */
+.primaryunit-table .p-datatable-thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--surface-100);
+}
+
+/* CSS sticky frozen columns — columns 1 (toggler) and 2 (Name).
+   Avoids PrimeFaces dual-table frozenColumns which breaks row expansion widths. */
+.primaryunit-table .p-datatable-thead > tr > th:nth-child(1),
+.primaryunit-table .p-datatable-tbody > tr > td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+    background: var(--surface-100);
+}
+
+.primaryunit-table .p-datatable-tbody > tr > td:nth-child(1) {
+    background: var(--surface-0, white);
+}
+
+.primaryunit-table .p-datatable-thead > tr > th:nth-child(2),
+.primaryunit-table .p-datatable-tbody > tr > td:nth-child(2) {
+    position: sticky;
+    left: 1.75rem;  /* width of toggler column */
+    z-index: 4;
+    background: var(--surface-100);
+}
+
+.primaryunit-table .p-datatable-tbody > tr > td:nth-child(2) {
+    background: var(--surface-0, white);
+    border-right: 1px solid var(--surface-300);
+}
+
+
+/* Compact grade columns: short label fits in a small cell */
+.primaryunit-table .grades-column {
+    text-align: center;
+    padding: 0.25rem 0.2rem;
+}
+
+.primaryunit-table .grades-column .p-column-header-content {
+    justify-content: center;
+}
+
+.primaryunit-table .grades-column .p-column-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 3rem;
+    display: block;
+}
+
+/* Keep body cells in grade columns compact */
+.primaryunit-table td.grades-column {
+    padding: 0.25rem 0.2rem;
+    text-align: center;
+}
+
+/* Row expansion: anchor content to the visible viewport left edge so it never
+   requires horizontal scrolling regardless of how many grade columns the table has. */
+.primaryunit-expansion-content {
+    position: sticky;
+    left: 0;
+    max-width: calc(100vw - 4rem);
+    box-sizing: border-box;
+}
+
+/* ===== end Primary Unit table ===== */
 
 /*noBorders not used until now*/
 /* Utility class to remove borders and backgrounds from tables */

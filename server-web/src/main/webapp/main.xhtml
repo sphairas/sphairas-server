@@ -32,6 +32,9 @@
             <!-- Top Bar -->
             <div class="app-topbar">
                 <div class="app-logo">
+                    <button type="button" class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Seitenleiste ein-/ausblenden">
+                        <i class="pi pi-bars"></i>
+                    </button>
                     <p:graphicImage value="#{config.image}" 
                                     alt="#{config.appName}"
                                     rendered="#{config.image ne null}"

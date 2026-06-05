@@ -28,22 +28,25 @@
                          value="#{primaryUnit.students}" 
                          rowKey="#{student.id}"
                          rowExpandMode="single" 
-                         rowIndexVar="rowIndex" >
+                         rowIndexVar="rowIndex"
+                         scrollable="true"
+                         styleClass="primaryunit-table" >
 
                 <f:event type="preRenderComponent" listener="#{primaryUnit.onPreRenderComponent}"/>
                 <p:ajax event="rowToggle" listener="#{primaryUnit.onRowToggle}" />
 
-                <p:column style="width: 2rem;">  
+                <p:column style="width: 1.75rem; min-width: 1.75rem;">  
                     <p:rowToggler />  
                 </p:column>  
 
-                <p:column headerText="Name">  
+                <p:column headerText="Name" style="width: 16rem; min-width: 16rem;">  
                     <h:outputText value="#{student.directoryName}" />  
                 </p:column> 
 
                 <p:columns value="#{primaryUnit.subjects}" 
                            var="subject" 
-                           columnIndexVar="ci" 
+                           columnIndexVar="ci"
+                           style="width: 3.5rem; min-width: 3.5rem; text-align: center;"
                            styleClass="grades-column" >
                     <f:facet name="header">
                         <h:outputText id="subject" value="#{util.label(subject)}" />
@@ -51,9 +54,10 @@
                                    value="#{util.tooltip(subject)}" 
                                    showEffect="fade" 
                                    hideEffect="fade" /> 
-                    </f:facet>  
-                    <h:outputText value="#{primaryUnit.getGradeValueAt(student, subject).shortLabel}" 
-                                  styleClass="cell-highlightable cell-readonly #{primaryUnit.getGradeValueAt(student, subject).styleClass}"/>
+                    </f:facet>
+                    <ui:param name="gradeVal" value="#{primaryUnit.getGradeValueAt(student, subject)}" />
+                    <h:outputText value="#{gradeVal.shortLabel}" 
+                                  styleClass="cell-highlightable cell-readonly #{gradeVal.styleClass}"/>
                 </p:columns>  
 
                 <!-- Row Expansion -->
