@@ -190,7 +190,8 @@ public class PrimaryUnit extends AbstractData<Subject> {
 //            Grade evtGrade = evt.getNewValue();
                     if (gv.invalidateGrade(u.getValue(), evt.getTimestamp().getValue())) {
 //                gv.invalidateGrade();
-                        if (application.getActivePage().equals("primaryUnits") && dataTableClientId != null) {
+//TODO: Catch org.jboss.weld.contexts.ContextNotActiveException
+//                        if (application.getActivePage().equals("primaryUnits") && dataTableClientId != null) {
 //                    String g = evtGrade.getShortLabel();
 //                    String n = as.getFullname();
 //                    String msg = NbBundle.getMessage(AvailableTarget.class, "target.update.message");
@@ -202,7 +203,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
 //                            message.setSource(dataTableClientId);
 //                            message.setUpdate(dataTableClientId);
 //                            eventBus.publish(NotifyGradeUpdateResource.CHANNEL_BASE + application.getUser().getSignee().getId(), message);
-                        }
+//                        }
                     }
 
                 }
@@ -382,6 +383,11 @@ public class PrimaryUnit extends AbstractData<Subject> {
     public Map<String, Map<MultiSubject, Set<DocumentId>>> getDocMap() {
         if (docTypes == null) {
             docTypes = application.getDocumentMapper().getDocMap(getDocs(), false);
+            final Set<DocumentId> allDocs = docTypes.values().stream()
+                    .flatMap(m -> m.values().stream())
+                    .flatMap(Set::stream)
+                    .collect(Collectors.toSet());
+            application.prefetchDocuments(unit, allDocs);
         }
         return docTypes;
     }
