@@ -93,6 +93,13 @@ import org.thespheres.betula.document.DocumentId;
     @NamedQuery(name = "TermGradeTargetAssessmentEntity.findTermGradeTargetAssessmentsForStudentsHelper", query = "SELECT DISTINCT tgtae FROM TermGradeTargetAssessmentEntity tgtae, IN(tgtae.entries) e "
             + "WHERE e.student.studentId IN :studentIds "
             + "AND e.student.studentAuthority=:authority"),
+    // Like the helper above but with JOIN FETCH so the entries collection is
+    // populated in the same SQL join instead of triggering a lazy SELECT per
+    // entity (N+1).  LEFT JOIN FETCH ensures documents with no matching entries
+    // for these students are still included in the result.
+    @NamedQuery(name = "TermGradeTargetAssessmentEntity.findTermGradeTargetAssessmentsForStudentsHelperFetch", query = "SELECT DISTINCT tgtae FROM TermGradeTargetAssessmentEntity tgtae LEFT JOIN FETCH tgtae.entries e "
+            + "WHERE e.student.studentId IN :studentIds "
+            + "AND e.student.studentAuthority=:authority"),
         //Workaround2, include changelog
     @NamedQuery(name = "TermGradeTargetAssessmentEntity.findAllTermGradeTargetAssessmentsForUnitEntityStudentsIncludeChangeLogs", query = "SELECT DISTINCT tgtae FROM TermGradeTargetAssessmentEntity tgtae, UnitDocumentEntity ude JOIN TREAT(ude.changeLog AS StudentIdCollectionChangeLog) cl, IN(tgtae.entries) e, IN(ude.studentIds) s "
             + "WHERE ude=:unit "
