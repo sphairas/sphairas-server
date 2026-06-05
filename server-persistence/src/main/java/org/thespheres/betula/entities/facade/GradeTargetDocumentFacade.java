@@ -64,7 +64,7 @@ public interface GradeTargetDocumentFacade {
 
     public Collection<TermGradeTargetAssessmentEntity> findForStudent(final StudentId related);
 
-    public Collection<TermGradeTargetAssessmentEntity> findForStudents(Set<StudentId> related, TermId term);
+    public Collection<TermGradeTargetAssessmentEntity> findForStudents(Set<StudentId> related);
 
     public boolean linkPrimaryUnits(DocumentId docId, StudentId[] toArray);
 

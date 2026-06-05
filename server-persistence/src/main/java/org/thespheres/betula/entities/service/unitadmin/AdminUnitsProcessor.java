@@ -179,7 +179,7 @@ public class AdminUnitsProcessor extends AbstractAdminContainerProcessor {
                     if (dv != null) {
                         ch.getChildren().clear();
                         ch.setAction(Action.RETURN_COMPLETION);
-                        targets.findForStudents(adoptStudents(ude, dv), reference).stream()
+                        targets.findForStudents(adoptStudents(ude, dv)).stream()
                                 .map(BaseTargetAssessmentEntity::getDocumentId)
                                 .distinct()
                                 .map(did -> new Entry<>(null, did))

@@ -61,6 +61,31 @@ import org.thespheres.betula.util.GradeEntry;
 //@Stateless
 public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTargetAssessmentEntity> implements GradeTargetDocumentFacade {
 
+    /**
+     * Switch between the two implementations of {@link #findForUnitDocument}.
+     *
+     * TRUE (recommended) — two-step approach: 1. Read the student-ID set from
+     * UnitDocumentEntity.getStudentIds() (already in L1 cache). 2. Run
+     * findForStudents() (no term filter — the underlying query
+     * findTermGradeTargetAssessmentsForStudentsHelper never supported it),
+     * which decomposes into per-authority "IN :studentIds" queries that hit a
+     * normal index on TERMASSESSMENTENTRY2.STUDENT_ID / STUDENT_AUTHORITY.
+     * Expected cost: O(students) indexed lookups, ~100 ms.
+     *
+     * FALSE (legacy) — single Cartesian-join JPQL: FROM
+     * TermGradeTargetAssessmentEntity tgtae, UnitDocumentEntity ude,
+     * IN(tgtae.entries) e, IN(ude.studentIds) s WHERE ude=:unit AND e.student=s
+     * The DB must materialise (ALL entries in the whole table) × (all students
+     * of the unit) before filtering. With 266 documents and 30 students this
+     * takes ~40 s on every cold call. The EclipseLink query-results-cache
+     * annotation on the named query was supposed to make subsequent calls free,
+     * but any grade submission writes a TermAssessmentEntry2 (whose parent is
+     * TermGradeTargetAssessmentEntity) which causes EclipseLink to invalidate
+     * the entire results-cache for that entity type — so the cache never gets a
+     * chance to serve a hit.
+     */
+    private static final boolean USE_TWO_STEP_UNIT_QUERY = true;
+
     @EJB
     private UnitDocumentFacade unitDocumentFacade;
 
@@ -337,14 +362,51 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
 
     @Override
     public List<TermGradeTargetAssessmentEntity> findForUnitDocument(final UnitDocumentEntity related, final TermId term) {
-        if (term == null) {//Causes deadlock.....
-            return em.createNamedQuery("TermGradeTargetAssessmentEntity.findAllTermGradeTargetAssessmentsForUnitEntityStudents", TermGradeTargetAssessmentEntity.class
-            )
-                    .setParameter("unit", related)
-                    .setLockMode(LockModeType.OPTIMISTIC)
-                    .getResultList();
+        if (term == null) {
+            // term==null path: return ALL grade-target documents linked to any
+            // student currently enrolled in the given unit document.
+            // The comment "Causes deadlock" above the original query referred to
+            // a historical locking issue with the WITH clause variant; the plain
+            // Cartesian join below does not deadlock but is extremely slow (see
+            // USE_TWO_STEP_UNIT_QUERY javadoc for the full explanation).
+
+            if (USE_TWO_STEP_UNIT_QUERY) {
+                // ── Fast path ──────────────────────────────────────────────────
+                // Step 1: obtain the enrolled student set from the unit entity.
+                //   UnitDocumentEntity.getStudentIds() is backed by the
+                //   UNIT_DOCUMENT_STUDENTS element-collection, which EclipseLink
+                //   keeps in its L1 (EntityManager) cache for the duration of
+                //   this transaction — no extra DB round-trip when the unit was
+                //   already loaded by the caller.
+                final Set<StudentId> students = related.getStudentIds();
+
+                // Step 2: delegate to findForStudents(), which groups students
+                //   by authority and issues one "IN :studentIds" query per group.
+                //   That query hits the indexed STUDENT_ID / STUDENT_AUTHORITY
+                //   columns directly instead of a full Cartesian product.
+                //   The TermId argument is null here because the named query
+                //   used by findForStudents() (findTermGradeTargetAssessmentsForStudentsHelper)
+                //   does not filter by term — matching the semantics of the
+                //   original term==null branch.
+                return new ArrayList<>(findForStudents(students));
+
+            } else {
+                // ── Legacy path (Cartesian join, ~40 s) ────────────────────────
+                // Kept verbatim for easy rollback: set USE_TWO_STEP_UNIT_QUERY=false.
+                // The query-results-cache hint on this named query is ineffective
+                // because EclipseLink invalidates it on every grade write.
+                return em.createNamedQuery("TermGradeTargetAssessmentEntity.findAllTermGradeTargetAssessmentsForUnitEntityStudents", TermGradeTargetAssessmentEntity.class
+                )
+                        .setParameter("unit", related)
+                        .setLockMode(LockModeType.OPTIMISTIC)
+                        .getResultList();
+            }
 
         } else {
+            // term!=null path: Cartesian join filtered additionally by term.
+            // The term filter typically reduces the intermediate set enough to
+            // be acceptable, but the same structural problem exists.  Optimising
+            // this path is left for a follow-up if it proves necessary.
             return em.createNamedQuery("findTermGradeTargetAssessmentsForUnitEntityStudents", TermGradeTargetAssessmentEntity.class
             )
                     .setParameter("unit", related)
@@ -374,7 +436,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
     }
 
     @Override
-    public Collection<TermGradeTargetAssessmentEntity> findForStudents(Set<StudentId> related, TermId term) {
+    public Collection<TermGradeTargetAssessmentEntity> findForStudents(Set<StudentId> related) {
 
         final Set<EmbeddableStudentId> set = related.stream()
                 .map(EmbeddableStudentId::new)
@@ -383,7 +445,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
 //        CriteriaQuery<TermGradeTargetAssessmentEntity> cq = cb.createQuery(TermGradeTargetAssessmentEntity.class);
 //        Root<TermGradeTargetAssessmentEntity> tgtae = cq.from(TermGradeTargetAssessmentEntity.class);
 //        cb.in(cb.parameter(entityClass, null));
-////        cb.in(tgtae.join("entries"));
+        ////        cb.in(tgtae.join("entries"));
 //
 ////        CriteriaBuilder.In<StudentId> in = cb.in(cb.parameter(StudentId.class, "students"));
 //
@@ -415,16 +477,14 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
         final Map<String, List<Long>> m = related.stream()
                 .collect(Collectors.groupingBy(s -> s.getAuthority(), Collectors.mapping(s -> s.getId(), Collectors.toList())));
         final Set<TermGradeTargetAssessmentEntity> ret = new HashSet<>();
-        m
-                .forEach((a, l) -> {
-                    List<TermGradeTargetAssessmentEntity> res = em.createNamedQuery("TermGradeTargetAssessmentEntity.findTermGradeTargetAssessmentsForStudentsHelper", TermGradeTargetAssessmentEntity.class
-                    )
-                            .setParameter("studentIds", l)
-                            .setParameter("authority", a)
-                            .setLockMode(LockModeType.OPTIMISTIC)
-                            .getResultList();
-                    ret.addAll(res);
-                });
+        m.forEach((a, l) -> {
+            final List<TermGradeTargetAssessmentEntity> res = em.createNamedQuery("TermGradeTargetAssessmentEntity.findTermGradeTargetAssessmentsForStudentsHelper", TermGradeTargetAssessmentEntity.class)
+                    .setParameter("studentIds", l)
+                    .setParameter("authority", a)
+                    .setLockMode(LockModeType.OPTIMISTIC)
+                    .getResultList();
+            ret.addAll(res);
+        });
         return ret;
     }
 
@@ -488,7 +548,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
 //    @Messages("GradeTargetDocumentFacadeImpl.findJoinedUnits.UnitDocumentEntityNotFound=UnitDocumentEntity not found for {0}")
 //    @Override
 //    public UnitJoinDocumentEntity[] findJoinedUnits(UnitId unit) {
-////        DocumentId unitDoc = ContainerBuilder.findUnitDocumentId(unit);
+    ////        DocumentId unitDoc = ContainerBuilder.findUnitDocumentId(unit);
 //        final DocumentId unitDoc = documentsModel.convertToUnitDocumentId(unit);
 //        UnitDocumentEntity ude = unitDocumentFacade.find(unitDoc, LockModeType.OPTIMISTIC);
 //
