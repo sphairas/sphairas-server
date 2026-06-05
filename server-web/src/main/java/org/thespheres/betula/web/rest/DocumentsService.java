@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,39 @@ public class DocumentsService {
                 .map(TargetAssessmentEntry.class::cast)
                 .filter(t -> ((TargetAssessmentEntry) t).getIdentity().equals(id))
                 .collect(CollectionUtil.requireSingleOrNull());
-        Map<StudentId, Map<TermId, FastTermTargetDocument.Entry>> values = new HashMap<>();
+        return parseFastTermTargetDocument(tae);
+    }
+
+    /**
+     * Fetches multiple FastTermTargetDocuments in a single round-trip by
+     * wrapping all document requests under a UnitId entry, which the server-side
+     * TargetsProcessor already handles in batch.
+     */
+    public Map<DocumentId, FastTermTargetDocument> getFastTermTargetDocuments(final UnitId unit, final Collection<DocumentId> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        final ContainerBuilder builder = new ContainerBuilder();
+        final String[] path = Paths.UNITS_TARGETS_PATH;
+        final Entry<UnitId, Object> root = new Entry<>(null, unit);
+        for (final DocumentId id : ids) {
+            root.getChildren().add(new TargetAssessmentEntry(id, Action.REQUEST_COMPLETION, false));
+        }
+        builder.add(root, path);
+        final Container response = serviceClient.solicit(builder.getContainer());
+        final List<Envelope> l = DocumentUtilities.findEnvelope(response, path);
+        final Map<DocumentId, FastTermTargetDocument> result = new HashMap<>();
+        l.stream()
+                .filter(n -> Entry.class.isAssignableFrom(n.getClass()) && ((Entry<?, ?>) n).getIdentity() instanceof UnitId)
+                .flatMap(n -> ((Entry<UnitId, ?>) n).getChildren().stream())
+                .filter(n -> TargetAssessmentEntry.class.isAssignableFrom(n.getClass()))
+                .map(n -> (TargetAssessmentEntry<TermId>) n)
+                .forEach(tae -> result.put(tae.getIdentity(), parseFastTermTargetDocument(tae)));
+        return result;
+    }
+
+    private FastTermTargetDocument parseFastTermTargetDocument(final TargetAssessmentEntry<TermId> tae) {
+        final Map<StudentId, Map<TermId, FastTermTargetDocument.Entry>> values = new HashMap<>();
         for (Template tc : tae.getChildren()) {
             final TermId tid = ((Entry<TermId, ?>) tc).getIdentity();
             if (tid != null) {
@@ -144,8 +177,7 @@ public class DocumentsService {
         final GenericXmlDocument xmlDoc = (GenericXmlDocument) tae.getValue();
         final Map<String, Signee> s = xmlDoc.getSigneeInfos().entrySet().stream()
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getSignee()));
-        final FastTermTargetDocument ret = new FastTermTargetDocument(tae.getIdentity(), values, xmlDoc.getMarkerSet(), tae.getPreferredConvention(), s, tae.getTargetType(), tae.getSubjectAlternativeName(), tae.getDocumentValidity());
-        return ret;
+        return new FastTermTargetDocument(tae.getIdentity(), values, xmlDoc.getMarkerSet(), tae.getPreferredConvention(), s, tae.getTargetType(), tae.getSubjectAlternativeName(), tae.getDocumentValidity());
     }
 
     public FastTextTermTargetDocument getFastTextTermTargetDocument(DocumentId id) {

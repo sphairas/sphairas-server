@@ -19,6 +19,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.primefaces.PrimeFaces;
@@ -166,6 +167,16 @@ public class BetulaWebApplication implements Serializable {
 //    }
     FastTermTargetDocument getFastDocument(DocumentId id) {
         return fastDocs.computeIfAbsent(id, d -> service.getFastTermTargetDocument(id));
+    }
+
+    void prefetchDocuments(final UnitId unit, final Collection<DocumentId> docs) {
+        final List<DocumentId> missing = docs.stream()
+                .filter(id -> !fastDocs.containsKey(id))
+                .collect(java.util.stream.Collectors.toList());
+        if (missing.isEmpty()) {
+            return;
+        }
+        fastDocs.putAll(service.getFastTermTargetDocuments(unit, missing));
     }
 
     FastTextTermTargetDocument getFastTextDocument(final DocumentId id) {
