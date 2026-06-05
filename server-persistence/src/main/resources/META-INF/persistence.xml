@@ -9,6 +9,7 @@
         <!--    <jta-data-source>tstest</jta-data-source>-->
         <jta-data-source>jdbc/betuladb</jta-data-source>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <shared-cache-mode>ALL</shared-cache-mode>
         <properties>
             <!--            <property name="eclipselink.ddl-generation" value="create-tables"/>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>-->
@@ -18,7 +19,10 @@
             <!--- Create script at domain-dir/config/betuladb-script -->
             <property name="eclipselink.ddl-generation.output-mode" value="both"/>
             <property name="eclipselink.create-ddl-jdbc-file-name" value="betuladb-script"/>
-            <property name="eclipse.weaving" value="false"/>
+            <!-- Added for Payara 7 -->
+            <property name="eclipselink.weaving" value="true"/>
+            <property name="eclipselink.cache.type.default" value="Soft"/>
+            <property name="eclipselink.cache.size.default" value="2000"/>
             <!--<property name="eclipselink.logging.level" value="FINEST"/>-->
         </properties>
     </persistence-unit>
