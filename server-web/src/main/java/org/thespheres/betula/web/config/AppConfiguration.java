@@ -349,16 +349,22 @@ public class AppConfiguration implements Serializable {
     public StreamedContent getImage() {
         final String image = getWebUIConfiguration().getLogoResource();
         if (image != null) {
-            try {
-                final Path rp = ServiceConstants.configBase().resolve(image);
-                final InputStream is = Files.newInputStream(rp);
-                return DefaultStreamedContent.builder()
-                        .stream(() -> is)
-                        .contentType("image/png")
-                        .build();
-            } catch (IOException ex) {
-                Logger.getLogger(BetulaWebApplication.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
-            }
+            final Path rp = ServiceConstants.configBase().resolve(image);
+            // The InputStream MUST be opened inside the supplier lambda, not here.
+            // p:graphicImage makes a separate HTTP GET to fetch the bytes; by the
+            // time that request arrives the eagerly-opened stream would already be
+            // closed/consumed and PrimeFaces would serve an empty or broken image.
+            return DefaultStreamedContent.builder()
+                    .stream(() -> {
+                        try {
+                            return Files.newInputStream(rp);
+                        } catch (IOException ex) {
+                            Logger.getLogger(BetulaWebApplication.class.getName()).log(Level.WARNING, ex.getLocalizedMessage(), ex);
+                            return null;
+                        }
+                    })
+                    .contentType("image/png")
+                    .build();
         }
         return null;
     }
