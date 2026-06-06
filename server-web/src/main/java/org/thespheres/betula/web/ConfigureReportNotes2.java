@@ -206,6 +206,17 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
         return true;
     }
 
+    /**
+     * Returns only the markers of the given element that pass the
+     * {@link #itemEnabled} check.  Use this in the view instead of passing all
+     * markers with itemDisabled so that disabled items are not rendered at all.
+     */
+    public List<TermReportNoteSetTemplate.MarkerItem> enabledMarkers(final CurrentStudentsNotesSelection.ElementSelection el) {
+        return el.getMarkers().stream()
+                .filter(this::itemEnabled)
+                .collect(Collectors.toList());
+    }
+
     private boolean resolveShowTerm(final List<Tag> tags) {
         return tags.stream()
                 .filter(t -> t.getConvention().equals("de.halbjahre"))
@@ -297,8 +308,12 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
             }
             String value = (String) evt.getNewValue();
             m = element.forId(value);
-            if (m != null) {
-                m = !"null".equals(m.getId()) ? m : null;
+            if (!Marker.isNull(m)) {
+                // m is null here when the user picked the nillable "---" sentinel.
+                // Removing the old marker above was the only necessary DB operation;
+                // calling addMarker(null) would return false and cause a spurious
+                // PropertyVetoException that reverts `selected` in the UI while
+                // the DB already has the correct (no-marker) state.
                 if (!zeugnisBean.addMarker(zgn, m)) {
                     throw new PropertyVetoException("not persisted", evt);
                 }

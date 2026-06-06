@@ -19,6 +19,7 @@
                         <div class="col-6 md-3">
                             <p:inputText id="fehltage" 
                                          value="#{student.fehltage}" 
+                                         styleClass="attendance-input"
                                          placeholder="---">
                                 <p:ajax update="@this"/>
                             </p:inputText>
@@ -29,6 +30,7 @@
                         <div class="col-6 md-3">
                             <p:inputText id="unentschuldigt" 
                                          value="#{student.unentschuldigt}" 
+                                         styleClass="attendance-input"
                                          placeholder="---">
                                 <p:ajax update="@this"/>
                             </p:inputText>
@@ -167,9 +169,8 @@
                                                               value="#{element.selected}" 
                                                               layout="pageDirection"
                                                               columns="1">
-                                            <f:selectItems value="#{element.markers}" 
+                                            <f:selectItems value="#{reportNotes2.enabledMarkers(element)}" 
                                                            var="marker" 
-                                                           itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
                                                            itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
                                                            itemValue="#{marker.id}"/>
                                             <p:ajax update="@this" />
@@ -187,9 +188,8 @@
                                                           value="#{element.selectedItem}" 
                                                           layout="pageDirection" 
                                                           columns="1">
-                                            <f:selectItems value="#{element.markers}" 
+                                            <f:selectItems value="#{reportNotes2.enabledMarkers(element)}" 
                                                            var="marker" 
-                                                           itemDisabled="#{!reportNotes2.itemEnabled(marker)}"
                                                            itemLabel="#{reportNotes2.formatMarkerLabel(marker)}" 
                                                            itemValue="#{marker.id}"/>
                                             <p:ajax update="@this" />
