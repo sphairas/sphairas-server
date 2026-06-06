@@ -193,15 +193,18 @@ body {
     }
 }
 
-.p-datatable .even-row {
+/* PrimeFaces legacy: striping classes are on the <tr>, not a cell class.
+   HTML renders: tr.ui-datatable-even / tr.ui-datatable-odd */
+.ui-datatable .ui-datatable-even {
     background-color: var(--surface-50);
 }
 
-.p-datatable .odd-row {
+.ui-datatable .ui-datatable-odd {
     background-color: white;
 }
 
-.p-rowexpansion > td {
+/* PrimeFaces legacy: expansion row class is .ui-expanded-row-content, not .p-rowexpansion */
+.ui-expanded-row-content > td {
     padding: 1.5rem !important;
     background-color: var(--surface-100);
 }
@@ -244,43 +247,65 @@ body {
 
 /*Migrated css*/
 
-/* DataTable auto-sizing columns (non-scrollable tables only) */
-.p-datatable:not(.primaryunit-table) table {
+/* DataTable auto-sizing columns (non-scrollable tables only).
+   PrimeFaces legacy renders .ui-datatable, not .p-datatable. */
+.ui-datatable:not(.primaryunit-table) table {
     table-layout: auto !important;
 }
 
-/* SelectOneMenu dropdown height limit (if still needed) */
-.p-selectonemenu-panel {
-    max-height: 400px !important; /* Use fixed pixel value instead of percentage */
+/* SelectOneMenu dropdown height limit.
+   PrimeFaces legacy uses .ui-selectonemenu-panel, not .p-selectonemenu-panel. */
+.ui-selectonemenu-panel {
+    max-height: 400px !important;
 }
 
-/* Ensure dropdown items are scrollable (usually not needed) */
-.p-selectonemenu-items-wrapper {
+/* Ensure dropdown items are scrollable */
+.ui-selectonemenu-items-wrapper {
     max-height: 100%;
     overflow-y: auto;
 }
 
-/* ===== Primary Unit wide-matrix table (Phase 1) ===== */
+/* ===== Primary Unit wide-matrix table ===== */
+/* NOTE: This app uses PrimeFaces legacy (class prefix: ui-).
+   All selectors below are verified against the actual rendered HTML. */
 
-/* Make the table fill the available width and scroll horizontally */
-.primaryunit-table.p-datatable {
+/* Make the table fill the available width.
+   Root element in HTML: div.ui-datatable.primaryunit-table */
+.primaryunit-table {
     width: 100%;
 }
 
-/* Fixed layout is required for explicit column widths to be honoured in scrollable mode */
-.primaryunit-table .p-datatable-table {
+/* Fixed layout required for explicit column widths.
+   PrimeFaces legacy scrollable mode renders two separate <table> elements
+   (one in .ui-datatable-scrollable-header-box, one in .ui-datatable-scrollable-body).
+   Neither has a framework class — target the <table> element directly. */
+.primaryunit-table table {
     table-layout: fixed;
 }
 
-/* Only scroll horizontally — let the page handle vertical scrolling */
-.primaryunit-table .p-datatable-wrapper {
+/* Horizontal scroll is on the body container.
+   The page handles vertical scrolling. */
+.primaryunit-table .ui-datatable-scrollable-body {
     overflow-x: auto;
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
 }
 
-/* Sticky header */
-.primaryunit-table .p-datatable-thead > tr > th {
+/* PrimeFaces normally sets overflow:hidden on the header container and syncs
+   scrollLeft via JS. Switching to overflow-x:auto with a hidden scrollbar lets
+   position:sticky work on the frozen header cells. The hidden scrollbar prevents
+   a double scrollbar from appearing. */
+.primaryunit-table .ui-datatable-scrollable-header {
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+}
+.primaryunit-table .ui-datatable-scrollable-header::-webkit-scrollbar {
+    display: none; /* Chrome / Safari */
+}
+
+/* Sticky header row — keeps column titles visible when the page scrolls down.
+   Applies to the real header thead and the 0-height clone thead inside the body table. */
+.primaryunit-table thead > tr > th {
     position: sticky;
     top: 0;
     z-index: 3;
@@ -288,51 +313,63 @@ body {
 }
 
 /* CSS sticky frozen columns — columns 1 (toggler) and 2 (Name).
-   Avoids PrimeFaces dual-table frozenColumns which breaks row expansion widths. */
-.primaryunit-table .p-datatable-thead > tr > th:nth-child(1),
-.primaryunit-table .p-datatable-tbody > tr > td:nth-child(1) {
+   Targets both tables (header and body) via plain thead/tbody selectors. */
+.primaryunit-table thead > tr > th:nth-child(1),
+.primaryunit-table tbody > tr > td:nth-child(1) {
     position: sticky;
     left: 0;
     z-index: 4;
     background: var(--surface-100);
 }
 
-.primaryunit-table .p-datatable-tbody > tr > td:nth-child(1) {
+.primaryunit-table tbody > tr > td:nth-child(1) {
     background: var(--surface-0, white);
 }
 
-.primaryunit-table .p-datatable-thead > tr > th:nth-child(2),
-.primaryunit-table .p-datatable-tbody > tr > td:nth-child(2) {
+.primaryunit-table thead > tr > th:nth-child(2),
+.primaryunit-table tbody > tr > td:nth-child(2) {
     position: sticky;
-    left: 1.75rem;  /* width of toggler column */
+    left: 1.75rem; /* width of toggler column */
     z-index: 4;
     background: var(--surface-100);
 }
 
-.primaryunit-table .p-datatable-tbody > tr > td:nth-child(2) {
+.primaryunit-table tbody > tr > td:nth-child(2) {
     background: var(--surface-0, white);
-    border-right: 1px solid var(--surface-300);
 }
 
+/* Remove grid lines — keep only the frozen-column right divider and
+   bottom row separator. Borders on individual cells create visual clutter
+   in the wide-column grade matrix. */
+.primaryunit-table table td,
+.primaryunit-table table th {
+    border-left: none !important;
+    border-right: none !important;
+}
 
-/* Compact grade columns: short label fits in a small cell */
+/* Compact grade columns: short label fits in a narrow cell */
 .primaryunit-table .grades-column {
     text-align: center;
     padding: 0.25rem 0.2rem;
 }
 
-.primaryunit-table .grades-column .p-column-header-content {
-    justify-content: center;
+/* PrimeFaces legacy: column title is in <span class="ui-column-title">.
+   The span is rendered as a block element with left-align by default;
+   text-align on the <th> inline style alone is not sufficient. */
+.primaryunit-table thead > tr > th.grades-column {
+    text-align: center !important;
+    justify-content: center; /* if PrimeFaces renders th as flex container */
 }
 
-.primaryunit-table .grades-column .p-column-title {
+.primaryunit-table .grades-column .ui-column-title {
     font-size: 0.75rem;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 3rem;
-    display: block;
+    display: inline-block; /* inline-block: respects parent th text-align:center; display:block would ignore it */
+    vertical-align: middle;
 }
 
 /* Keep body cells in grade columns compact */
@@ -341,12 +378,15 @@ body {
     text-align: center;
 }
 
-/* Row expansion: anchor content to the visible viewport left edge so it never
-   requires horizontal scrolling regardless of how many grade columns the table has. */
+/* Row expansion: anchor the panel to the visible viewport left edge so it never
+   requires horizontal scrolling regardless of how many grade columns are present.
+   4rem = app-main-content padding (2rem each side).
+   Additional 4rem = content-section padding (2rem each side).
+   Total 8rem consumed before the panel edge. */
 .primaryunit-expansion-content {
     position: sticky;
     left: 0;
-    max-width: calc(100vw - 4rem);
+    max-width: calc(100vw - 8rem);
     box-sizing: border-box;
 }
 
@@ -361,9 +401,9 @@ body {
     border: none !important;
 }
 
-/* Optional: Also target PrimeFaces 10 specific elements */
-.noBorders .p-datatable-tbody > tr,
-.noBorders .p-datatable-tbody > tr > td {
+/* PrimeFaces legacy uses .ui-datatable-data on tbody */
+.noBorders .ui-datatable-data > tr,
+.noBorders .ui-datatable-data > tr > td {
     background: none !important;
     border: none !important;
 }
@@ -425,6 +465,12 @@ body {
 .ui-datatable .cell-editable:hover {
     border-color: rgba(59, 130, 246, 0.6) !important;
     box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+/* Attendance number inputs (Fehltage / Unentschuldigt): days 0-365,
+   so 3 digits plus padding. Keep them narrow. */
+.attendance-input {
+    width: 5rem !important;
 }
 
 .report-notes-panel {
