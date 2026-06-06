@@ -46,12 +46,16 @@ public class Util {
     public String tooltip(MultiSubject ms) {
 //        final Comparator<Subject> comp = zgnConfig.getSubjectComparator();
         final Comparator<Marker> mComp = Comparator.comparing(fm -> new Subject(fm, ms.getRealmMarker()), getSubjectComparator());
-        String ret = ms.getSubjectMarkerSet().stream()
+        String ret; 
+        if(ms.getSubjectMarkerSet().size() == 1) {
+            ret = ms.getSubjectMarkerSet().iterator().next().getLongLabel();
+        } else
+            ret = ms.getSubjectMarkerSet().stream()
                 .sorted(mComp)
                 .map(Marker::getLongLabel)
                 .collect(Collectors.joining(", ", "(", ")"));
         if (ms.getRealmMarker() != null) {
-            ret += " [" + ms.getRealmMarker().getLongLabel() + "]";
+            ret += " (" + ms.getRealmMarker().getLongLabel() + ")";
         }
         return ret;
     }
