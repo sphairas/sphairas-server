@@ -478,6 +478,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
                 .collect(Collectors.groupingBy(s -> s.getAuthority(), Collectors.mapping(s -> s.getId(), Collectors.toList())));
         final Set<TermGradeTargetAssessmentEntity> ret = new HashSet<>();
         m.forEach((a, l) -> {
+            // findTermGradeTargetAssessmentsForStudentsHelperFetch working, therefore use findTermGradeTargetAssessmentsForStudentsHelper: 
             // Use the JOIN FETCH variant to eagerly load tgtae.entries in the
             // same query.  Without this, EclipseLink issues one additional
             // SELECT per returned entity when getEntries() is first accessed
@@ -486,7 +487,7 @@ public class GradeTargetDocumentFacadeImpl extends BaseDocumentFacade<GradeTarge
             // authority group.
             // DISTINCT in JPQL tells EclipseLink to deduplicate entity refs
             // that the SQL join multiplies (one row per entry).
-            final List<TermGradeTargetAssessmentEntity> res = em.createNamedQuery("TermGradeTargetAssessmentEntity.findTermGradeTargetAssessmentsForStudentsHelperFetch", TermGradeTargetAssessmentEntity.class)
+            final List<TermGradeTargetAssessmentEntity> res = em.createNamedQuery("TermGradeTargetAssessmentEntity.findTermGradeTargetAssessmentsForStudentsHelper", TermGradeTargetAssessmentEntity.class)
                     .setParameter("studentIds", l)
                     .setParameter("authority", a)
                     .setLockMode(LockModeType.OPTIMISTIC)
