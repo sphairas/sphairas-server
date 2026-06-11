@@ -173,25 +173,78 @@ body {
     color: var(--text-color);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .app-sidebar:not(.sidebar-collapsed .app-sidebar) {
-        width: 200px;
+/* Hide backdrop and close button on wider screens — must come BEFORE the media query
+   so the media query rules (which come later) can override with display:block/flex. */
+.sidebar-backdrop {
+    display: none;
+}
+
+.sidebar-close-btn {
+    display: none;
+}
+
+/* On narrow viewports the sidebar takes layout width (250px) which, combined with
+   padding (~128px), leaves too little room for the sticky toggler column and triggers
+   body { overflow-x: hidden } clipping.  Fix: switch the sidebar to a fixed overlay so
+   it no longer consumes layout width.  The toggle still works: sidebar-collapsed hides
+   it (translateX), no class shows it as a drawer over the content. */
+@media (max-width: 700px) {
+    .app-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        z-index: 1100;
+        width: 250px !important;
+        padding: 1rem 0 !important;
+        border-right: 1px solid var(--surface-300) !important;
+        transform: translateX(0);
+        transition: transform 0.25s ease;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.2);
     }
 
-    .app-topbar {
-        padding: 1rem;
+    .app-container.sidebar-collapsed .app-sidebar {
+        transform: translateX(-260px);
+        width: 250px !important;
     }
 
-    .app-main-content {
-        padding: 1rem;
+    /* Backdrop — dimmed overlay behind the sidebar drawer */
+    .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1099;
+        background: rgba(0, 0, 0, 0.4);
+        transition: opacity 0.25s ease;
     }
 
-    .footer-links {
-        flex-direction: column;
-        gap: 0.5rem;
+    .app-container.sidebar-collapsed .sidebar-backdrop {
+        display: none;
+    }
+
+    /* Close button inside sidebar — top-right corner */
+    .sidebar-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--text-color);
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: 50%;
+        line-height: 1;
+    }
+
+    .sidebar-close-btn:hover {
+        background: var(--surface-200);
     }
 }
+
 
 /* PrimeFaces legacy: striping classes are on the <tr>, not a cell class.
    HTML renders: tr.ui-datatable-even / tr.ui-datatable-odd */
@@ -291,11 +344,30 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
-/* PrimeFaces normally sets overflow:hidden on the header container and syncs
-   scrollLeft via JS. Switching to overflow-x:auto with a hidden scrollbar lets
-   position:sticky work on the frozen header cells. The hidden scrollbar prevents
-   a double scrollbar from appearing. */
+/* PrimeFaces renders a zero-height clone <thead> inside the scroll body for
+   column-width measurement. With overflow-y:visible the cells bleed through
+   as a ghost grey header row. height:0 on <thead> does NOT collapse <th> cells
+   in table layout — zero out all visual properties on the cells directly. */
+.primaryunit-table .ui-datatable-scrollable-theadclone > tr > th {
+    height: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    overflow: hidden !important;
+    line-height: 0 !important;
+    font-size: 0 !important; /* collapses text content; without this the font baseline still adds height */
+}
+
+/* Stick the ENTIRE header container to the top of the viewport as the page scrolls.
+   The header div is sticky-top; individual <th> cells are sticky-left for column freeze.
+   IMPORTANT: The header-box (inner div) must have overflow:visible so the <th> sticky
+   cells see the header-container (overflow-x:auto) as their scroll context, not the
+   header-box. PrimeFaces default is overflow:hidden on the header-box, which breaks
+   horizontal sticky — frozen th cells would scroll away instead of sticking. */
 .primaryunit-table .ui-datatable-scrollable-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     overflow-x: auto;
     scrollbar-width: none; /* Firefox */
 }
@@ -303,17 +375,20 @@ body {
     display: none; /* Chrome / Safari */
 }
 
-/* Sticky header row — keeps column titles visible when the page scrolls down.
-   Applies to the real header thead and the 0-height clone thead inside the body table. */
+/* Override PrimeFaces' overflow:hidden on the header-box so position:sticky on
+   child <th> elements uses the header-container (above) as their scroll context. */
+.primaryunit-table .ui-datatable-scrollable-header-box {
+    overflow: visible !important;
+}
+
+/* Background on all header cells — needed so frozen th cells cover scrolling grade cells. */
 .primaryunit-table thead > tr > th {
-    position: sticky;
-    top: 0;
-    z-index: 3;
     background: var(--surface-100);
 }
 
 /* CSS sticky frozen columns — columns 1 (toggler) and 2 (Name).
-   Targets both tables (header and body) via plain thead/tbody selectors. */
+   Header: sticks within the header-container (works now that header-box is overflow:visible).
+   Body:   sticks within .ui-datatable-scrollable-body (overflow-x:auto). */
 .primaryunit-table thead > tr > th:nth-child(1),
 .primaryunit-table tbody > tr > td:nth-child(1) {
     position: sticky;

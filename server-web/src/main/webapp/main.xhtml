@@ -56,10 +56,17 @@
                 </h:form>
             </div>
 
+            <!-- Backdrop — closes sidebar on mobile when tapped outside -->
+            <div class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
             <!-- Content Wrapper (Sidebar + Main Content) -->
             <div class="app-content-wrapper">
                 <!-- Sidebar Menu -->
                 <div class="app-sidebar">
+                    <!-- Close button — only visible on mobile (≤700px) -->
+                    <button type="button" class="sidebar-close-btn" onclick="toggleSidebar()" aria-label="Menü schließen">
+                        <i class="pi pi-times"></i>
+                    </button>
                     <h:form>
                         <p:commandLink 
                             styleClass="menu-item #{app.activePage eq 'terms' ? 'active' : ''}"
