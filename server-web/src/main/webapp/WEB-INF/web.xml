@@ -166,6 +166,7 @@
             <url-pattern>/ui/jakarta.faces.resource/dynamiccontent.properties.xhtml</url-pattern>
         </web-resource-collection>
         <auth-constraint>
+            <role-name>signee</role-name>
             <role-name>unitadmin</role-name>
         </auth-constraint>
     </security-constraint>
