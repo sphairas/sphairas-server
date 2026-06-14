@@ -56,7 +56,8 @@
 
                         <!-- Login button -->
                         <div class="field mt-4">
-                            <p:commandButton value="#{bundle['login.submit']}" 
+                            <p:commandButton id="submit" 
+                                             value="#{bundle['login.submit']}" 
                                              action="#{login.doLogin}" 
                                              update="loginPanel"
                                              ajax="false"
