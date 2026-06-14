@@ -48,7 +48,7 @@ public class ZensurensprungValidationBean {
             
             @Override
             protected void processOneDocument(FastTermTargetDocument rtad) {
-                if ("zeugnisnoten".equals(rtad.getTargetType())) {
+                if ("zeugnisnoten".equalsIgnoreCase(rtad.getTargetType())) {
                     processOneDocument(rtad, null, term);
                 }
             }
