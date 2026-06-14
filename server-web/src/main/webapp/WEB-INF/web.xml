@@ -14,13 +14,11 @@
     UnitTest - For unit testing-->
     <context-param>
         <param-name>jakarta.faces.PROJECT_STAGE</param-name>
-        <param-value>Development</param-value>
+        <param-value>${jsf.projectStage}</param-value>
     </context-param>
-    <!-- Faster startup -->
     <context-param>
         <param-name>jakarta.faces.FACELETS_REFRESH_PERIOD</param-name>
-        <param-value>-1</param-value> <!-- In production -->
-        <!-- <param-value>2</param-value> --> <!-- In development -->
+        <param-value>${jsf.faceletsRefreshPeriod}</param-value>
     </context-param>
     <context-param>
         <param-name>primefaces.THEME</param-name>
@@ -105,7 +103,7 @@
         <url-pattern>/dav/*</url-pattern>
     </servlet-mapping>
     <session-config>
-        <session-timeout>2</session-timeout>
+        <session-timeout>${session.timeoutMinutes}</session-timeout>
     </session-config>
     <welcome-file-list>
         <welcome-file>index.xhtml</welcome-file>

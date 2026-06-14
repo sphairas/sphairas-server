@@ -67,6 +67,26 @@
         </dependency>
     </dependencies>
       
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <properties>
+                <jsf.projectStage>Development</jsf.projectStage>
+                <jsf.faceletsRefreshPeriod>2</jsf.faceletsRefreshPeriod>
+                <session.timeoutMinutes>60</session.timeoutMinutes>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <jsf.projectStage>Production</jsf.projectStage>
+                <jsf.faceletsRefreshPeriod>-1</jsf.faceletsRefreshPeriod>
+                <session.timeoutMinutes>2</session.timeoutMinutes>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>

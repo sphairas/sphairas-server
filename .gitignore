@@ -12,3 +12,4 @@ docker.env
 .env
 /notes
 .vscode/*
+build-prod.sh
