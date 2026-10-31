@@ -136,28 +136,9 @@ public class StudentFacadeImpl extends BaseComponentFacade<StudentEntity, Studen
                     break;
                 case "X-STUDENT":
                     break;
-                    //Uncomment later for Schulconnex
+                //Uncomment later for Schulconnex
 //                default:
-//                    final List<EmbeddableComponentProperty> found = se.getProperties().stream()
-//                            .filter(p -> name.equals(p.getName()))
-//                            .collect(Collectors.toList());
-//                    if (found.isEmpty()) {
-//                        se.getProperties().add(new EmbeddableComponentProperty(name, value));
-//                        merge = true;
-//                    } else if (found.size() == 1) {
-//                        final EmbeddableComponentProperty ep = found.get(0);
-//                        if (!Objects.equals(ep.getValue(), value)) {
-//                            ep.setValue(value);
-//                            merge = true;
-//                        }
-//                    } else {
-//                        final boolean replace = true;
-//                        if (replace) {
-//                            se.getProperties().removeAll(found);
-//                        }
-//                        se.getProperties().add(new EmbeddableComponentProperty(name, value));
-//                        merge = true;
-//                    }
+//                    updateNonStandardComponentProperty(name, value, null, se);
             }
         }
         if (merge) {
@@ -165,6 +146,30 @@ public class StudentFacadeImpl extends BaseComponentFacade<StudentEntity, Studen
             final StudentEvent evt = new StudentEvent(se.getStudentId(), StudentEvent.StudentEventType.CHANGE);
             studentsNotificator.notityConsumers(evt);
         }
+    }
+
+    protected boolean updateNonStandardComponentProperty(final String name, final String value, final List<Parameter> l, final StudentEntity se) {
+        final List<EmbeddableComponentProperty> found = se.getProperties().stream()
+                .filter(p -> name.equals(p.getName()))
+                .collect(Collectors.toList());
+        if (found.isEmpty()) {
+            se.getProperties().add(new EmbeddableComponentProperty(name, value));
+            return true;
+        } else if (found.size() == 1) {
+            final EmbeddableComponentProperty ep = found.get(0);
+            if (!Objects.equals(ep.getValue(), value)) {
+                ep.setValue(value);
+                return true;
+            }
+        } else {
+            final boolean replace = true;
+            if (replace) {
+                se.getProperties().removeAll(found);
+            }
+            se.getProperties().add(new EmbeddableComponentProperty(name, value));
+            return true;
+        }
+        return false;
     }
 
     @Override
