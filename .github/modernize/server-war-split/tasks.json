@@ -1,0 +1,206 @@
+{
+  "name": "server-war-split",
+  "description": "Refactor the application into independently deployable web and service WARs with REST as the runtime boundary.",
+  "plan": "plan.md",
+  "tasks": [
+    {
+      "id": "inventory-boundary",
+      "title": "Inventory cross-WAR calls and deployment contracts",
+      "status": "pending",
+      "dependencies": [],
+      "description": "Trace web-to-service EJB injections, JNDI lookups, REST calls, shared library use, routes, security, persistence units, and deployment assumptions. Identify service-owned behavior consumed by web and external clients.",
+      "acceptanceCriteria": [
+        "Every active web-to-service invocation is listed with its caller, provider, current mechanism, and required behavior.",
+        "Existing routes, authentication/authorization rules, persistence units, and deployment context-root assumptions are recorded.",
+        "The separate server-admin-authentication role and its exclusion from the future bundle are captured."
+      ]
+    },
+    {
+      "id": "behavior-baseline",
+      "title": "Capture baseline behavior for affected workflows",
+      "status": "pending",
+      "dependencies": [
+        "inventory-boundary"
+      ],
+      "description": "Add or identify focused tests and reproducible checks covering report reads/writes, signee data, student and target-document access, calendar/ticket operations, and report-date lookup.",
+      "acceptanceCriteria": [
+        "Each in-scope workflow has a repeatable baseline test or documented verification procedure.",
+        "Error cases and authorization-sensitive behavior are represented, not only successful responses."
+      ]
+    },
+    {
+      "id": "rest-contract-security",
+      "title": "Define REST contracts and caller identity behavior",
+      "status": "pending",
+      "dependencies": [
+        "inventory-boundary"
+      ],
+      "description": "Specify service REST operations for inventoried calls, reusing existing ServiceInternalClient and service endpoints where suitable. Decide how web-to-service authentication, caller identity, authorization, TLS, serialization, and error mapping preserve current semantics.",
+      "acceptanceCriteria": [
+        "Every inventoried operation has an existing or proposed REST endpoint and request/response contract.",
+        "Caller identity and role propagation are explicit for each security-sensitive operation.",
+        "No endpoint contract depends on a shared JVM, EJB reference, or implementation-specific JNDI name."
+      ]
+    },
+    {
+      "id": "service-rest-implementation",
+      "title": "Implement missing service REST operations",
+      "status": "pending",
+      "dependencies": [
+        "behavior-baseline",
+        "rest-contract-security"
+      ],
+      "description": "Implement and test service endpoints needed by web but not adequately covered by existing REST APIs, including report operations, calendar/date access, student data, target-document functions, and resource access as established by the inventory.",
+      "acceptanceCriteria": [
+        "All required operations in the approved REST contracts are implemented.",
+        "Tests cover serialization, success and failure responses, and security/authorization behavior.",
+        "Existing operations are reused rather than duplicated when they already satisfy the contract."
+      ]
+    },
+    {
+      "id": "web-rest-client-configuration",
+      "title": "Configure web REST clients securely",
+      "status": "pending",
+      "dependencies": [
+        "rest-contract-security"
+      ],
+      "description": "Configure REST client destinations, TLS, authentication, providers, and error mapping from runtime configuration. Remove hard-coded service URLs and permissive hostname verification.",
+      "acceptanceCriteria": [
+        "Service destination and security configuration are externally configurable.",
+        "TLS hostname validation is not bypassed.",
+        "REST client behavior has focused configuration and error-mapping tests."
+      ]
+    },
+    {
+      "id": "web-report-calendar-rest-migration",
+      "title": "Migrate web report and calendar calls to REST",
+      "status": "pending",
+      "dependencies": [
+        "service-rest-implementation",
+        "web-rest-client-configuration"
+      ],
+      "description": "Replace web's report/calendar EJB injections and lookups with REST-backed clients or web-local adapters. Cover report reads and writes, calendar dates, report lookup, notes, markers, and custom values as identified by inventory.",
+      "acceptanceCriteria": [
+        "Affected report and calendar workflows pass the baseline checks using REST.",
+        "Ambiguous-date behavior and write failures remain explicit and behaviorally compatible.",
+        "No service-owned report/calendar EJB is directly injected or looked up by web."
+      ]
+    },
+    {
+      "id": "web-student-document-rest-migration",
+      "title": "Migrate web student and document calls to REST",
+      "status": "pending",
+      "dependencies": [
+        "service-rest-implementation",
+        "web-rest-client-configuration"
+      ],
+      "description": "Replace web's direct student, target-document, signee, and other inventoried service bean calls with REST. Replace service-owned AppResourcesContext or similar JNDI access with a supported boundary operation where required.",
+      "acceptanceCriteria": [
+        "Affected student, signee, and target-document workflows pass their baseline checks through REST.",
+        "Service-owned EJB and implementation-specific JNDI calls are removed from web for these operations.",
+        "Shared domain types and utilities may remain in sphairas-server-libs without creating a runtime invocation dependency."
+      ]
+    },
+    {
+      "id": "verify-web-boundary",
+      "title": "Verify web has no in-process service dependency",
+      "status": "pending",
+      "dependencies": [
+        "web-report-calendar-rest-migration",
+        "web-student-document-rest-migration"
+      ],
+      "description": "Search and validate the web module for remaining service-owned EJB injection, global JNDI lookup, or other cross-module invocation. Resolve active findings and document any unrelated or inactive references.",
+      "acceptanceCriteria": [
+        "No active web-to-service business call uses EJB injection, service implementation JNDI, or shared-JVM assumptions.",
+        "All remaining service calls use the approved REST clients.",
+        "The web module builds and affected behavior tests pass."
+      ]
+    },
+    {
+      "id": "convert-persistence-calendar-jars",
+      "title": "Convert persistence and calendar modules to JARs",
+      "status": "pending",
+      "dependencies": [
+        "verify-web-boundary"
+      ],
+      "description": "Change server-persistence and server-calendar packaging to ordinary JARs and add them as runtime dependencies of server-service. Inspect schema-generation settings and determine safe production behavior before deployment.",
+      "acceptanceCriteria": [
+        "Both modules build as ordinary JAR artifacts and are included in the service WAR runtime.",
+        "Persistence-unit names, datasource bindings, entity discovery, CDI/EJB discovery, and transaction behavior are verified.",
+        "Schema-generation settings are reviewed and no accidental destructive schema action is introduced."
+      ]
+    },
+    {
+      "id": "integrate-calendar-service-deployment",
+      "title": "Integrate calendar resources into service WAR",
+      "status": "pending",
+      "dependencies": [
+        "convert-persistence-calendar-jars"
+      ],
+      "description": "Move or merge calendar REST resources, servlet mappings, descriptors, security configuration, and required resources into the service deployment. Publish the new calendar URLs and update known clients.",
+      "acceptanceCriteria": [
+        "Calendar, ticket, student, and report-date endpoints are reachable under the service context at the new URLs.",
+        "External client configuration is updated or documented for the new URLs; old calendar URLs are not required.",
+        "Calendar authorization behavior is preserved and verified."
+      ]
+    },
+    {
+      "id": "make-war-dependencies-self-contained",
+      "title": "Make both WAR dependency sets independently deployable",
+      "status": "pending",
+      "dependencies": [
+        "verify-web-boundary",
+        "integrate-calendar-service-deployment"
+      ],
+      "description": "Ensure each WAR packages sphairas-server-libs and its needed runtime dependencies, or document and configure a deliberate server-wide library mechanism. Prefer self-contained WAR dependency packaging.",
+      "acceptanceCriteria": [
+        "The web WAR contains its required shared library dependencies without relying on the service WAR or EAR.",
+        "The service WAR contains its required shared library and persistence/calendar dependencies without relying on the web WAR or EAR.",
+        "No duplicate or conflicting API classes are introduced into the deployments."
+      ]
+    },
+    {
+      "id": "standalone-war-deployment",
+      "title": "Deploy and verify both WARs independently",
+      "status": "pending",
+      "dependencies": [
+        "make-war-dependencies-self-contained"
+      ],
+      "description": "Configure standalone context roots and deploy web and service separately on Payara Full. Exercise startup, REST connectivity, authentication, authorization, persistence, messaging/timers, reports, documents, and calendar behavior.",
+      "acceptanceCriteria": [
+        "Each WAR deploys and runs without the EAR and without the other WAR's classes or in-process services.",
+        "Integration checks pass across the REST boundary for the affected workflows.",
+        "The separately deployed server-admin-authentication WAR remains available for its existing parallel authentication role."
+      ]
+    },
+    {
+      "id": "remove-ear-update-bundle",
+      "title": "Remove EAR assembly and deploy the two-WAR bundle",
+      "status": "pending",
+      "dependencies": [
+        "standalone-war-deployment"
+      ],
+      "description": "Remove server-ear from the future reactor/bundle, update Docker and build scripts to deploy server-web and server-service independently, and remove EAR-specific JNDI/context-root assumptions. Keep server-admin-authentication as a separate support deployment outside the bundle.",
+      "acceptanceCriteria": [
+        "The future application bundle deploys server-web and server-service as independent WARs, with no EAR.",
+        "Docker/build configuration uses the intended standalone artifacts and context roots.",
+        "server-admin-authentication is not included in the two-WAR bundle and its existing support role is not silently removed."
+      ]
+    },
+    {
+      "id": "final-split-validation",
+      "title": "Validate split acceptance criteria and document deferred migration",
+      "status": "pending",
+      "dependencies": [
+        "remove-ear-update-bundle"
+      ],
+      "description": "Run the final build and integration checks against the independently deployed bundle. Record evidence for the REST-only boundary and explicitly keep MicroProfile-only runtime migration and UI technology replacement out of scope.",
+      "acceptanceCriteria": [
+        "All plan acceptance criteria for the Payara Full two-WAR split are verified.",
+        "No unintended schema recreation occurs.",
+        "The current UI technology remains unchanged.",
+        "MicroProfile-only migration is recorded as a separate future major effort, not represented as completed by EAR removal."
+      ]
+    }
+  ]
+}
