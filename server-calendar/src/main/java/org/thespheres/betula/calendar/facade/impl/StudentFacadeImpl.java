@@ -136,9 +136,9 @@ public class StudentFacadeImpl extends BaseComponentFacade<StudentEntity, Studen
                     break;
                 case "X-STUDENT":
                     break;
-                //Uncomment later for Schulconnex
-//                default:
-//                    updateNonStandardComponentProperty(name, value, null, se);
+                //Required for Schulconnex
+                default:
+                    updateNonStandardComponentProperty(name, value, null, se);
             }
         }
         if (merge) {
