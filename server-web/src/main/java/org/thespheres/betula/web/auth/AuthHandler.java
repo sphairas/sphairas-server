@@ -15,10 +15,12 @@ import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticat
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
 import jakarta.security.enterprise.credential.Credential;
+import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.cert.X509Certificate;
 import java.util.Set;
+import org.thespheres.betula.server.beans.config.ServerCertificates;
 
 /**
  *
@@ -38,6 +40,11 @@ public class AuthHandler implements HttpAuthenticationMechanismHandler {
     @Inject
     @WebAuth
     private HttpAuthenticationMechanism formAuth;
+    @Inject
+    @OAuth
+    private HttpAuthenticationMechanism oauth;
+    @Inject
+    private OAuthUserMapper mapper;
 
     @Override
     public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext context) throws AuthenticationException {
@@ -62,14 +69,36 @@ public class AuthHandler implements HttpAuthenticationMechanismHandler {
 //            is only populated if the Payara SSL listener (Port 8181) successfully completed a TLS handshake, 
 //            the certificate has already been cryptographically verified against your TrustStore.
             final X509Certificate cert = ((X509Certificate[]) certs)[0];
+            if (!ServerCertificates.isIssuedByThisServer(cert)) {
+                return context.responseUnauthorized();
+            }
             final String name = cert.getSubjectX500Principal().getName();
             return context.notifyContainerAboutLogin(name, Set.of("unitadmins"));
+        }
+
+        final String contextPath = request.getContextPath();
+        if (OAuthConfig.isEnabled() && path.startsWith(contextPath + "/oauth2/")) {
+            // The IdP reports a denied login (e.g. user not permitted for this client) as error=... on the callback.
+            if (request.getParameter("error") != null) {
+                return redirectToLoginWithOAuthError(request, context);
+            }
+            final AuthenticationStatus st = oauth.validateRequest(request, response, context);
+            if (st != AuthenticationStatus.SUCCESS) {
+                return st;
+            }
+            // Replace the IdP identity by the application user and its server-side groups.
+            final CredentialValidationResult user = mapper.map();
+            return user.getStatus() == CredentialValidationResult.Status.VALID ? context.notifyContainerAboutLogin(user) : redirectToLoginWithOAuthError(request, context);
         }
 
         AuthenticationStatus ret = formAuth.validateRequest(request, response, context);
 //        Principal callerPrincipal = context.getCallerPrincipal();
 //        Set<String> groups = context.getGroups();
         return ret;
+    }
+
+    private static AuthenticationStatus redirectToLoginWithOAuthError(final HttpServletRequest request, final HttpMessageContext context) {
+        return context.redirect(request.getContextPath() + "/ui/login.xhtml?oauthError=denied");
     }
 
 }

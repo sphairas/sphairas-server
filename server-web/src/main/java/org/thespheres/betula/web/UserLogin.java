@@ -1,5 +1,6 @@
 package org.thespheres.betula.web;
 
+import jakarta.annotation.PostConstruct;
 import java.io.Serializable;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.ExternalContext;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import java.io.IOException;
 import org.thespheres.betula.services.web.WebUIConfiguration;
+import org.thespheres.betula.web.auth.OAuthConfig;
 
 @Named("login")
 @ViewScoped
@@ -50,6 +52,17 @@ public class UserLogin implements Serializable {
 //            this.originalURL = url;
 //        }
 //    }
+    @PostConstruct
+    public void init() {
+        if ("denied".equals(facesContext.getExternalContext().getRequestParameterMap().get("oauthError"))) {
+            addErrorMessage("login.oauth.denied");
+        }
+    }
+
+    public boolean isOauthEnabled() {
+        return OAuthConfig.isEnabled();
+    }
+
     public String getHeaderLabel() {
         return facesContext.getApplication()
                 .getResourceBundle(facesContext, "bundle")

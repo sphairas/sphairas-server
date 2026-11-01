@@ -75,9 +75,16 @@ if [ -f ${SECRETS_DIR}/keystore.p12 ]; then
 fi
 keytool -importkeystore -srckeystore ${SERVER_PKCS12_FILE} -srcstoretype PKCS12 -srcalias ${ALIAS} -destalias ${CERT_ALIAS} -srcstorepass ${AS_ADMIN_MASTERPASSWORD} -deststorepass ${AS_ADMIN_MASTERPASSWORD} -destkeystore ${SECRETS_DIR}/keystore.p12 -deststoretype pkcs12
 
-#Remove the default truststore with lots of trusted certs.
+#Truststore. Default: only the server certificate (the default truststore with lots of trusted certs is removed).
+#With OAuth2 (OAUTH_PROVIDER_URI set) the JVM default CAs are needed for outgoing TLS to the IdP. Client certificate
+#logins are then restricted to certificates issued by this server in the AuthHandlers (see ServerCertificates).
 if [ -f ${SECRETS_DIR}/cacerts.p12 ]; then
     rm ${SECRETS_DIR}/cacerts.p12
+fi
+
+if [ -n "${OAUTH_PROVIDER_URI}" ]; then
+    JDK_CACERTS="$(dirname "$(dirname "$(readlink -f "$(which keytool)")")")/lib/security/cacerts"
+    keytool -importkeystore -srckeystore "${JDK_CACERTS}" -srcstorepass changeit -destkeystore ${SECRETS_DIR}/cacerts.p12 -deststoretype pkcs12 -deststorepass ${AS_ADMIN_MASTERPASSWORD} -noprompt
 fi
 keytool -import -file ${SERVER_CERT} -trustcacerts -noprompt -alias ${ALIAS} -storepass ${AS_ADMIN_MASTERPASSWORD} -keystore ${SECRETS_DIR}/cacerts.p12 -storetype pkcs12
 

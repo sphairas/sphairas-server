@@ -66,6 +66,15 @@
                         </div>
                     </p:panel>
                 </h:form>
+
+                <!-- OAuth2 login: handled by AuthHandler for /oauth2/* -->
+                <h:panelGroup layout="block" styleClass="mt-6 pt-4 border-top-1 surface-border" rendered="#{login.oauthEnabled}">
+                    <p:button id="oauthLogin"
+                              value="#{bundle['login.oauth']}"
+                              href="#{request.contextPath}/oauth2/login"
+                              icon="pi pi-external-link"
+                              styleClass="w-full p-button-outlined"/>
+                </h:panelGroup>
             </div>
         </div>
 
