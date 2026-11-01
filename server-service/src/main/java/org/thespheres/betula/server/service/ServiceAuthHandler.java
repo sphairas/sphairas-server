@@ -11,6 +11,7 @@ import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageCont
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.cert.X509Certificate;
+import org.thespheres.betula.server.beans.config.ServerCertificates;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -36,6 +37,9 @@ public class ServiceAuthHandler implements HttpAuthenticationMechanismHandler {
 //            is only populated if the Payara SSL listener (Port 8181) successfully completed a TLS handshake, 
 //            the certificate has already been cryptographically verified against your TrustStore.
             final X509Certificate cert = ((X509Certificate[]) certs)[0];
+            if (!ServerCertificates.isIssuedByThisServer(cert)) {
+                return context.responseUnauthorized();
+            }
             final String name = cert.getSubjectX500Principal().getName();
             final Set<String> groups = rolesForPrincipal(name);
             return context.notifyContainerAboutLogin(name, groups);
