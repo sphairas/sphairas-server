@@ -17,6 +17,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaQuery;
+import java.util.Map;
+import java.util.Optional;
 import org.thespheres.betula.document.Action;
 import org.thespheres.betula.document.Entry;
 import org.thespheres.betula.document.Envelope;
@@ -24,12 +26,14 @@ import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.document.Template;
 import org.thespheres.betula.document.util.ContentValueEntry;
+import org.thespheres.betula.document.util.XmlContentValue;
 import org.thespheres.betula.entities.EmbeddableMarker;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.TermGradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.entities.facade.SigneeFacade;
 import org.thespheres.betula.entities.service.ServiceUtils;
+import org.thespheres.betula.services.util.Signees;
 import org.thespheres.betula.services.ws.NotFoundException;
 import org.thespheres.betula.services.ws.Paths;
 import org.thespheres.betula.services.ws.SyntaxException;
@@ -89,7 +93,9 @@ public class AdminSigneesProcessor extends AbstractAdminContainerProcessor {
                     final Signee signee = entry.getIdentity();
                     final String name = entry.getStringValue();
                     final Set<Marker> markers = entry.getValue().getMarkerSet();
-                    updateSignee(signee, name, markers);
+                    XmlContentValue xml = (XmlContentValue) entry.getValue();
+                    final String username = xml.getContentString(Signees.SIGNEE_UNAME_PROPERTY);
+                    updateSignee(signee, name, markers, username);
                 }
             } else if (a.equals(Action.REQUEST_COMPLETION)) {
                 final CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
@@ -104,7 +110,10 @@ public class AdminSigneesProcessor extends AbstractAdminContainerProcessor {
     }
 
     private Entry createEntry(SigneeEntity se) {
-        final ContentValueEntry<Signee> entry = ContentValueEntry.create(se.getSignee(), Signee.class, null, se.getCommonName());
+        final Map<String, String> uname = Optional.ofNullable(se.getUsername())
+                .map(v -> Map.of(Signees.SIGNEE_UNAME_PROPERTY, v))
+                .orElse(null);
+        final ContentValueEntry<Signee> entry = ContentValueEntry.create(se.getSignee(), Signee.class, null, se.getCommonName(), uname);
         final Set<Marker> markers = entry.getValue().getMarkerSet();
         se.getMarkerSet().stream()
                 .map(EmbeddableMarker::getMarker)
@@ -112,7 +121,7 @@ public class AdminSigneesProcessor extends AbstractAdminContainerProcessor {
         return entry;
     }
 
-    private void updateSignee(final Signee signee, final String name, final Set<Marker> markers) {
+    private void updateSignee(final Signee signee, final String name, final Set<Marker> markers, final String username) {
         SigneeEntity se;
         if ((se = em.find(SigneeEntity.class, signee)) == null) {
             se = new SigneeEntity(signee, name);
@@ -120,6 +129,9 @@ public class AdminSigneesProcessor extends AbstractAdminContainerProcessor {
         }
         if (name != null && !se.getCommonName().equals(name)) {
             se.setCommonName(name);
+        }
+        if (username != null) {
+            se.setUsername(username);
         }
         final Set<EmbeddableMarker> ms = se.getMarkerSet();
         ms.clear();
