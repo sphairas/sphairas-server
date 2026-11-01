@@ -37,6 +37,12 @@ public interface ServiceInternalClient {
             @QueryParam("signee") Signee signee);
 
     @GET
+    @Path("signee-by-username")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getSigneeByUsername(
+            @QueryParam("username") String username);
+
+    @GET
     @Path("signee-groups")
     @Produces(MediaType.TEXT_PLAIN)
     public String getSigneeGroups(

@@ -86,6 +86,15 @@ public class InternalAPI {
     }
 
     @GET
+    @Path("signee-by-username")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getSigneeByUsername(
+            @QueryParam("username") String username) {
+        final Signee ret = signeeLocal.findSigneeByUsername(username);
+        return ret != null ? ret.getId() : null;
+    }
+
+    @GET
     @Path("signee-groups")
     @Produces(MediaType.TEXT_PLAIN)
     public String getSigneeGroups(

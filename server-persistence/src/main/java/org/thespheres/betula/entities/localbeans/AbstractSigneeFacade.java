@@ -1,6 +1,7 @@
 package org.thespheres.betula.entities.localbeans;
 
 import jakarta.annotation.Resource;
+import java.util.List;
 import jakarta.ejb.EJBAccessException;
 import jakarta.ejb.SessionContext;
 import jakarta.inject.Inject;
@@ -55,6 +56,26 @@ public class AbstractSigneeFacade {
             throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
         }
         return new Signee(prefix, suffix, true);
+    }
+
+    public Signee findSigneeByUsername(final String username) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+        if (suffix == null) {//Legacy case
+            suffix = lp.getProperty(AppPropertyNames.LP_DEFAULT_SIGNEE_SUFFIX);
+        }
+        if (suffix == null) {
+            throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+        }
+        final List<SigneeEntity> l = em.createQuery("SELECT s FROM SigneeEntity s WHERE s.username = :username AND s.suffix = :suffix AND s.alias = true", SigneeEntity.class)
+                .setParameter("username", username)
+                .setParameter("suffix", suffix)
+                .setMaxResults(2)
+                .getResultList();
+        //Ambiguous mappings must never authenticate anybody.
+        return l.size() == 1 ? l.get(0).getSignee() : null;
     }
 
     public String getSigneeCommonName(final Signee signee) {
