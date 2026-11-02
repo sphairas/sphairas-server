@@ -21,5 +21,6 @@ public class ApplicationConfig extends Application {
         resources.add(org.thespheres.betula.calendar.rest.TicketsResource.class);
         resources.add(org.thespheres.betula.server.beans.clients.AmbiguousDateExceptionMapper.class);
         resources.add(org.thespheres.betula.server.beans.clients.InternalParamConverterProvider.class);
+        resources.add(org.thespheres.betula.server.beans.clients.json.JsonbContextResolver.class);
     }
 }

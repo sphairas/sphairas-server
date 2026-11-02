@@ -60,6 +60,7 @@ import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate;
 import org.thespheres.betula.server.beans.clients.InternalParamConverterProvider;
 import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
+import org.thespheres.betula.server.beans.clients.json.JsonbContextResolver;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
 import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.web.WebUIConfiguration;
@@ -99,6 +100,7 @@ public class AppConfiguration implements Serializable {
                 .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
 //                .property(SERVER_CRT_FILE, this)
                 .register(InternalParamConverterProvider.class)
+                .register(JsonbContextResolver.class)
                 .register(BadRequestResponseMapper.class)
                 .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
                 .build(ServiceInternalClient.class);
