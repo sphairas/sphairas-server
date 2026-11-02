@@ -153,6 +153,10 @@ public class AdminStudentsProcessor extends AbstractAdminContainerProcessor {
     protected void processStudentsMarkers(final Entry<DocumentId, ?> entry) throws SyntaxException {
         if (!entry.getChildren().isEmpty()) {
             StudentMarkerMapDocumentEntity mapEntity = em.find(StudentMarkerMapDocumentEntity.class, entry.getIdentity());
+            if (mapEntity == null) {
+                mapEntity = new StudentMarkerMapDocumentEntity(entry.getIdentity(), null);
+                em.persist(mapEntity);
+            }
 //            Template ret = builder.createTemplate(null, docId, null, STUDENTS_MARKERS_PATH, null, null);
             StudentMarkerMapChangeLog log = null;
             for (Template<?> i : entry.getChildren()) {

@@ -34,14 +34,6 @@ public class StudentsListsLocalBeanImpl implements StudentsListsLocalBean {
     @PersistenceContext(unitName = "betula0")
     private EntityManager em;
 
-    private void ensureDocument(DocumentId document) {
-        StudentMarkerMapDocumentEntity sude = em.find(StudentMarkerMapDocumentEntity.class, document, LockModeType.OPTIMISTIC);
-        if (sude == null) {
-            sude = new StudentMarkerMapDocumentEntity(document, null);
-            em.persist(sude);
-        }
-    }
-
     @Override
     public String getStringEntry(StudentId id, DocumentId document, Date asOf) {
         StudentStringMapDocumentEntity sse = em.find(StudentStringMapDocumentEntity.class, document, LockModeType.OPTIMISTIC);
@@ -54,7 +46,6 @@ public class StudentsListsLocalBeanImpl implements StudentsListsLocalBean {
 
     @Override
     public Marker getMarkerEntry(final StudentId id, final DocumentId document, final Date asOf) {
-        ensureDocument(document);
         final StudentMarkerMapDocumentEntity sse = em.find(StudentMarkerMapDocumentEntity.class, document, LockModeType.OPTIMISTIC);
         if (sse != null && id != null) {
             final Marker m = sse.get(id);
