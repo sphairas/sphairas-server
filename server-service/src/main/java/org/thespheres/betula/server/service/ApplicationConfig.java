@@ -30,9 +30,11 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(org.thespheres.betula.server.beans.clients.AmbiguousDateExceptionMapper.class);
         resources.add(org.thespheres.betula.server.beans.clients.InternalParamConverterProvider.class);
+        resources.add(org.thespheres.betula.server.beans.clients.json.JsonbContextResolver.class);
         resources.add(org.thespheres.betula.server.service.DbServiceResource.class);
         resources.add(org.thespheres.betula.server.service.FastTargetDocumentsRestService.class);
         resources.add(org.thespheres.betula.server.service.InternalAPI.class);
+        resources.add(org.thespheres.betula.server.service.ReportsResource.class);
         resources.add(org.thespheres.betula.server.service.UnitsServiceResource.class);
         resources.add(org.thespheres.betula.server.service.dav.AppResourcesResource.class);
     }
