@@ -6,6 +6,7 @@
 package org.thespheres.betula.server.beans.config;
 
 import org.thespheres.betula.server.beans.clients.ServiceInternalClient;
+import org.thespheres.betula.server.beans.clients.ServiceClientConfiguration;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.thespheres.betula.server.beans.annot.Delegate;
@@ -14,11 +15,9 @@ import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 import java.io.Serializable;
-import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.thespheres.betula.Identity;
 import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
@@ -47,9 +46,7 @@ public class NamingResolverImpl implements Serializable, NamingResolver {
 
     @PostConstruct
     public void initiatlize() {
-        client = RestClientBuilder.newBuilder()
-                .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
-                .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
+        client = ServiceClientConfiguration.newRestClientBuilder()
                 .build(ServiceInternalClient.class);
     }
 

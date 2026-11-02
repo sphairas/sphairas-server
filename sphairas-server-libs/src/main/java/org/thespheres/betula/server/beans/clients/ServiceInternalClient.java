@@ -10,18 +10,11 @@ import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
+import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.ical.VCard;
 
-//Annotation wird in Payara Server gebraucht, in Payara Micro angeblich nicht
-//@Dependent
-//@RegisterRestClient(configKey = "persistence-internal")
-//Funktioniert noch nicht, weil ein Hostname Verfier gesetzt werden muss. 
-//Sollte später mit die Konfiguration über einen configKey ersetzt werden. 
-//@RegisterRestClient(baseUri = "https://localhost:8181/service/api")
 @Path("internal")
 public interface ServiceInternalClient {
-
-    public static final String URI_SERVICE_API = "https://localhost:8181/service/api";
 
     @GET
     @Path("unit-common-name")
@@ -96,7 +89,7 @@ public interface ServiceInternalClient {
             @QueryParam("unit") UnitId unit,
             @QueryParam("term") TermId termId,
             @QueryParam("document") DocumentId zgn,
-            @QueryParam("cat") String moreCategories) throws BadRequest;
+            @QueryParam("cat") String moreCategories) throws BadRequest, AmbiguousDateException;
 
     /** @return unit id text, or null (204) if the student has no primary unit */
     @GET

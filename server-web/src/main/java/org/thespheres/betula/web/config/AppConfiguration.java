@@ -26,7 +26,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Produces;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Named;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -38,7 +37,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openide.util.Lookup;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -51,10 +49,10 @@ import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.xml.NdsZeugnisSchulvorlage;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate;
 import org.thespheres.betula.server.beans.clients.InternalParamConverterProvider;
+import org.thespheres.betula.server.beans.clients.ServiceClientConfiguration;
 import org.thespheres.betula.server.beans.MissingConfigurationResourceException;
 import org.thespheres.betula.server.beans.clients.json.JsonbContextResolver;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
-import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.web.WebUIConfiguration;
 import org.thespheres.betula.services.web.XmlWebUIConfiguration;
 import org.thespheres.betula.util.CollectionUtil;
@@ -78,9 +76,6 @@ public class AppConfiguration implements Serializable {
     private TermReportNoteSetTemplate noteSetTemplate;
     private XmlWebUIConfiguration webUIConfig;
 
-//  Siehe Anmerkung bei ServiceInternalClient.java  
-//    @Inject
-//    @RestClient
     private ServiceInternalClient internalClient;
     private CrossmarkSettings crossmarks;
     private List<Grade> crossMarkGrade;
@@ -88,13 +83,11 @@ public class AppConfiguration implements Serializable {
 
     @PostConstruct
     public void initialize() {
-        internalClient = RestClientBuilder.newBuilder()
-                .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
-//                .property(SERVER_CRT_FILE, this)
+        internalClient = ServiceClientConfiguration.newRestClientBuilder()
                 .register(InternalParamConverterProvider.class)
                 .register(JsonbContextResolver.class)
                 .register(BadRequestResponseMapper.class)
-                .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
+                .register(AmbiguousDateResponseMapper.class)
                 .build(ServiceInternalClient.class);
         try {
             notesTemplateJAXB = javax.xml.bind.JAXBContext.newInstance(TermReportNoteSetTemplate.class);
@@ -286,6 +279,10 @@ public class AppConfiguration implements Serializable {
             if (r.getStatus() == 404) {
                 return null;
             }
+            if (r.getStatus() < 200 || r.getStatus() >= 300) {
+                throw new IOException("Service returned HTTP " + r.getStatus()
+                        + " reading app resource " + file);
+            }
             return new java.io.ByteArrayInputStream(r.readEntity(byte[].class));
         } catch (jakarta.ws.rs.WebApplicationException ex) {
             if (ex.getResponse().getStatus() == 404) {
@@ -298,7 +295,7 @@ public class AppConfiguration implements Serializable {
     public StreamedContent getImage() {
         final String image = getWebUIConfiguration().getLogoResource();
         if (image != null) {
-            final Path rp = ServiceConstants.configBase().resolve(image);
+            final Path rp = org.thespheres.betula.web.docsrv.NdsFormatter.findAppResourcesBase().resolve(image);
             // The InputStream MUST be opened inside the supplier lambda, not here.
             // p:graphicImage makes a separate HTTP GET to fetch the bytes; by the
             // time that request arrives the eagerly-opened stream would already be

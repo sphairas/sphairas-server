@@ -3,7 +3,6 @@ package org.thespheres.betula.web.rest;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
 import org.thespheres.betula.UnitId;
@@ -33,7 +31,7 @@ import org.thespheres.betula.document.util.TextAssessmentEntry;
 import org.thespheres.betula.document.util.UnitEntry;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.clients.ServiceInternalClient;
+import org.thespheres.betula.server.beans.clients.ServiceClientConfiguration;
 import org.thespheres.betula.server.beans.clients.UnitsServiceClient;
 import org.thespheres.betula.services.ws.Paths;
 import org.thespheres.betula.util.CollectionUtil;
@@ -53,9 +51,7 @@ public class DocumentsService {
 
     @PostConstruct
     public void initialize() {
-        serviceClient = RestClientBuilder.newBuilder()
-                .baseUri(URI.create(ServiceInternalClient.URI_SERVICE_API))
-                .hostnameVerifier((hostname, session) -> true) // Optional: specific verifier
+        serviceClient = ServiceClientConfiguration.newRestClientBuilder()
                 .register(ContainerLegacyJAXBProvider.class)
                 .build(UnitsServiceClient.class);
     }

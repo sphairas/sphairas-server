@@ -199,7 +199,7 @@ public class NdsFormatter {
         }
     }
 
-    static Path findAppResourcesBase() {
+    public static Path findAppResourcesBase() {
         final String configured = System.getProperty("sphairas.web.app-resources");
         if (configured != null && !configured.isBlank()) {
             return Paths.get(configured);
