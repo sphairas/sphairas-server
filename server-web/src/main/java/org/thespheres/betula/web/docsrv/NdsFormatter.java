@@ -99,7 +99,6 @@ import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.ws.CommonDocuments;
-import org.thespheres.betula.web.rest.DocumentsService;
 import org.xml.sax.SAXException;
 
 /**
@@ -201,6 +200,10 @@ public class NdsFormatter {
     }
 
     static Path findAppResourcesBase() {
+        final String configured = System.getProperty("sphairas.web.app-resources");
+        if (configured != null && !configured.isBlank()) {
+            return Paths.get(configured);
+        }
         final String path = System.getProperty("com.sun.aas.instanceRoot");
         return Paths.get(path, ServiceConstants.APP_RESOURCES + "/");
     }
