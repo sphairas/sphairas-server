@@ -36,10 +36,6 @@ import org.thespheres.betula.web.config.AppConfiguration;
 @ApplicationScoped
 public class IServIMAPIdentityStore implements IdentityStore {
 
-    private static final String[] LOGIN_BEAN_NAMES = {
-        "java:global/Betula_Server/Betula_Persistence/IservLoginImpl!org.thespheres.betula.security.iservlogin.IservLogin",
-        "java:global/Betula_Persistence/IservLoginImpl!org.thespheres.betula.security.iservlogin.IservLogin"
-    };
     static final String DEFAULT_PASSWORD = "changeit";
     static final String[] GROUPS = {"signees"};
     private boolean initialized = false;
@@ -169,35 +165,12 @@ public class IServIMAPIdentityStore implements IdentityStore {
         final String suffix = sfx != null ? sfx : getIservImapHost();
         final String grp = config.getInternalClient().getSigneeGroups(new Signee(credential.getCaller(), suffix, true));
         return StringUtils.split(grp, ',');
-//        return lookupIservLogin().getGroups(credential.getCaller(), suffix);
     }
 
     @Override
     public int priority() {
         return 10;
     }
-
-//    private IservLogin lookupIservLogin() throws LoginException {
-//        NamingException nex = null;
-//        try {
-//            final Context context = new InitialContext();
-//            for (final String jndiName : LOGIN_BEAN_NAMES) {
-//                try {
-//                    return (IservLogin) context.lookup(jndiName);
-//                } catch (NamingException ex) {
-//                    nex = ex;
-//                }
-//            }
-//        } catch (NamingException ex) {
-//            nex = ex;
-//        }
-//        Logger.getLogger(IServIMAPIdentityStore.class.getName()).log(Level.SEVERE, "IservLogin lookup failed.", nex);
-//        final LoginException lex = new LoginException("IservLogin lookup failed.");
-//        if (nex != null) {
-//            lex.initCause(nex);
-//        }
-//        throw lex;
-//    }
 
     /* Der Authenticator braucht einen SSLContext mit den Standard-Zertifikaten.
     * Es wird der eingebaute cacert-Store von Payara verwendet. 
