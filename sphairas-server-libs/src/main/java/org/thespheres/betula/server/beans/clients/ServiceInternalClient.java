@@ -98,6 +98,24 @@ public interface ServiceInternalClient {
             @QueryParam("document") DocumentId zgn,
             @QueryParam("cat") String moreCategories) throws BadRequest;
 
+    /** @return unit id text, or null (204) if the student has no primary unit */
+    @GET
+    @Path("student-primary-unit")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getStudentPrimaryUnit(@QueryParam("student") StudentId student, @QueryParam("asOf") Date asOf);
+
+    /** @return marker text, or null (204) */
+    @GET
+    @Path("student-marker-entry")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getStudentMarkerEntry(@QueryParam("student") StudentId student, @QueryParam("document") DocumentId document, @QueryParam("asOf") Date asOf);
+
+    /** @return alternative subject name, or null (204) */
+    @GET
+    @Path("subject-alternative-name")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getSubjectAlternativeName(@QueryParam("document") DocumentId document);
+
     @GET
     @Path("ping")
     @Produces(MediaType.TEXT_PLAIN)

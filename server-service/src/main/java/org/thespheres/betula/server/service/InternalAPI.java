@@ -39,7 +39,9 @@ import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.betula.server.beans.CalendarsBean;
 import org.thespheres.betula.server.beans.SigneeLocal;
+import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
+import org.thespheres.betula.services.ws.CommonDocuments;
 import org.thespheres.ical.VCard;
 
 /**
@@ -68,6 +70,10 @@ public class InternalAPI {
     private StudentsLocalBean studentVCardsImpl;
     @EJB(beanName = "CalendarsBeanImpl")
     private CalendarsBean calendars;
+    @EJB(beanName = "StudentsListsLocalBeanImpl")
+    private StudentsListsLocalBean studentsLists;
+    @Inject
+    private CommonDocuments commonDocuments;
 
     @GET
     @Path("unit-common-name")
@@ -196,6 +202,45 @@ public class InternalAPI {
             @QueryParam("cat") String moreCategories) throws AmbiguousDateException {
         final String[] cat = StringUtils.split(moreCategories, ",");
         return calendars.getDate(category, unit, termId, zgn, cat);
+    }
+
+    @GET
+    @Path("student-primary-unit")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getStudentPrimaryUnit(@QueryParam("student") StudentId student, @QueryParam("asOf") Date asOf) {
+        if (student == null) {
+            return badRequest("student is required");
+        }
+        return textOrNoContent(studentsLists.findPrimaryUnit(student, asOf));
+    }
+
+    @GET
+    @Path("student-marker-entry")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getStudentMarkerEntry(@QueryParam("student") StudentId student, @QueryParam("document") DocumentId document, @QueryParam("asOf") Date asOf) {
+        if (student == null || document == null) {
+            return badRequest("student and document are required");
+        }
+        return textOrNoContent(studentsLists.getMarkerEntry(student, document, asOf));
+    }
+
+    @GET
+    @Path("subject-alternative-name")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getSubjectAlternativeName(@QueryParam("document") DocumentId document) {
+        if (document == null) {
+            return badRequest("document is required");
+        }
+        final DocumentId names = commonDocuments.forName(CommonDocuments.SUBJECT_NAMES_DOCID);
+        return textOrNoContent(names != null ? facade.getStringValue(names, document) : null);
+    }
+
+    private static Response badRequest(String msg) {
+        return Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN).entity(msg).build();
+    }
+
+    private static Response textOrNoContent(Object o) {
+        return o == null ? Response.noContent().build() : Response.ok(o.toString()).build();
     }
 
     @GET
