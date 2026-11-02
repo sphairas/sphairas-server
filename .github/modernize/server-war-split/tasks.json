@@ -6,7 +6,7 @@
     {
       "id": "inventory-boundary",
       "title": "Inventory cross-WAR calls and deployment contracts",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "description": "Trace web-to-service EJB injections, JNDI lookups, REST calls, shared library use, routes, security, persistence units, and deployment assumptions. Identify service-owned behavior consumed by web and external clients.",
       "acceptanceCriteria": [
@@ -18,7 +18,7 @@
     {
       "id": "behavior-baseline",
       "title": "Capture baseline behavior for affected workflows",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "inventory-boundary"
       ],
@@ -31,7 +31,7 @@
     {
       "id": "rest-contract-security",
       "title": "Define REST contracts and caller identity behavior",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "inventory-boundary"
       ],
