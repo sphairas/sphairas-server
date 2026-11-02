@@ -61,7 +61,6 @@ import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.ReportsBean;
-import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
@@ -70,6 +69,7 @@ import org.thespheres.betula.services.util.SigneeEntitlement;
 import org.thespheres.betula.services.vcard.VCardStudent;
 import org.thespheres.betula.util.CollectionUtil;
 import org.thespheres.betula.web.PrimaryUnit;
+import org.thespheres.betula.web.config.AppConfiguration;
 import org.thespheres.betula.web.config.ExtraAnnotation;
 
 /**
@@ -105,7 +105,7 @@ public class NdsFormatDetailsBean {
     @Inject
     private NdsReportBuilderFactory factory;
     @Inject
-    private SigneeLocal signees;
+    private AppConfiguration config;
 
     public void oneStudent(final StudentDetailsXml details,
             final MappedStudent ms,
@@ -665,7 +665,7 @@ public class NdsFormatDetailsBean {
                     .orElse(entitlement);
             ret.add(e);
         }
-        final String cn = signees.getSigneeCommonName(signee);
+        final String cn = config.getInternalClient().getSigneeCommonName(signee);
         ret.add(cn);
         return ret.toString();
     }
