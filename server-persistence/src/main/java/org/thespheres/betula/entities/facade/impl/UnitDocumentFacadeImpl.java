@@ -8,6 +8,7 @@ package org.thespheres.betula.entities.facade.impl;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -180,8 +181,11 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
 //    }
     @Override
     public UnitId getPrimaryUnit(DocumentId document, Signee signee) {
-        final SigneeUnitMapDocumentEntity sude = findKlassenlehrerDoc(document, LockModeType.OPTIMISTIC);
-        assert sude != null;
+        // read access must not create the document
+        final SigneeUnitMapDocumentEntity sude = em.find(SigneeUnitMapDocumentEntity.class, document, LockModeType.OPTIMISTIC);
+        if (sude == null) {
+            return null;
+        }
         final SigneeEntity se = em.find(SigneeEntity.class, signee);
         if (se != null) {
             return sude.get(se);
@@ -191,8 +195,10 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
 
     @Override
     public Map<UnitId, List<Signee>> getPrimaryUnitsSignees(DocumentId document) {
-        final SigneeUnitMapDocumentEntity sude = findKlassenlehrerDoc(document, LockModeType.OPTIMISTIC);
-        assert sude != null;
+        final SigneeUnitMapDocumentEntity sude = em.find(SigneeUnitMapDocumentEntity.class, document, LockModeType.OPTIMISTIC);
+        if (sude == null) {
+            return Collections.emptyMap();
+        }
         return sude.map().entrySet().stream()
                 .collect(Collectors.groupingBy(e -> e.getValue().getUnitId(), Collectors.mapping(e -> e.getKey().getSignee(), Collectors.toList())));
     }

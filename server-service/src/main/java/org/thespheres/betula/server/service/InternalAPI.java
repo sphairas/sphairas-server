@@ -5,6 +5,7 @@ import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.Path;
 import jakarta.inject.Inject;
@@ -128,33 +129,34 @@ public class InternalAPI {
         final GradeTargetAssessmentEntity e = facade.find(target, LockModeType.OPTIMISTIC);
         if (e != null) {
             final Grade ret = e.select(student, term);
-            return ret.toString();
+            return ret != null ? ret.toString() : null;
         }
         return null;
     }
 
     @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
-    @GET
+    @POST
     @Path("submit-grade-value")
     @Produces(MediaType.TEXT_PLAIN)
-    public String submitSingleGradeValue(
+    public Response submitSingleGradeValue(
             @QueryParam("target") DocumentId target,
             @QueryParam("student") StudentId student,
             @QueryParam("term") TermId term,
             @QueryParam("grade") Grade grade) {
         if (target != null && student != null && term != null) {
             final boolean ret = facade.submit(target, student, term, grade, null);
-            return Boolean.toString(ret);
+            return Response.ok(Boolean.toString(ret)).build();
         } else {
-            throw new IllegalArgumentException("DocumentId, StudentId, and TermId cannot be null.");
+            return Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN)
+                    .entity("target, student and term are required").build();
         }
     }
 
     @TransactionAttribute(value = TransactionAttributeType.REQUIRED)
-    @GET
+    @POST
     @Path("submit-text-value")
     @Produces(MediaType.TEXT_PLAIN)
-    public String submitSingleTextValue(
+    public Response submitSingleTextValue(
             @QueryParam("target") DocumentId target,
             @QueryParam("student") StudentId student,
             @QueryParam("term") TermId term,
@@ -162,9 +164,10 @@ public class InternalAPI {
             @QueryParam("text") String text) {
         if (target != null && student != null && term != null) {
             final boolean ret = textFacade.submit(target, student, term, section, text, null, -1);
-            return Boolean.toString(ret);
+            return Response.ok(Boolean.toString(ret)).build();
         } else {
-            throw new IllegalArgumentException("DocumentId, StudentId, and TermId cannot be null.");
+            return Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN)
+                    .entity("target, student and term are required").build();
         }
     }
 

@@ -65,7 +65,7 @@ public interface ServiceInternalClient {
             @QueryParam("student") StudentId student,
             @QueryParam("term") TermId term);
 
-    @GET
+    @POST
     @Path("submit-grade-value")
     @Produces(MediaType.TEXT_PLAIN)
     public String submitSingleGradeValue(
@@ -74,7 +74,7 @@ public interface ServiceInternalClient {
             @QueryParam("term") TermId term,
             @QueryParam("grade") Grade grade);
 
-    @GET
+    @POST
     @Path("submit-text-value")
     @Produces(MediaType.TEXT_PLAIN)
     public String submitSingleTextValue(
