@@ -15,6 +15,7 @@ import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.server.beans.clients.BadRequest;
+import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.ical.InvalidComponentException;
 import org.thespheres.ical.VCard;
 import org.thespheres.ical.builder.VCardBuilder;
@@ -48,7 +49,7 @@ public class InternalServices { //implements CalendarsBean, StudentsLocalBean, R
         }
     }
 
-    public Date getDate(String category, UnitId unit, TermId termId, DocumentId zgn, String moreCategories) throws BadRequest {
+    public Date getDate(String category, UnitId unit, TermId termId, DocumentId zgn, String moreCategories) throws BadRequest, AmbiguousDateException {
         final Date ret = config.getInternalClient().getReportDate(category, unit, termId, zgn, moreCategories);
         return ret;
     }

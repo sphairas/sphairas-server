@@ -19,4 +19,9 @@ public class AmbiguousDateException extends AmbiguousResultException {
         this.dates = dates;
     }
 
+    public AmbiguousDateException(final String message) {
+        super(message);
+        this.dates = new Date[0];
+    }
+
 }

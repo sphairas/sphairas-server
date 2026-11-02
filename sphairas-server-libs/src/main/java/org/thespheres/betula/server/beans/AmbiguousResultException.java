@@ -14,4 +14,8 @@ public abstract class AmbiguousResultException extends Exception {
     protected AmbiguousResultException() {
     }
 
+    protected AmbiguousResultException(final String message) {
+        super(message);
+    }
+
 }
