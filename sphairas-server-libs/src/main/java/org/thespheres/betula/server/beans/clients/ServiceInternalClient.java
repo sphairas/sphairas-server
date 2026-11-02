@@ -116,6 +116,12 @@ public interface ServiceInternalClient {
     @Produces(MediaType.TEXT_PLAIN)
     public String getSubjectAlternativeName(@QueryParam("document") DocumentId document);
 
+    /** Read-only access to the app resources directory; 404 if the file does not exist. */
+    @GET
+    @Path("app-resource")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public jakarta.ws.rs.core.Response getAppResource(@QueryParam("path") String path);
+
     @GET
     @Path("ping")
     @Produces(MediaType.TEXT_PLAIN)

@@ -16,7 +16,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Date;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,17 +34,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.InvalidNameException;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.naming.directory.DirContext;
-import org.apache.naming.resources.Resource;
-import org.apache.naming.resources.ResourceAttributes;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openide.util.Lookup;
 import org.primefaces.model.DefaultStreamedContent;
@@ -150,16 +142,11 @@ public class AppConfiguration implements Serializable {
             }
         }
 //        throw new ConfigurationException(WebUIConfiguration.class.getName(), WebAppProperties.BETULA_WEB_UI_SERVICE_PROVIDER_PROPERTY);
-        final DirContext dc = lookupAppResourcesContext();
         final String file = "web-ui-configuration.xml";
-        final Resource res;
-        try {
-            res = (Resource) dc.lookup(file);
-        } catch (NamingException ex) {
-            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-            throw new MissingConfigurationResourceException(file);
-        }
-        try (final InputStream is = res.streamContent()) {
+        try (final InputStream is = openAppResource(file)) {
+            if (is == null) {
+                throw new MissingConfigurationResourceException(file);
+            }
             return (XmlWebUIConfiguration) webUIJAXB.createUnmarshaller().unmarshal(is);
         } catch (IOException | javax.xml.bind.JAXBException ex) {
             final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
@@ -202,25 +189,18 @@ public class AppConfiguration implements Serializable {
     }
 
     private NdsReportBuilderFactory findZeugnisConfiguratorService() {
-        final DirContext dc = lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
-        final NdsZeugnisSchulvorlage vorlage;
-        if (hasResource(dc, NdsReportBuilderFactory.SCHULVORLAGE_FILE)) {
-            final Resource res;
-            try {
-                res = (Resource) dc.lookup(file);
-            } catch (NamingException ex) {
-                Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-                throw new MissingConfigurationResourceException(file);
-            }
-            try (final InputStream is = res.streamContent()) {
+        NdsZeugnisSchulvorlage vorlage = null;
+        try (final InputStream is = openAppResource(file)) {
+            if (is != null) {
                 vorlage = (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
-            } catch (IOException | javax.xml.bind.JAXBException ex) {
-                final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
-                th.initCause(ex);
-                throw th;
             }
-        } else {
+        } catch (IOException | javax.xml.bind.JAXBException ex) {
+            final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
+            th.initCause(ex);
+            throw th;
+        }
+        if (vorlage == null) {
             vorlage = new NdsZeugnisSchulvorlage(CommonAppProperties.provider());
         }
         configureTemplate(vorlage);
@@ -257,36 +237,12 @@ public class AppConfiguration implements Serializable {
     @Produces
     //Do not cache!!!
     public TermReportNoteSetTemplate findTermReportNoteSetTemplate() throws NamingException {
-        final DirContext dc = lookupAppResourcesContext();
         final String file = NdsReportBuilderFactory.SIGNEE_BEMERKUNGEN_FILE;
-        try {
-            dc.lookup(file);
-        } catch (NamingException nex) {
-            final String msg = "No file " + file + " found!";
-            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, msg);
-            return new TermReportNoteSetTemplate("null");
-        }
-        Date lm = null;
-        try {
-            final ResourceAttributes attr = (ResourceAttributes) dc.getAttributes(file);
-            if (attr != null) {
-                lm = attr.getCreationOrLastModifiedDate();
+        try (final InputStream is = openAppResource(file)) {
+            if (is == null) {
+                Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, "No file " + file + " found!");
+                return new TermReportNoteSetTemplate("null");
             }
-        } catch (NamingException | ClassCastException ex) {
-            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-            throw ex;
-        }
-//        if (noteSetFileLastModified != null && noteSetTemplate != null && lm != null && !lm.after(noteSetFileLastModified)) {
-//            return noteSetTemplate;
-//        }
-        final Resource res;
-        try {
-            res = (Resource) dc.lookup(file);
-        } catch (NamingException ex) {
-            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-            throw new MissingConfigurationResourceException(file);
-        }
-        try (final InputStream is = res.streamContent()) {
             noteSetTemplate = (TermReportNoteSetTemplate) notesTemplateJAXB.createUnmarshaller().unmarshal(is);
         } catch (IOException | javax.xml.bind.JAXBException ex) {
             final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
@@ -307,15 +263,11 @@ public class AppConfiguration implements Serializable {
     }
 
     private CrossmarkSettings createCrossmarkSettings() {
-        final DirContext dc = lookupAppResourcesContext();
         final String file = NdsCommonConstants.ANKREUZZEUGNISSE_FILE;
-        final Resource res;
-        try {
-            res = (Resource) dc.lookup(file);
-        } catch (NamingException ex) {
-            return new CrossmarkSettings();
-        }
-        try (final InputStream is = res.streamContent()) {
+        try (final InputStream is = openAppResource(file)) {
+            if (is == null) {
+                return new CrossmarkSettings();
+            }
             return (CrossmarkSettings) crossmarkSettingsJAXB.createUnmarshaller().unmarshal(is);
         } catch (IOException | javax.xml.bind.JAXBException ex) {
             final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
@@ -324,28 +276,23 @@ public class AppConfiguration implements Serializable {
         }
     }
 
-    private DirContext lookupAppResourcesContext() {
-        try {
-            final Context c = new InitialContext();
-            return (DirContext) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesContext");
-        } catch (NamingException ne) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
-            throw new RuntimeException(ne);
-        }
-    }
-
-    public static boolean hasResource(final DirContext dc, final String res) {
-        try {
-            final NamingEnumeration<NameClassPair> l = dc.list("");
-            while (l.hasMore()) {
-                if (l.next().getName().equals(res)) {
-                    return true;
-                }
+    /**
+     * Opens an app resource via the service REST API.
+     *
+     * @return the content, or null if the resource does not exist
+     */
+    InputStream openAppResource(final String file) throws IOException {
+        try (final jakarta.ws.rs.core.Response r = getInternalClient().getAppResource(file)) {
+            if (r.getStatus() == 404) {
+                return null;
             }
-        } catch (NamingException ex) {
-            Logger.getLogger(AppConfiguration.class.getPackage().getName()).log(Level.WARNING, "An exception occured listing resources in " + dc.toString(), ex); //Vor Jakarta dc.getContextName()
+            return new java.io.ByteArrayInputStream(r.readEntity(byte[].class));
+        } catch (jakarta.ws.rs.WebApplicationException ex) {
+            if (ex.getResponse().getStatus() == 404) {
+                return null;
+            }
+            throw new IOException("Cannot read app resource " + file, ex);
         }
-        return false;
     }
 
     public StreamedContent getImage() {

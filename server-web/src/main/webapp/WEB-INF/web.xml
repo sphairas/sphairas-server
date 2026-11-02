@@ -72,22 +72,6 @@
         <servlet-name>ZeugnisServlet</servlet-name>
         <servlet-class>org.thespheres.betula.web.docsrv.ZeugnisServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>webdav</servlet-name>
-        <servlet-class>org.thespheres.betula.web.config.AppResourcesServlet</servlet-class>
-        <init-param>
-            <param-name>debug</param-name>
-            <param-value>0</param-value>
-        </init-param>
-        <init-param>
-            <param-name>listings</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
-            <param-name>readonly</param-name>
-            <param-value>false</param-value>
-        </init-param>
-    </servlet>
     <servlet-mapping>
         <servlet-name>FacesServlet</servlet-name>
         <url-pattern>/ui/*</url-pattern>
@@ -97,10 +81,6 @@
     <servlet-mapping>
         <servlet-name>ZeugnisServlet</servlet-name>
         <url-pattern>/zgnsrv/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>webdav</servlet-name>
-        <url-pattern>/dav/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>${session.timeoutMinutes}</session-timeout>
@@ -190,16 +170,6 @@
             <role-name>unitadmin</role-name>
         </auth-constraint>
     </security-constraint>-->
-    <security-constraint>
-        <display-name>WebDav for unitadmins</display-name>
-        <web-resource-collection>
-            <web-resource-name>Login Resources</web-resource-name>
-            <url-pattern>/dav/*</url-pattern>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>unitadmin</role-name>
-        </auth-constraint>
-    </security-constraint>
     <!--    <login-config>
         <auth-method>FORM</auth-method>
         <realm-name>${web.module.authentication.realm}</realm-name>
