@@ -20,9 +20,8 @@ import org.thespheres.betula.niedersachsen.NdsTerms;
 import org.thespheres.betula.niedersachsen.zeugnis.Constants;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportConstants;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
-import org.thespheres.betula.server.beans.CalendarsBean;
-import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.ical.util.VCardHolder;
 
@@ -36,22 +35,18 @@ import org.thespheres.ical.util.VCardHolder;
 @ApplicationScoped
 public class ZeugnisArguments {
 
-//    @EJB(lookup = "java:global/Betula_Persistence/ZeugnisBeanImpl!org.thespheres.betula.niedersachsen.admin.zgn.ZeugnisBean")
-//    private ZeugnisBean zeugnisBean;
-    @EJB(beanName = "ReportsBeanImpl")
-    private ReportsBean zeugnisBean;
-    @EJB(beanName = "CalendarsBeanImpl")
-    private CalendarsBean calendars;
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentCards;
+    @Inject
+    private InternalServices internalServices;
     @Default
     @Inject
     private NamingResolver namingResolver;
 
     public Object[] getFormatArgs(DocumentId zgn, UnitId unit) {
         if (zgn != null) {
-            final StudentId stud = zeugnisBean.getStudent(zgn);
-            final TermId termId = zeugnisBean.getTerm(zgn);
+            final StudentId stud = internalServices.getReportStudent(zgn);
+            final TermId termId = internalServices.getReportTerm(zgn);
             Term term;
             String nSJ = "?";
             String stufe = "?";
@@ -78,7 +73,7 @@ public class ZeugnisArguments {
                 final String possesivGen = NdsReportConstants.getPossessivPronomenGenitiv(g);
                 Date zkDate;
                 try {
-                    zkDate = calendars.getDate(Constants.CATEGORY_ZEUGNISKONFERENZ, unit, termId, null, null);
+                    zkDate = internalServices.getDate(Constants.CATEGORY_ZEUGNISKONFERENZ, unit, termId, null, null);
                 } catch (AmbiguousDateException ex) {
                     zkDate = null;
                 }
@@ -90,7 +85,7 @@ public class ZeugnisArguments {
 
     //TODO LocalDateTime
     public Date getZeugnisAusgabe(final TermId termId, final UnitId pu, final DocumentId zgn, final boolean isAbschluss) throws AmbiguousDateException {
-        final Date ret = calendars.getDate(Constants.CATEGORY_ZEUGNISAUSGABE, pu, termId, zgn, isAbschluss ? new String[]{Constants.ABSCHLUSSZEUGNISSE} : new String[0]);
+        final Date ret = internalServices.getDate(Constants.CATEGORY_ZEUGNISAUSGABE, pu, termId, zgn, isAbschluss ? Constants.ABSCHLUSSZEUGNISSE : "");
         return ret != null ? ret : new Date();
     }
 

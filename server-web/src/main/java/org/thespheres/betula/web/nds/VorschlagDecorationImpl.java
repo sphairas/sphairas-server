@@ -5,7 +5,7 @@
  */
 package org.thespheres.betula.web.nds;
 
-import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import org.thespheres.betula.assess.GradeFactory;
@@ -16,7 +16,7 @@ import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.assess.TargetDocument;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.niedersachsen.vorschlag.AVSVVorschlag;
-import org.thespheres.betula.server.beans.ReportsBean;
+import org.thespheres.betula.web.config.InternalServices;
 
 /**
  *
@@ -24,8 +24,8 @@ import org.thespheres.betula.server.beans.ReportsBean;
  */
 abstract class VorschlagDecorationImpl {
 
-    @EJB(beanName = "ReportsBeanImpl")
-    private ReportsBean zeugnisBean;
+    @Inject
+    private InternalServices internalServices;
 //    private final Map<TermId, Map<StudentId, Grade>> vorschlaege = new HashMap<>();
     private final static Grade PENDING = GradeFactory.find("niedersachsen.ersatzeintrag", "pending");
 
@@ -48,11 +48,11 @@ abstract class VorschlagDecorationImpl {
     }
 
     private Grade findKopfnote(final StudentId student, final TermId term) {
-        final DocumentId[] d = zeugnisBean.findTermReports(student, term, false);
+        final DocumentId[] d = internalServices.findTermReports(student, term, false);
         Grade g = null;
         if (d != null && d.length == 1) {
             DocumentId z = d[0];
-            g = zeugnisBean.getKopfnote(z, getConvention());
+            g = internalServices.getKopfnote(z, getConvention());
         }
         if (g == null) {
             g = PENDING;

@@ -42,6 +42,7 @@ import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.assess.GradeFactory;
 import org.thespheres.betula.assess.GradeReference;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
+import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.MarkerConvention;
@@ -67,6 +68,7 @@ import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.Utilities;
 import org.thespheres.betula.server.beans.annot.Current;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.NamingResolver;
@@ -85,8 +87,8 @@ import org.thespheres.ical.util.IComponentUtilities;
 @Dependent
 public class NdsFormatReportsBean {
 
-    @EJB(beanName = "ReportsBeanImpl")
-    private org.thespheres.betula.server.beans.ReportsBean zeugnisBean;
+    @Inject
+    private InternalServices internalServices;
     @EJB
     private StudentsListsLocalBean sllb;
     @Inject
@@ -125,11 +127,11 @@ public class NdsFormatReportsBean {
         reportsMarkerComparator = Comparator.comparingInt(m -> sort == null ? Integer.MAX_VALUE : Arrays.<Marker>binarySearch(sort, m, Comparator.comparing(Marker::getId)));
     }
 
-    public NdsZeugnisFormular createReport(final FastTargetDocuments2 tgtae, final DocumentId zgnId, final UnitId pu, final Map<MultiSubject, Set<DocumentId>> docMap, final Map<MultiSubject, Set<DocumentId>> reports, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTextTermTargetDocument> texts, final Date asOf, final NdsReportBuilderFactory fac, final boolean encodeLogos) throws NoEntityFoundException {
-        final StudentId student = zeugnisBean.getStudent(zgnId);
+    public NdsZeugnisFormular createReport(final FastTargetDocuments2 tgtae, final DocumentId zgnId, final UnitId pu, final Map<MultiSubject, Set<DocumentId>> docMap, final Map<MultiSubject, Set<DocumentId>> reports, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTextTermTargetDocument> texts, final Marker[] reportMarkers, final Date asOf, final NdsReportBuilderFactory fac, final boolean encodeLogos) throws NoEntityFoundException {
+        final StudentId student = internalServices.getReportStudent(zgnId);
         final String careers = properties.getProperty("student.career.conventions");
         final VCard card = studentCardBean.get(student);
-        final Marker[] markers = zeugnisBean.getMarkers(zgnId);
+        final Marker[] markers = reportMarkers;
 
         final String vorname = Utilities.findGivenName(card); //nProp.split(";")[1].replace(",", " ");
         final String fN = Utilities.formatFullname(card); //vorname + " " + nProp.split(";")[0];
@@ -195,28 +197,30 @@ public class NdsFormatReportsBean {
         }
         final String placeOfBirth = card.getAnyPropertyValue(VCard.BIRTHPLACE).orElse("UNBEKANNT");
         //use NdsZeugnisAngaben
-        final Integer fehltage = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_FEHLTAGE);
-        final Integer unentschuldigt = zeugnisBean.getIntegerValue(zgnId, org.thespheres.betula.server.beans.ReportsBean.TYPE_UNENTSCHULDIGT);
+        final Integer fehltage = internalServices.getReportInteger(zgnId, ReportsBean.TYPE_FEHLTAGE);
+        final Integer unentschuldigt = internalServices.getReportInteger(zgnId, ReportsBean.TYPE_UNENTSCHULDIGT);
         final Grade av;
         final String avSpecial = properties.getProperty("niedersachsen.arbeitsverhalten.sondertext");
         if (StringUtils.isBlank(avSpecial)) {
-            av = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.AV_NAME);
+            av = internalServices.getKopfnote(zgnId, ASVAssessmentConvention.AV_NAME);
         } else {
             av = GradeFactory.resolve(avSpecial);
         }
         final Grade sv;
         final String svSpecial = properties.getProperty("niedersachsen.sozialverhalten.sondertext");
         if (StringUtils.isBlank(svSpecial)) {
-            sv = zeugnisBean.getKopfnote(zgnId, ASVAssessmentConvention.SV_NAME);
+            sv = internalServices.getKopfnote(zgnId, ASVAssessmentConvention.SV_NAME);
         } else {
             sv = GradeFactory.resolve(svSpecial);
         }
-//        final String avBegruendung = fac.requireAVSVReason(av) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME) : null;
-//        final String svBegruendung = fac.requireAVSVReason(sv) ? zeugnisBean.getNote(zgnId, ASVAssessmentConvention.SV_NAME) : null;
-        final String avBegruendung = zeugnisBean.getNote(zgnId, ASVAssessmentConvention.AV_NAME);
-        final String svBegruendung = zeugnisBean.getNote(zgnId, ASVAssessmentConvention.SV_NAME);
+//        final String avBegruendung = fac.requireAVSVReason(av) ? internalServices.getReportNote(zgnId, ASVAssessmentConvention.AV_NAME) : null;
+//        final String svBegruendung = fac.requireAVSVReason(sv) ? internalServices.getReportNote(zgnId, ASVAssessmentConvention.SV_NAME) : null;
+        final Map<String, String> notes = internalServices.getReportNotes(zgnId,
+                List.of(ASVAssessmentConvention.AV_NAME, ASVAssessmentConvention.SV_NAME));
+        final String avBegruendung = notes.get(ASVAssessmentConvention.AV_NAME);
+        final String svBegruendung = notes.get(ASVAssessmentConvention.SV_NAME);
 
-        final TermId term = zeugnisBean.getTerm(zgnId);
+        final TermId term = internalServices.getReportTerm(zgnId);
         final TermId before = new TermId(term.getAuthority(), term.getId() - 1);
         final String fnindex = "i)";
         String fnText;
@@ -444,12 +448,13 @@ public class NdsFormatReportsBean {
                     });
         }
 
-        final String bemerkungen = bemBean.createBemerkungen(zgnId, pu);
+        final String bemerkungen = bemBean.createBemerkungen(zgnId, pu, markers);
 
         final Map<String, String> extraTexts = new HashMap<>();
         final String[] extraTextIds = ReportProvisionsUtil.textFields(level, sgl);
+        final Map<String, String> extraNotes = internalServices.getReportNotes(zgnId, Arrays.asList(extraTextIds));
         for (final String tid : extraTextIds) {
-            final String note = zeugnisBean.getNote(zgnId, tid);
+            final String note = extraNotes.get(tid);
             if (note != null) {
                 extraTexts.put(tid, note);
             }
@@ -457,7 +462,7 @@ public class NdsFormatReportsBean {
         final boolean excludeAGs = ReportProvisionsUtil.excludeAGField(level, sgl);
 
         if (!excludeAGs) {
-            final String[] ags = zeugnisBean.getAGs(student, term);
+            final String[] ags = internalServices.getReportAgs(student, term);
             final String agText = Arrays.stream(ags)
                     .collect(Collectors.joining(", "));
             builder.setAGs(agText);

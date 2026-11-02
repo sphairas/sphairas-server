@@ -24,9 +24,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.NbBundle;
 import org.primefaces.event.ToggleEvent;
@@ -55,11 +52,12 @@ import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
-import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.server.beans.TermReportDataException;
+import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.web.config.WebAppProperties;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.web.docsrv.AmbiguousDocumentCollectionException;
 
 /**
@@ -69,7 +67,7 @@ import org.thespheres.betula.web.docsrv.AmbiguousDocumentCollectionException;
 public class PrimaryUnit extends AbstractData<Subject> {
 
     private final String docIdName;
-    private final ReportsBean zeugnisBean = lookupReportsBeanImplRemote();
+    private final InternalServices internalServices;
     private Map<String, Map<MultiSubject, Set<DocumentId>>> docTypes;
     private List<MultiSubject> subjects;
     private final HashMap<String, Map<StudentId, Map<MultiSubject, GradeValue>>> gradeMap = new HashMap<>();
@@ -93,6 +91,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         this.unit = unit;
         this.term = term;
         this.termBefore = before;
+        this.internalServices = app.getInternalServices();
     }
 
     public String getDocumentIdName() {
@@ -477,16 +476,6 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
     }
 
-    private ReportsBean lookupReportsBeanImplRemote() {
-        try {
-            final Context c = new InitialContext();
-            return (ReportsBean) c.lookup("java:global/Betula_Server/Betula_Persistence/ReportsBeanImpl!org.thespheres.betula.server.beans.ReportsBean");
-        } catch (NamingException ne) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
-            throw new RuntimeException(ne);
-        }
-    }
-
     public class AVSVWrapper extends AbstractGradeWrapper {
 
         private final DocumentId zgnDoc;
@@ -503,7 +492,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         protected Grade getGrade() {
             if (invalidated) {
                 synchronized (INVALIDATED_LOCK) {
-                    grade = zeugnisBean.getKopfnote(zgnDoc, getConventions()[0].getName());
+                    grade = internalServices.getKopfnote(zgnDoc, getConventions()[0].getName());
                     invalidated = false;
                 }
             }
@@ -514,7 +503,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         protected void setGrade(Grade g) {
             if (!Objects.equals(g, this.grade)) {
                 try {
-                    boolean result = zeugnisBean.setKopfnote(zgnDoc, getConventions()[0].getName(), g);
+                    boolean result = internalServices.setKopfnote(zgnDoc, getConventions()[0].getName(), g);
                     if (result) {
                         this.grade = g;
                     }
@@ -567,8 +556,8 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
         private void updateFehltage() {
             if (invalidatedFehltage) {
-                final Integer vf = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE);
-                final Integer vu = zeugnisBean.getIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT);
+                final Integer vf = internalServices.getReportInteger(getZeugnisId(), org.thespheres.betula.server.beans.ReportsBean.TYPE_FEHLTAGE);
+                final Integer vu = internalServices.getReportInteger(getZeugnisId(), org.thespheres.betula.server.beans.ReportsBean.TYPE_UNENTSCHULDIGT);
                 fehltage = Optional.ofNullable(vf)
                         .map(i -> Integer.toString(i))
                         .orElse(null);
@@ -582,10 +571,10 @@ public class PrimaryUnit extends AbstractData<Subject> {
                 if (displayPrecedingFehltage) {
                     final DocumentId zeugnisIdPrecedingTerm = getZeugnisIdPrecedingTerm();
                     final Integer vfp = Optional.ofNullable(zeugnisIdPrecedingTerm)
-                            .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_FEHLTAGE))
+                            .map(d -> internalServices.getReportInteger(d, org.thespheres.betula.server.beans.ReportsBean.TYPE_FEHLTAGE))
                             .orElse(null);
                     final Integer vup = Optional.ofNullable(zeugnisIdPrecedingTerm)
-                            .map(d -> zeugnisBean.getIntegerValue(d, ReportsBean.TYPE_UNENTSCHULDIGT))
+                            .map(d -> internalServices.getReportInteger(d, org.thespheres.betula.server.beans.ReportsBean.TYPE_UNENTSCHULDIGT))
                             .orElse(null);
                     final String termDn = Optional.ofNullable(termBefore.getParameter("schuljahr"))
                             .map(Object::toString)
@@ -629,7 +618,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                             return;
                         }
                     }
-                    boolean result = zeugnisBean.setIntegerValue(getZeugnisId(), ReportsBean.TYPE_FEHLTAGE, val);
+                    boolean result = internalServices.setReportInteger(getZeugnisId(), org.thespheres.betula.server.beans.ReportsBean.TYPE_FEHLTAGE, val);
                     if (result) {
                         this.fehltage = val == null ? "" : Integer.toString(val);
                         if (val == null) {
@@ -658,7 +647,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
                             return;
                         }
                     }
-                    boolean result = zeugnisBean.setIntegerValue(getZeugnisId(), ReportsBean.TYPE_UNENTSCHULDIGT, val);
+                    boolean result = internalServices.setReportInteger(getZeugnisId(), org.thespheres.betula.server.beans.ReportsBean.TYPE_UNENTSCHULDIGT, val);
                     if (result) {
                         this.unentschuldigt = val == null ? "" : Integer.toString(val);
                         if (val == null) {
@@ -679,12 +668,12 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         public String getAvReason() {
-            return zeugnisBean.getNote(getZeugnisId(), ASVAssessmentConvention.AV_NAME);
+            return internalServices.getReportNote(getZeugnisId(), ASVAssessmentConvention.AV_NAME);
         }
 
         public void setAvReason(String svReason) {
             final String text = Util.trimToNull(svReason);
-            zeugnisBean.setNote(getZeugnisId(), ASVAssessmentConvention.AV_NAME, text);
+            internalServices.setReportNote(getZeugnisId(), ASVAssessmentConvention.AV_NAME, text);
         }
 
         public boolean isAvReasonEnabled() {
@@ -717,12 +706,12 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         public String getSvReason() {
-            return zeugnisBean.getNote(getZeugnisId(), ASVAssessmentConvention.SV_NAME);
+            return internalServices.getReportNote(getZeugnisId(), ASVAssessmentConvention.SV_NAME);
         }
 
         public void setSvReason(String svReason) {
             final String text = Util.trimToNull(svReason);
-            zeugnisBean.setNote(getZeugnisId(), ASVAssessmentConvention.SV_NAME, text);
+            internalServices.setReportNote(getZeugnisId(), ASVAssessmentConvention.SV_NAME, text);
         }
 
         public boolean isSvReasonEnabled() {
@@ -739,7 +728,7 @@ public class PrimaryUnit extends AbstractData<Subject> {
         }
 
         public String getNotes() {
-            final ReportsBean.CustomNote[] cn = zeugnisBean.getCustomNotes(getZeugnisId());
+            final org.thespheres.betula.server.beans.ReportsBean.CustomNote[] cn = internalServices.getReportCustomNotes(getZeugnisId());
             return Arrays.stream(cn)
                     .sorted(Comparator.comparingInt(ReportsBean.CustomNote::getPosition))
                     .map(ReportsBean.CustomNote::getValue)
@@ -748,8 +737,8 @@ public class PrimaryUnit extends AbstractData<Subject> {
 
         public void setNotes(final String value) {
             final String text = Util.trimToNull(value);
-            ReportsBean.CustomNote[] cn = new ReportsBean.CustomNote[]{new ReportsBean.CustomNote(WEB_UI_EDITABLE_REPORT_NOTE_POSITION, text)};
-            zeugnisBean.setCustomNotes(getZeugnisId(), cn);
+            org.thespheres.betula.server.beans.ReportsBean.CustomNote[] cn = new org.thespheres.betula.server.beans.ReportsBean.CustomNote[]{new org.thespheres.betula.server.beans.ReportsBean.CustomNote(WEB_UI_EDITABLE_REPORT_NOTE_POSITION, text)};
+            internalServices.setReportCustomNotes(getZeugnisId(), cn);
         }
 
         public String[] getReportTextFieldIds() {
@@ -802,9 +791,9 @@ public class PrimaryUnit extends AbstractData<Subject> {
         public DocumentId getZeugnisId() {
             if (zeugnisId == null) {
                 zeugnisId = new DocumentId[2];
-                final DocumentId[] result = zeugnisBean.findTermReports(getId(), term.getScheduledItemId(), true);
+                final DocumentId[] result = internalServices.findTermReports(getId(), term.getScheduledItemId(), true);
                 zeugnisId[1] = result[0]; //fehlt: check if more than one!!!!!!!!1
-                final DocumentId[] resultB = zeugnisBean.findTermReports(getId(), termBefore.getScheduledItemId(), false);
+                final DocumentId[] resultB = internalServices.findTermReports(getId(), termBefore.getScheduledItemId(), false);
                 zeugnisId[0] = resultB.length == 1 ? resultB[0] : null;
             }
             return zeugnisId[1];
@@ -824,12 +813,12 @@ public class PrimaryUnit extends AbstractData<Subject> {
             }
 
             public String getValue() {
-                return zeugnisBean.getNote(getZeugnisId(), key);
+                return internalServices.getReportNote(getZeugnisId(), key);
             }
 
             public void setValue(final String value) {
                 final String text = Util.trimToNull(value);
-                zeugnisBean.setNote(getZeugnisId(), key, text);
+                internalServices.setReportNote(getZeugnisId(), key, text);
             }
         }
     }

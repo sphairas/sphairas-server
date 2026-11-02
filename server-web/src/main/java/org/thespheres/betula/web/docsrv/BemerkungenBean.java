@@ -14,7 +14,6 @@ import java.util.SortedMap;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import org.thespheres.betula.UnitId;
@@ -24,6 +23,7 @@ import org.thespheres.betula.niedersachsen.zeugnis.Constants;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate.MarkerItem;
 import org.thespheres.betula.server.beans.ReportsBean.CustomNote;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.util.CollectionUtil;
 
@@ -34,8 +34,8 @@ import org.thespheres.betula.util.CollectionUtil;
 @Dependent
 public class BemerkungenBean {
 
-    @EJB(beanName = "ReportsBeanImpl")
-    private org.thespheres.betula.server.beans.ReportsBean zeugnisBean;
+    @Inject
+    private InternalServices internalServices;
     @Inject
     private ZeugnisArguments zeugnisArguments;
     @Inject
@@ -44,8 +44,11 @@ public class BemerkungenBean {
     private LocalProperties properties;
 
     public String createBemerkungen(DocumentId zgnId, UnitId pu) {
+        return createBemerkungen(zgnId, pu, internalServices.getReportMarkers(zgnId));
+    }
+
+    public String createBemerkungen(DocumentId zgnId, UnitId pu, final Marker[] arr) {
         final Object[] args = zeugnisArguments.getFormatArgs(zgnId, pu); //new Object[]{vorname, gen, possesiv, kk, nStufe, nSJ};
-        final Marker[] arr = zeugnisBean.getMarkers(zgnId);
         //filter markers
         final Set<String> cnv = conventions();
         final Set<Marker> markers = Arrays.stream(arr)
@@ -56,7 +59,7 @@ public class BemerkungenBean {
 //        final List[] notes = new List[size + 2];
         final SortedMap<Integer, List> notes2 = new TreeMap<>();
         //Custom notes
-        for (final CustomNote cn : zeugnisBean.getCustomNotes(zgnId)) {
+        for (final CustomNote cn : internalServices.getReportCustomNotes(zgnId)) {
             final int pos = cn.getPosition();
             if (pos != -1) {
                 notes2.computeIfAbsent(pos, p -> new ArrayList()).add(cn);

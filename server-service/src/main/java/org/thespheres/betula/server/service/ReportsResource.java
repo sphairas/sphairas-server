@@ -12,7 +12,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -24,6 +26,7 @@ import org.thespheres.betula.document.MarkerFactory;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.server.beans.ReportsBean.CustomNote;
 import org.thespheres.betula.server.beans.TermReportDataException;
+import org.thespheres.betula.server.beans.clients.ReportMarkers;
 
 /**
  * REST replacement for the ReportsBean EJB. Callers are authenticated as role
@@ -59,7 +62,9 @@ public class ReportsResource {
     }
 
     private static Response conflict() {
-        return Response.status(Response.Status.CONFLICT).build();
+        return Response.status(Response.Status.CONFLICT)
+                .header("X-Betula-Error", "term-report-data")
+                .build();
     }
 
     @GET
@@ -68,7 +73,8 @@ public class ReportsResource {
         if (student == null || term == null) {
             return bad("student and term required");
         }
-        return Response.ok(reports.findTermReports(student, term, false)).build();
+        return Response.ok(Arrays.stream(reports.findTermReports(student, term, false))
+                .map(DocumentId::toString).toList()).build();
     }
 
     @POST
@@ -77,7 +83,8 @@ public class ReportsResource {
         if (student == null || term == null) {
             return bad("student and term required");
         }
-        return Response.ok(reports.findTermReports(student, term, true)).build();
+        return Response.ok(Arrays.stream(reports.findTermReports(student, term, true))
+                .map(DocumentId::toString).toList()).build();
     }
 
     @GET
@@ -188,6 +195,25 @@ public class ReportsResource {
         return Response.ok(l).build();
     }
 
+    @GET
+    @Path("markers/batch")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getMarkersBatch(@QueryParam("document") List<DocumentId> documents) {
+        if (documents == null || documents.isEmpty()) {
+            return bad("at least one document required");
+        }
+        final List<ReportMarkers> result = documents.stream()
+                .distinct()
+                .map(document -> {
+                    final Marker[] markers = reports.getMarkers(document);
+                    final List<String> values = markers == null ? List.of()
+                            : Arrays.stream(markers).map(Marker::toString).toList();
+                    return new ReportMarkers(document.toString(), values);
+                })
+                .toList();
+        return Response.ok(result).build();
+    }
+
     @POST
     @Path("markers")
     @Consumes(MediaType.TEXT_PLAIN)
@@ -229,7 +255,27 @@ public class ReportsResource {
         if (zgn == null || key == null) {
             return bad("document and key required");
         }
+
         return ok(reports.getNote(zgn, key));
+    }
+
+    @GET
+    @Path("notes/batch")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getNotes(@QueryParam("document") DocumentId zgn, @QueryParam("key") List<String> keys) {
+        if (zgn == null || keys == null || keys.isEmpty()) {
+            return bad("document and at least one key required");
+        }
+        final Map<String, String> notes = new LinkedHashMap<>();
+        keys.stream().distinct().forEach(key -> {
+            if (key != null) {
+                final String value = reports.getNote(zgn, key);
+                if (value != null) {
+                    notes.put(key, value);
+                }
+            }
+        });
+        return Response.ok(notes).build();
     }
 
     @PUT

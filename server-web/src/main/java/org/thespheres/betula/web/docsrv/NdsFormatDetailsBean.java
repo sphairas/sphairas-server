@@ -21,7 +21,6 @@ import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.LocalBean;
 import jakarta.enterprise.context.Dependent;
@@ -60,7 +59,7 @@ import org.thespheres.betula.niedersachsen.zeugnis.listen.StudentDetailsXml;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTermTargetDocument.Entry;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.ReportsBean;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.scheme.spi.Term;
@@ -85,8 +84,8 @@ public class NdsFormatDetailsBean {
     private VersetzungsValidationBean versetzung;
     @Inject
     private ZensurenschnittValidationBean schnitt;
-    @EJB(beanName = "ReportsBeanImpl")
-    private ReportsBean zeugnisBean;
+    @Inject
+    private InternalServices internalServices;
     @Inject
     private DocumentMapper documentMapper;
     @Default
@@ -195,13 +194,13 @@ public class NdsFormatDetailsBean {
                     .ifPresent(lsv::setLabelFontSize);
             svcount = oneAssessLine("sozialverhalten", sv, targetData, student, current, sName, sgl, null, details, lsv, listDef, beforeTermLabel);
         }
-        final DocumentId[] reports = zeugnisBean.findTermReports(student, current.getScheduledItemId(), true);
+        final DocumentId[] reports = internalServices.findTermReports(student, current.getScheduledItemId(), true);
         if (reports.length == 1) {
             final DocumentId report = reports[0];
             //AV-SV
             final String[] validConv = new String[]{ASVAssessmentConvention.AV_NAME, ASVAssessmentConvention.SV_NAME, AVSVVorschlag.NAME};
-            final Grade avg = zeugnisBean.getKopfnote(report, ASVAssessmentConvention.AV_NAME);
-            final Grade svg = zeugnisBean.getKopfnote(report, ASVAssessmentConvention.SV_NAME);
+            final Grade avg = internalServices.getKopfnote(report, ASVAssessmentConvention.AV_NAME);
+            final Grade svg = internalServices.getKopfnote(report, ASVAssessmentConvention.SV_NAME);
             if (avg != null || svg != null || avcount != null || svcount != null) {
                 final String lbl = NbBundle.getMessage(NdsFormatter.class, "FopFormatter.formatDetails.avsv.label");
                 final String pt = NbBundle.getMessage(NdsReportBuilder.class, "niedersachsen.arbeitsverhalten.position");
@@ -216,7 +215,7 @@ public class NdsFormatDetailsBean {
                 if (avg != null) {
                     avlbl = avg.getLongLabel();
 //                    if (factory.requireAVSVReason(avg)) {
-                    final String avReason = zeugnisBean.getNote(report, ASVAssessmentConvention.AV_NAME);
+                    final String avReason = internalServices.getReportNote(report, ASVAssessmentConvention.AV_NAME);
                     if (avReason != null) {
                         avlbl = String.join(" ", avlbl, avReason);
                     }
@@ -226,7 +225,7 @@ public class NdsFormatDetailsBean {
                 if (svg != null) {
                     svlbl = svg.getLongLabel();
 //                    if (factory.requireAVSVReason(svg)) {
-                    final String svReason = zeugnisBean.getNote(report, ASVAssessmentConvention.SV_NAME);
+                    final String svReason = internalServices.getReportNote(report, ASVAssessmentConvention.SV_NAME);
                     if (svReason != null) {
                         svlbl = String.join(" ", svlbl, svReason);
                     }
@@ -350,8 +349,9 @@ public class NdsFormatDetailsBean {
             try {
                 final int level = Integer.parseInt(stufe);
                 final String[] extraTextIds = ReportProvisionsUtil.textFields(level, sgl);
+                final Map<String, String> extraNotes = internalServices.getReportNotes(report, Arrays.asList(extraTextIds));
                 for (final String tid : extraTextIds) {
-                    final String note = zeugnisBean.getNote(report, tid);
+                    final String note = extraNotes.get(tid);
                     if (note != null) {
                         extraTexts.put(tid, note);
                     }
@@ -420,12 +420,11 @@ public class NdsFormatDetailsBean {
             }
 
             //            AGs
-//            final String[] ags = zeugnisBean.getAGs(student, current.getScheduledItemId());
 //            final String agText = Arrays.stream(ags)
 //                    .collect(Collectors.joining(", "));
 //Validation
             final StringJoiner validations = new StringJoiner(" - ");
-            final Marker[] reportMarker = zeugnisBean.getMarkers(report);
+            final Marker[] reportMarker = internalServices.getReportMarkers(report);
             final ReportDoc rd = new ReportDoc(report, current.getScheduledItemId(), zeugnisnoten, reportMarker, null);
             if (sgl != null) {
                 rd.getMarkerSet().add(sgl);

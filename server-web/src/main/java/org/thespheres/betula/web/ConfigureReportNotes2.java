@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.inject.Default;
 import jakarta.faces.view.ViewScoped;
 //import jakarta.faces.bean.ManagedBean;
@@ -34,7 +33,7 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.niedersachsen.zeugnis.TermReportNoteSetTemplate;
-import org.thespheres.betula.server.beans.ReportsBean;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.NamingResolver;
@@ -52,8 +51,8 @@ import org.thespheres.betula.web.docsrv.ZeugnisArguments;
 public class ConfigureReportNotes2 implements VetoableChangeListener, Serializable {
      
     private static final long serialVersionUID = 1L;
-    @EJB(beanName = "ReportsBeanImpl")
-    private ReportsBean zeugnisBean;
+    @Inject
+    private InternalServices internalServices;
     @Inject
     private ZeugnisArguments zeugnisArguments;
 //    @ManagedProperty("#{app}")
@@ -109,7 +108,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
             final CurrentStudentsNotesSelection ns = new CurrentStudentsNotesSelection(as.getId(), zgn, unit);
 
             if (zgn != null) {
-                final Marker[] markers = zeugnisBean.getMarkers(zgn);
+                final Marker[] markers = internalServices.getReportMarkers(zgn);
                 for (final TermReportNoteSetTemplate.Element e : reportNoteTemplate.getElements()) {
                     final CurrentStudentsNotesSelection.ElementSelection es = ns.addElement(e);
 
@@ -279,7 +278,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
                     if (!old.contains(n)) {
                         final Marker m = element.forId(n);
                         if (m != null) {
-                            if (!zeugnisBean.addMarker(zgn, m)) {
+                            if (!internalServices.addReportMarker(zgn, m)) {
                                 throw new PropertyVetoException("not persisted", evt);
                             }
                         }
@@ -289,7 +288,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
                     if (!value.contains(a)) {
                         final Marker m = element.forId(a);
                         if (m != null) {
-                            if (!zeugnisBean.removeMarker(zgn, m)) {
+                            if (!internalServices.removeReportMarker(zgn, m)) {
                                 throw new PropertyVetoException("not persisted", evt);
                             }
                         }
@@ -302,7 +301,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
             String old = (String) evt.getOldValue();
             Marker m = element.forId(old);
             if (m != null && !"null".equals(m.getId())) {
-                if (!zeugnisBean.removeMarker(zgn, m)) {
+                if (!internalServices.removeReportMarker(zgn, m)) {
                     throw new PropertyVetoException("not persisted", evt);
                 }
             }
@@ -314,7 +313,7 @@ public class ConfigureReportNotes2 implements VetoableChangeListener, Serializab
                 // calling addMarker(null) would return false and cause a spurious
                 // PropertyVetoException that reverts `selected` in the UI while
                 // the DB already has the correct (no-marker) state.
-                if (!zeugnisBean.addMarker(zgn, m)) {
+                if (!internalServices.addReportMarker(zgn, m)) {
                     throw new PropertyVetoException("not persisted", evt);
                 }
             }

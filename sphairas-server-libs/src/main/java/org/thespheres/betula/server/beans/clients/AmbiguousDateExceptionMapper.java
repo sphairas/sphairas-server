@@ -16,6 +16,7 @@ public class AmbiguousDateExceptionMapper implements ExceptionMapper<AmbiguousDa
     @Override
     public Response toResponse(final AmbiguousDateException e) {
         return Response.status(Response.Status.CONFLICT)
+                .header("X-Betula-Error", "ambiguous-date")
                 .type("text/plain; charset=UTF-8")
                 .entity(ExceptionUtils.getMessage(e))
                 .build();

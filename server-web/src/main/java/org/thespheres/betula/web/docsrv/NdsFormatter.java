@@ -96,7 +96,7 @@ import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeCsv;
 import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument.Entry;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
-import org.thespheres.betula.server.beans.ReportsBean;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.services.ServiceConstants;
 import org.thespheres.betula.services.ws.CommonDocuments;
 import org.xml.sax.SAXException;
@@ -119,8 +119,8 @@ public class NdsFormatter {
     private NdsFormatReportsBean formatReportsBean2;
     @EJB(beanName = "StudentVCardsImpl")
     private StudentsLocalBean studentCardBean;
-    @EJB(beanName = "ReportsBeanImpl")
-    private ReportsBean zeugnisBean;
+    @Inject
+    private InternalServices internalServices;
     @EJB
     private StudentsListsLocalBean sllb;
     @Inject
@@ -226,11 +226,12 @@ public class NdsFormatter {
                 if (student != null && !student.equals(s)) {
                     continue;
                 }
-                for (final DocumentId r : zeugnisBean.findTermReports(s, term, true)) {
+                for (final DocumentId r : internalServices.findTermReports(s, term, true)) {
                     reportDoc.add(r);
                 }
             }
         }
+        final Map<DocumentId, Marker[]> reportMarkers = internalServices.getReportMarkers(reportDoc);
 
         final ZeugnisMappe collection = new ZeugnisMappe();
 
@@ -263,7 +264,7 @@ public class NdsFormatter {
         for (final DocumentId d : reportDoc) {
             final NdsZeugnisFormular data;
             try {
-                data = formatReportsBean2.createReport(tgtae, d, pu, docMap, reports, map, rMap, termEnd, builderFactory, toXml);
+                data = formatReportsBean2.createReport(tgtae, d, pu, docMap, reports, map, rMap, reportMarkers.get(d), termEnd, builderFactory, toXml);
 //               formatReportsBean2.createZgn(tgtae, d, pu, docMap, reports, map, rMap, termEnd);
                 if (data == null) {
                     continue;

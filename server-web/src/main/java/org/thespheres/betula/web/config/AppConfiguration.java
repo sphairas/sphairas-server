@@ -88,6 +88,7 @@ public class AppConfiguration implements Serializable {
                 .register(JsonbContextResolver.class)
                 .register(BadRequestResponseMapper.class)
                 .register(AmbiguousDateResponseMapper.class)
+                .register(TermReportDataResponseMapper.class)
                 .build(ServiceInternalClient.class);
         try {
             notesTemplateJAXB = javax.xml.bind.JAXBContext.newInstance(TermReportNoteSetTemplate.class);

@@ -47,6 +47,7 @@ import org.thespheres.betula.web.config.Extra;
 import org.thespheres.betula.web.docsrv.DocumentMapper;
 import org.thespheres.ical.VCard;
 import org.thespheres.betula.web.config.AppConfiguration;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.web.rest.DocumentsService;
 
 /**
@@ -90,6 +91,8 @@ public class BetulaWebApplication implements Serializable {
     @Inject
     private AppConfiguration config;
     @Inject
+    private InternalServices internalServices;
+    @Inject
     private CommonDocuments commonDocuments;
     @Inject
     private LocalProperties properties;
@@ -102,6 +105,10 @@ public class BetulaWebApplication implements Serializable {
 
     public AppConfiguration getAppConfiguration() {
         return config;
+    }
+
+    public InternalServices getInternalServices() {
+        return internalServices;
     }
 
     public DocumentsService getService() {

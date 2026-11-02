@@ -9,7 +9,8 @@ public class AmbiguousDateResponseMapper implements ResponseExceptionMapper<Ambi
 
     @Override
     public boolean handles(final int status, final MultivaluedMap<String, Object> headers) {
-        return status == Response.Status.CONFLICT.getStatusCode();
+        return status == Response.Status.CONFLICT.getStatusCode()
+                && "ambiguous-date".equals(headers.getFirst("X-Betula-Error"));
     }
 
     @Override
