@@ -17,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
@@ -42,10 +41,7 @@ import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListe;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeCsv;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListenCollectionXml;
-import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
-import org.thespheres.betula.server.beans.StudentsListsLocalBean;
-import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.NamingResolver;
@@ -53,6 +49,7 @@ import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.ws.CommonDocuments;
 import org.thespheres.betula.web.PrimaryUnit;
 import org.thespheres.betula.web.config.ExtraAnnotation;
+import org.thespheres.betula.web.config.InternalServices;
 
 /**
  *
@@ -61,8 +58,8 @@ import org.thespheres.betula.web.config.ExtraAnnotation;
 @Dependent
 public class FormatListBean {
 
-    @EJB(beanName = "StudentVCardsImpl")
-    private StudentsLocalBean studentCardBean;
+    @Inject
+    private InternalServices internalServices;
     @Inject
     private DocumentMapper documentMapper;
     @Inject
@@ -70,8 +67,6 @@ public class FormatListBean {
     @Inject
     private LocalProperties properties;
     private String sglConvention;
-    @EJB
-    private StudentsListsLocalBean sllb;
     @Inject
     private NdsReportBuilderFactory builderFactory;
     @Any
@@ -87,7 +82,7 @@ public class FormatListBean {
                 .orElse(null);
     }
 
-    public void oneListe(final boolean vorzensuren, final FastTargetDocuments2 tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, Map<DocumentId, FastTermTargetDocument> fttd, Term before, ZensurenListenCollectionXml collection) {
+    public void oneListe(final boolean vorzensuren, final InternalServices tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, Map<DocumentId, FastTermTargetDocument> fttd, Term before, ZensurenListenCollectionXml collection) {
         final ZensurenListeXml list = new ZensurenListeXml();
         list.getTierLabels().put(1, "WPK");
 //        list.getTierLabels().put(2, "Profil");
@@ -99,7 +94,7 @@ public class FormatListBean {
         collection.LISTS.add(list);
     }
 
-    public void oneListeCsv(final boolean vorzensuren, final FastTargetDocuments2 tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, Map<DocumentId, FastTermTargetDocument> fttd, Term before, List<ZensurenListeCsv> collection) {
+    public void oneListeCsv(final boolean vorzensuren, final InternalServices tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, Map<DocumentId, FastTermTargetDocument> fttd, Term before, List<ZensurenListeCsv> collection) {
         final ZensurenListeCsv list = new ZensurenListeCsv(ltype);
         if (!oneListeImpl(vorzensuren, tgtae, pu, term, ltype, docMap, resolver, list, fttd, before)) {
             return;
@@ -107,7 +102,7 @@ public class FormatListBean {
         collection.add(list);
     }
 
-    boolean oneListeImpl(final boolean vorzensuren, final FastTargetDocuments2 tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, final ZensurenListe list, Map<DocumentId, FastTermTargetDocument> fttd, Term before) throws MissingResourceException {
+    boolean oneListeImpl(final boolean vorzensuren, final InternalServices tgtae, final UnitId pu, final Term term, String ltype, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, NamingResolver resolver, final ZensurenListe list, Map<DocumentId, FastTermTargetDocument> fttd, Term before) throws MissingResourceException {
         Map<MultiSubject, Set<DocumentId>> byQuery = null;
         if (vorzensuren) {
             final Collection<DocumentId> coll = tgtae.getTargetAssessmentDocumentsForTerm(pu, term.getScheduledItemId());
@@ -135,7 +130,7 @@ public class FormatListBean {
         ZensurenListe.Footnote vorschlagfn = null;
         for (final StudentId student : tgtae.getStudents(pu, null)) {
             Grade avsvVorschlag = null;
-            final String sName = studentCardBean.get(student).getFN();
+            final String sName = internalServices.getStudentVCard(student).getFN();
             final Marker sgl = getStudentSGL(student, fOPFormatter.termEnd(term.getScheduledItemId()));
             final ZensurenListe.DataLine l = list.addLine(sName);
             if (sgl != null) {
@@ -275,7 +270,7 @@ public class FormatListBean {
         return true;
     }
 
-    private Marker getDocumentSGL(FastTargetDocuments2 tgtae, DocumentId d) {
+    private Marker getDocumentSGL(InternalServices tgtae, DocumentId d) {
         for (final Marker m : tgtae.getDocumentMarkers(d)) {
             if (m.getConvention().equals(sglConvention)) {
                 return m;
@@ -286,6 +281,6 @@ public class FormatListBean {
 
     private Marker getStudentSGL(final StudentId student, final Date asOf) {
         final DocumentId d = builderFactory.forName(CommonDocuments.STUDENT_CAREERS_DOCID);
-        return d != null ? sllb.getMarkerEntry(student, d, asOf) : null;
+        return d != null ? internalServices.getMarkerEntry(student, d, asOf) : null;
     }
 }

@@ -26,9 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
-import jakarta.ejb.LocalBean;
-import jakarta.ejb.Stateless;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
@@ -61,11 +58,8 @@ import org.thespheres.betula.niedersachsen.gs.CrossmarkSettings;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilder.GradeEntry;
 import org.thespheres.betula.niedersachsen.zeugnis.ReportProvisionsUtil;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
-import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.StudentsListsLocalBean;
-import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.Utilities;
 import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.web.config.InternalServices;
@@ -89,8 +83,6 @@ public class NdsFormatReportsBean {
 
     @Inject
     private InternalServices internalServices;
-    @EJB
-    private StudentsListsLocalBean sllb;
     @Inject
     private DocumentMapper documentMapper;
     @Inject
@@ -112,8 +104,6 @@ public class NdsFormatReportsBean {
     private BemerkungenBean bemBean;
     @Inject
     private CrossmarkSettings crossmarks;
-    @EJB(beanName = "StudentVCardsImpl")
-    private StudentsLocalBean studentCardBean;
     private Comparator<Marker> reportsMarkerComparator;
     private final static boolean ADD_IDENTITIES = true;
     private final static boolean ADD_SIGNEES = false;
@@ -127,10 +117,10 @@ public class NdsFormatReportsBean {
         reportsMarkerComparator = Comparator.comparingInt(m -> sort == null ? Integer.MAX_VALUE : Arrays.<Marker>binarySearch(sort, m, Comparator.comparing(Marker::getId)));
     }
 
-    public NdsZeugnisFormular createReport(final FastTargetDocuments2 tgtae, final DocumentId zgnId, final UnitId pu, final Map<MultiSubject, Set<DocumentId>> docMap, final Map<MultiSubject, Set<DocumentId>> reports, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTextTermTargetDocument> texts, final Marker[] reportMarkers, final Date asOf, final NdsReportBuilderFactory fac, final boolean encodeLogos) throws NoEntityFoundException {
+    public NdsZeugnisFormular createReport(final DocumentId zgnId, final UnitId pu, final Map<MultiSubject, Set<DocumentId>> docMap, final Map<MultiSubject, Set<DocumentId>> reports, final Map<DocumentId, FastTermTargetDocument> targets, final Map<DocumentId, FastTextTermTargetDocument> texts, final Marker[] reportMarkers, final Date asOf, final NdsReportBuilderFactory fac, final boolean encodeLogos) throws NoEntityFoundException {
         final StudentId student = internalServices.getReportStudent(zgnId);
         final String careers = properties.getProperty("student.career.conventions");
-        final VCard card = studentCardBean.get(student);
+        final VCard card = internalServices.getStudentVCard(student);
         final Marker[] markers = reportMarkers;
 
         final String vorname = Utilities.findGivenName(card); //nProp.split(";")[1].replace(",", " ");
@@ -144,7 +134,7 @@ public class NdsFormatReportsBean {
         }
         if (sgl == null) {
             sgl = Optional.ofNullable(fac.forName(CommonDocuments.STUDENT_CAREERS_DOCID))
-                    .map(d -> sllb.getMarkerEntry(student, d, asOf))
+                    .map(d -> internalServices.getMarkerEntry(student, d, asOf))
                     .orElse(null);
         }
         final NdsReportBuilder builder;
@@ -288,7 +278,7 @@ public class NdsFormatReportsBean {
                 if (g == null) {
                     continue;
                 }
-                Marker kurssgl = tgtae.getDocumentMarkers(d).stream()
+                Marker kurssgl = internalServices.getDocumentMarkers(d).stream()
                         .filter(m -> m.getConvention().equals(fac.careerMarkerConvention()))
                         .collect(CollectionUtil.singleOrNull());
 

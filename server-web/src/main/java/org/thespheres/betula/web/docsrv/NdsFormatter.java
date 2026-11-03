@@ -37,7 +37,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
@@ -75,8 +74,6 @@ import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListenCollectionXml;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.StudentsListsLocalBean;
-import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.scheme.spi.TermNotFoundException;
@@ -93,7 +90,6 @@ import org.thespheres.betula.niedersachsen.zeugnis.NdsReportBuilderFactory;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.DetailsListXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.StudentDetailsXml;
 import org.thespheres.betula.niedersachsen.zeugnis.listen.ZensurenListeCsv;
-import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument.Entry;
 import org.thespheres.betula.server.beans.NoEntityFoundException;
 import org.thespheres.betula.web.config.InternalServices;
@@ -117,12 +113,8 @@ public class NdsFormatter {
     private NdsFormatDetailsBean formatDetailsBean;
     @Inject
     private NdsFormatReportsBean formatReportsBean2;
-    @EJB(beanName = "StudentVCardsImpl")
-    private StudentsLocalBean studentCardBean;
     @Inject
     private InternalServices internalServices;
-    @EJB
-    private StudentsListsLocalBean sllb;
     @Inject
     private CommonTargetProperties targetProps;
     @Default
@@ -212,7 +204,7 @@ public class NdsFormatter {
         return sglConvention;
     }
 
-    public byte[] formatReports(final FastTargetDocuments2 tgtae, final UnitId pu, final Map<MultiSubject, Set<DocumentId>> docMap, final Map<MultiSubject, Set<DocumentId>> reports, final DocumentId zgnId, final TermId term, final StudentId student, final Date studentsAsOf, final String mime) throws IOException {
+    public byte[] formatReports(final InternalServices tgtae, final UnitId pu, final Map<MultiSubject, Set<DocumentId>> docMap, final Map<MultiSubject, Set<DocumentId>> reports, final DocumentId zgnId, final TermId term, final StudentId student, final Date studentsAsOf, final String mime) throws IOException {
 
         final ArrayList<DocumentId> reportDoc = new ArrayList<>();
 
@@ -264,7 +256,7 @@ public class NdsFormatter {
         for (final DocumentId d : reportDoc) {
             final NdsZeugnisFormular data;
             try {
-                data = formatReportsBean2.createReport(tgtae, d, pu, docMap, reports, map, rMap, reportMarkers.get(d), termEnd, builderFactory, toXml);
+                data = formatReportsBean2.createReport(d, pu, docMap, reports, map, rMap, reportMarkers.get(d), termEnd, builderFactory, toXml);
 //               formatReportsBean2.createZgn(tgtae, d, pu, docMap, reports, map, rMap, termEnd);
                 if (data == null) {
                     continue;
@@ -346,7 +338,7 @@ public class NdsFormatter {
         return out.toByteArray();
     }
 
-    public byte[] formatListe(FastTargetDocuments2 tgtae, UnitId pu, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, String[] listTypes, NamingResolver resolver, Term current, Term before) throws IOException {
+    public byte[] formatListe(InternalServices tgtae, UnitId pu, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, String[] listTypes, NamingResolver resolver, Term current, Term before) throws IOException {
         final Map<DocumentId, FastTermTargetDocument> fttd = new HashMap<>();
         docMap.values().stream()
                 .map(Map::values)
@@ -406,7 +398,7 @@ public class NdsFormatter {
         }
     }
 
-    public byte[] csv(final FastTargetDocuments2 tgtae, final UnitId pu, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, final String[] listTypes, final NamingResolver resolver, final Term current, final Term before, final String enc) throws IOException {
+    public byte[] csv(final InternalServices tgtae, final UnitId pu, Map<String, Map<MultiSubject, Set<DocumentId>>> docMap, final String[] listTypes, final NamingResolver resolver, final Term current, final Term before, final String enc) throws IOException {
         final Map<DocumentId, FastTermTargetDocument> fttd = new HashMap<>();
         docMap.values().stream()
                 .map(Map::values)
@@ -463,7 +455,7 @@ public class NdsFormatter {
 
             final Marker sgl = getStudentSGL(student, termEnd(current.getScheduledItemId()));
             final MappedStudent card = new MappedStudent(student, sgl);
-            card.setVCard(studentCardBean.get(student));
+            card.setVCard(internalServices.getStudentVCard(student));
             final String lname = NbBundle.getMessage(PrimaryUnit.class, "primaryUnits.download.details.title", card.getDisplayName(), kla, jahr, hj);
             final StudentDetailsXml details = new StudentDetailsXml();
             details.setListDate(ldate);
@@ -541,7 +533,7 @@ public class NdsFormatter {
         }
     }
 
-    public byte[] formatCSVListe(FastTargetDocuments2 tgtae, DocumentId[] target, NamingResolver resolver, Term current, Term[] before, String mime, final String encoding) throws IOException {
+    public byte[] formatCSVListe(InternalServices tgtae, DocumentId[] target, NamingResolver resolver, Term current, Term[] before, String mime, final String encoding) throws IOException {
 
         final FastTermTargetDocument[] fttds = Arrays.stream(target)
                 //Replace with .map(documents::getFastTermTargetDocument)
@@ -589,9 +581,9 @@ public class NdsFormatter {
         final ArrayList<LineData> list = new ArrayList<>();
         for (FastTermTargetDocument fttd : fttds) {
             for (StudentId student : fttd.getStudents(current.getScheduledItemId())) {
-                final String sName = studentCardBean.get(student).getFN();
+                final String sName = internalServices.getStudentVCard(student).getFN();
                 final Marker sgl = getStudentSGL(student, null);
-                final UnitId studentPu = sllb.findPrimaryUnit(student, null);
+                final UnitId studentPu = internalServices.findPrimaryUnit(student, null);
                 final LineData sData = new LineData(sName);
                 list.add(sData);
                 if (studentPu != null) {
@@ -639,7 +631,7 @@ public class NdsFormatter {
         return sb.toString().getBytes(encoding);
     }
 
-    private String oneCsvGrade(Term vornoten, FastTermTargetDocument fttd, StudentId student, final Marker fach, FastTargetDocuments2 tgtae, final Marker sgl) {
+    private String oneCsvGrade(Term vornoten, FastTermTargetDocument fttd, StudentId student, final Marker fach, InternalServices tgtae, final Marker sgl) {
         final TermId tid = vornoten.getScheduledItemId();
         final FastTermTargetDocument.Entry entry = fttd.selectEntry(student, tid);
         Grade g = entry != null ? entry.grade : null;
@@ -658,7 +650,7 @@ public class NdsFormatter {
         return v;
     }
 
-    public byte[] formatKursListe(final FastTargetDocuments2 tgtae, final DocumentId[] targets, final DocumentId[] textDocs, final Term[] before, final String mime, final DocumentId docBase) throws IOException {
+    public byte[] formatKursListe(final InternalServices tgtae, final DocumentId[] targets, final DocumentId[] textDocs, final Term[] before, final String mime, final DocumentId docBase) throws IOException {
 
         final FastTermTargetDocument[] fttds = Arrays.stream(targets)
                 //Replace with .map(documents::getFastTermTargetDocument)
@@ -769,7 +761,7 @@ public class NdsFormatter {
                 final String value;
 
                 ToAdd(final StudentId sid) {
-                    name = studentCardBean.get(sid).getFN();
+                    name = internalServices.getStudentVCard(sid).getFN();
                     value = text.select(sid, currentTerm.getScheduledItemId()).stream()
                             .map(Entry::getText)
                             .collect(Collectors.joining(" \u2014 "));
@@ -837,9 +829,9 @@ public class NdsFormatter {
     }
 
     private ZensurenListeXml.DataLineXml createStudentLine(final StudentId student, final ZensurenListeXml list) {
-        final String sName = studentCardBean.get(student).getFN();
+        final String sName = internalServices.getStudentVCard(student).getFN();
         final Marker sgl = getStudentSGL(student, termEnd(currentTerm.getScheduledItemId()));
-        final UnitId studentPu = sllb.findPrimaryUnit(student, null);
+        final UnitId studentPu = internalServices.findPrimaryUnit(student, null);
 //            ZensurenListeXml.DataLineXml l = list.addLine(sName);
         final StringJoiner sj = new StringJoiner(", ", "(", ")");
         if (studentPu != null) {
@@ -880,7 +872,7 @@ public class NdsFormatter {
         return foUserAgent;
     }
 
-    private Marker getDocumentSGL(FastTargetDocuments2 tgtae, DocumentId d) {
+    private Marker getDocumentSGL(InternalServices tgtae, DocumentId d) {
         for (final Marker m : tgtae.getDocumentMarkers(d)) {
             if (m.getConvention().equals(sglConvention)) {
                 return m;
@@ -891,7 +883,7 @@ public class NdsFormatter {
 
     private Marker getStudentSGL(final StudentId student, final Date asOf) {
         final DocumentId d = builderFactory.forName(CommonDocuments.STUDENT_CAREERS_DOCID);
-        return d != null ? sllb.getMarkerEntry(student, d, asOf) : null;
+        return d != null ? internalServices.getMarkerEntry(student, d, asOf) : null;
     }
 
     public Date termEnd(final TermId term) {

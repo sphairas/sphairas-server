@@ -6,7 +6,6 @@
 package org.thespheres.betula.web.docsrv;
 
 import java.util.Date;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
@@ -20,7 +19,6 @@ import org.thespheres.betula.niedersachsen.NdsTerms;
 import org.thespheres.betula.niedersachsen.zeugnis.Constants;
 import org.thespheres.betula.niedersachsen.zeugnis.NdsReportConstants;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
-import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.ical.util.VCardHolder;
@@ -30,13 +28,10 @@ import org.thespheres.ical.util.VCardHolder;
  * @author boris.heithecker
  */
 //@LocalBean
-//@EJB(name = "java:global/Betula_Web/ZeugnisArguments!org.thespheres.betula.web.docsrv.ZeugnisArguments", beanInterface = ZeugnisArguments.class)
 //@Stateless
 @ApplicationScoped
 public class ZeugnisArguments {
 
-    @EJB(beanName = "StudentVCardsImpl")
-    private StudentsLocalBean studentCards;
     @Inject
     private InternalServices internalServices;
     @Default
@@ -64,7 +59,7 @@ public class ZeugnisArguments {
             }
 
             if (stud != null) {
-                final VCardHolder vch = new VCardHolder(studentCards.get(stud));
+                final VCardHolder vch = new VCardHolder(internalServices.getStudentVCard(stud));
                 final String given = vch.getGivenNames();
                 final String g = vch.getGender();
                 final Long gender = "F".equals(g) ? 1l : 0l;

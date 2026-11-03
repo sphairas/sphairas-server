@@ -17,15 +17,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jakarta.ejb.EJB;
-import jakarta.ejb.EJBAccessException;
-import jakarta.ejb.EJBException;
 import jakarta.ejb.NoSuchEntityException;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,16 +38,14 @@ import org.thespheres.betula.services.NamingResolver;
 import org.thespheres.betula.services.IllegalAuthorityException;
 import org.thespheres.betula.services.web.WebUIConfiguration;
 import org.thespheres.betula.niedersachsen.NdsTerms;
-import org.thespheres.betula.server.beans.FastTargetDocuments2;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.StudentsListsLocalBean;
 import org.thespheres.betula.server.beans.Utilities;
 import org.thespheres.betula.server.beans.annot.Current;
-import org.thespheres.betula.server.beans.annot.DocumentsRequest;
 import org.thespheres.betula.server.beans.annot.Preceding;
 import org.thespheres.betula.services.scheme.spi.Term;
 import org.thespheres.betula.services.scheme.spi.TermNotFoundException;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.web.config.WebAppProperties;
 //import org.thespheres.betula.web.rest.DocumentsService;
 
@@ -80,17 +75,10 @@ public class ZeugnisServlet extends HttpServlet {
     WebUIConfiguration webConfig;
     @Inject
     private DocumentsModel docModel;
-    @EJB
-    private StudentsListsLocalBean sllb;
-    @DocumentsRequest
     @Inject
-    private Instance<FastTargetDocuments2> ftd2RequestInstance;
+    private InternalServices internalServices;
 //    @Inject
 //    private DocumentsService documents;
-    
-    private FastTargetDocuments2 getFastTargetDocuments2() {
-        return ftd2RequestInstance.get();
-    }
 
     @Override
     public String getServletInfo() {
@@ -130,28 +118,33 @@ public class ZeugnisServlet extends HttpServlet {
         final String parameter = request.getParameter("document");
         //Creates a new one.........
 //        FastTargetDocuments mtad = targets;
-        final FastTargetDocuments2 ftd2 = getFastTargetDocuments2();
+        final InternalServices ftd2 = internalServices;
         try {
             if (pu != null && parameter != null && parameter.equals("betula.primaryUnit.allLists")) {
-//                final FastTargetDocuments2 mtad = lookupFastTargetDocumentsImplLocal();
                 liste(request, pu, response, ftd2, mime, encoding);
             } else if (pu != null && parameter != null && parameter.equals("betula.primaryUnit.details")) {
                 details(request, pu, response);
             } else if (parameter != null && parameter.equals("betula.target")) {
-//                final FastTargetDocuments2 mtad = lookupFastTargetDocumentsImplLocal();
                 target(request, response, mimePar, ftd2, encoding);
             } else if (pu != null || student != null) {
-//                final FastTargetDocuments2 mtad = lookupFastTargetDocumentsImplLocal();
                 zeugnis(request, pu, student, mime, response, ftd2);
             }
-        } catch (EJBAccessException aex) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (WebApplicationException ex) {
+            final int status = ex.getResponse().getStatus();
+            Logger.getLogger(ZeugnisServlet.class.getName()).log(Level.WARNING, "Service request failed with HTTP " + status, ex);
+            if (status == HttpServletResponse.SC_FORBIDDEN) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            } else if (status == HttpServletResponse.SC_NOT_FOUND) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            } else {
+                throw new ServletException("Service request failed with HTTP " + status, ex);
+            }
         } catch (NoSuchEntityException noex) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 
-    private void target(HttpServletRequest request, HttpServletResponse response, String mime, FastTargetDocuments2 mtad, String enc) throws IOException, ServletException {
+    private void target(HttpServletRequest request, HttpServletResponse response, String mime, InternalServices mtad, String enc) throws IOException, ServletException {
 //        NamingResolver namingResolver = SystemProperties.findNamingResolver();
         final TermId termId = Utilities.extractTermId(request);
         final DocumentId target = Utilities.extractDocumentId(request);
@@ -205,7 +198,7 @@ public class ZeugnisServlet extends HttpServlet {
         }
     }
 
-    private void liste(HttpServletRequest request, UnitId pu, HttpServletResponse response, FastTargetDocuments2 mtad, String mime, String encoding) throws IOException {
+    private void liste(HttpServletRequest request, UnitId pu, HttpServletResponse response, InternalServices mtad, String mime, String encoding) throws IOException {
         TermId termId = Utilities.extractTermId(request);
         Term term = null;
         if (termId != null) {
@@ -249,7 +242,6 @@ public class ZeugnisServlet extends HttpServlet {
             term = currentTerm;
         }
         //
-//        final FastTargetDocuments2 tgtae = lookupFastTargetDocumentsImplLocal();
         final String ptcprop = request.getParameter(WebAppProperties.FORMAT_DETAILS_LISTS_PRETERMS_COUNT_PROPERTY);
         int preTermsCount = Integer.getInteger(WebAppProperties.FORMAT_DETAILS_LISTS_PRETERMS_COUNT_PROPERTY, 3);
         if (ptcprop != null) {
@@ -274,7 +266,7 @@ public class ZeugnisServlet extends HttpServlet {
                 throw new IOException(ex);
             }
         }
-        final FastTargetDocuments2 ftd2 = getFastTargetDocuments2();
+        final InternalServices ftd2 = internalServices;
         //Grades
         final Map<DocumentId, FastTermTargetDocument> targets = new HashMap<>();
         final Map<DocumentId, FastTermTargetDocument> agTargets = new HashMap<>();
@@ -283,7 +275,7 @@ public class ZeugnisServlet extends HttpServlet {
             final Collection<DocumentId> coll;
             try {
                 coll = ftd2.getTargetAssessmentDocumentsForTerm(pu, t.getScheduledItemId(), targets);
-            } catch (EJBException | PersistenceException e) {
+            } catch (WebApplicationException | PersistenceException e) {
                 throw new IOException(e);
             }
             final Map<String, Map<MultiSubject, Set<DocumentId>>> m = documentMapper.getDocMap(coll, false);
@@ -302,7 +294,7 @@ public class ZeugnisServlet extends HttpServlet {
             final Collection<DocumentId> coll;
             try {
                 coll = ftd2.getTextTargetAssessmentDocumentsForTerm(pu, t.getScheduledItemId(), textData);
-            } catch (final EJBException | PersistenceException e) {
+            } catch (final WebApplicationException | PersistenceException e) {
                 throw new IOException(e);
             }
             final Map<String, Map<MultiSubject, Set<DocumentId>>> m = documentMapper.getDocMap(coll, false);
@@ -318,7 +310,7 @@ public class ZeugnisServlet extends HttpServlet {
         response.getOutputStream().write(out);
     }
 
-    private void zeugnis(HttpServletRequest request, UnitId pu, StudentId student, String mime, HttpServletResponse response, FastTargetDocuments2 mtad) throws IOException {
+    private void zeugnis(HttpServletRequest request, UnitId pu, StudentId student, String mime, HttpServletResponse response, InternalServices mtad) throws IOException {
         final DocumentId zgnId = Utilities.extractDocumentId(request);
         TermId term = Utilities.extractTermId(request);
         if (term == null) {
@@ -334,7 +326,7 @@ public class ZeugnisServlet extends HttpServlet {
         }
         if (pu == null && student != null) {
             final Date useDate = asOf != null ? asOf : fOPFormatter.termEnd(term);
-            pu = sllb.findPrimaryUnit(student, useDate);
+            pu = internalServices.findPrimaryUnit(student, useDate);
         }
         if (pu == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

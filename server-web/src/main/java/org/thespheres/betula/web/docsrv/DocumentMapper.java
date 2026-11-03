@@ -12,9 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
@@ -29,7 +27,7 @@ import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.document.model.MultiSubject;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
-import org.thespheres.betula.server.beans.TargetDocumentsLocalBean;
+import org.thespheres.betula.web.config.InternalServices;
 import org.thespheres.betula.server.beans.annot.Arbeitsgemeinschaft;
 import org.thespheres.betula.services.LocalProperties;
 
@@ -42,8 +40,8 @@ import org.thespheres.betula.services.LocalProperties;
 @Dependent
 public class DocumentMapper implements Serializable {
 
-    @EJB(beanName = "TargetDocumentsLocalBeanImpl")
-    private TargetDocumentsLocalBean mtad;
+    @Inject
+    private InternalServices internalServices;
     @Default
     @Inject
     private DocumentsModel docModel;
@@ -57,19 +55,19 @@ public class DocumentMapper implements Serializable {
 
     //TODO: statt collection<marker> uniquemarker set from markerdecoration
     public Map<String, Map<MultiSubject, Set<DocumentId>>> getDocMap(Collection<DocumentId> docs, boolean ignoreRealm) {
-        final Map<DocumentId, Collection<Marker>> markerMap = docs.stream()
-                .collect(Collectors.toMap(Function.identity(), mtad::getDocumentMarkers));
+        final Map<DocumentId, Collection<Marker>> markerMap = internalServices.getDocumentMarkers(docs);
         return createTargetDocumentsMap(markerMap, ignoreRealm);
     }
 
     public Set<DocumentId> filterAGs(Collection<DocumentId> docs) {
-        return docs.stream()
-                .filter(d -> mtad.getDocumentMarkers(d).contains(ag))
+        return internalServices.getDocumentMarkers(docs).entrySet().stream()
+                .filter(entry -> entry.getValue().contains(ag))
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
     }
 
     public MultiSubject getSubject(final DocumentId d) {
-        final Collection<Marker> markerMap = mtad.getDocumentMarkers(d);
+        final Collection<Marker> markerMap = internalServices.getDocumentMarkers(d);
         return markerMap != null ? getSubjectImpl(markerMap, d, false) : null;
     }
 
@@ -93,7 +91,7 @@ public class DocumentMapper implements Serializable {
             ms.getSubjectMarkerSet().addAll(fach);
             return ms;
         } else if (realm != null) {
-            final String alt = mtad.getSubjectAlternativeName(dod);
+            final String alt = internalServices.getSubjectAlternativeName(dod);
             if (alt != null) {//TODO: Check properties if allowed
                 return new MultiSubjectExt(realm, alt);
             }
