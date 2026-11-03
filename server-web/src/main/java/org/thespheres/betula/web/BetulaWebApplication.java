@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Optional;
-import jakarta.ejb.EJB;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Instance;
@@ -36,8 +35,6 @@ import org.thespheres.betula.niedersachsen.vorschlag.VorschlagDecoration;
 import org.thespheres.betula.server.beans.FastTermTargetDocument;
 import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.services.NamingResolver;
-import org.thespheres.betula.server.beans.StudentsListsLocalBean;
-import org.thespheres.betula.server.beans.StudentsLocalBean;
 import org.thespheres.betula.server.beans.annot.Current;
 import org.thespheres.betula.server.beans.annot.Preceding;
 import org.thespheres.betula.services.LocalProperties;
@@ -60,16 +57,9 @@ import org.thespheres.betula.web.rest.DocumentsService;
 @ViewScoped//@SessionScoped //Vor Jakarta: javax.faces.bean.SessionScoped;
 public class BetulaWebApplication implements Serializable {
 
-//    @DocumentsSession
-//    @Inject
-//    private FastTargetDocuments2 bean;
     @Any
     @Inject
     private Instance<VorschlagDecoration> extraAssessment;
-    @EJB(beanName = "StudentVCardsImpl")
-    private StudentsLocalBean studentVCardsImpl;
-    @EJB(beanName = "StudentsListsLocalBeanImpl")
-    private StudentsListsLocalBean studentsLists;
     @Inject
     private DocumentMapper documentMapper;
     @Inject
@@ -166,7 +156,7 @@ public class BetulaWebApplication implements Serializable {
     }
 
     VCard getVCard(StudentId student) {
-        return studentVCardsImpl.get(student);
+        return internalServices.getStudentVCard(student);
     }
 
 //    Collection<DocumentId> getDocuments() { //Signee signee) {
@@ -198,7 +188,7 @@ public class BetulaWebApplication implements Serializable {
 //        return bean.getPrimaryUnitStudents(docIdName);
 //    }
     Marker getStudentMarkerEntry(StudentId sid, DocumentId studentSGLMarkerDocId) {
-        return studentsLists.getMarkerEntry(sid, studentSGLMarkerDocId, null);
+        return internalServices.getMarkerEntry(sid, studentSGLMarkerDocId, null);
     }
 
     DocumentMapper getDocumentMapper() {
