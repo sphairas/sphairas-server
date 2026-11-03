@@ -22,7 +22,7 @@ public class SigneeFacadeImpl extends AbstractSigneeFacade implements SigneeFaca
 
     @Override
     public SigneeEntity getCurrent() {
-        if (!context.isCallerInRole("signee")) {
+        if (!actingSubject.isCallerInRole(context, "signee")) {
             return null;
         }
         return super.getCurrent();

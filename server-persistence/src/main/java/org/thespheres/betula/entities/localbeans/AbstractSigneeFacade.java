@@ -9,6 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.server.beans.config.ConfiguredModelException;
+import org.thespheres.betula.server.beans.clients.ActingSubject;
 import org.thespheres.betula.entities.config.MissingEntityException;
 import org.thespheres.betula.services.AppPropertyNames;
 import org.thespheres.betula.services.LocalProperties;
@@ -25,6 +26,8 @@ public class AbstractSigneeFacade {
     protected SessionContext context;
     @Inject
     private LocalProperties lp;
+    @Inject
+    protected ActingSubject actingSubject;
 
     public Signee getSigneePrincipal(final boolean requireSigneeEntity) {
         final Signee signee = currentSignee();
@@ -43,8 +46,11 @@ public class AbstractSigneeFacade {
     }
 
     private Signee currentSignee() throws ConfiguredModelException, IllegalStateException, EJBAccessException {
-        if (!context.isCallerInRole("signee")) {
+        if (!actingSubject.isCallerInRole(context, "signee")) {
             throw new EJBAccessException();
+        }
+        if (actingSubject.isAsserted()) {
+            return actingSubject.getSignee();
         }
         final String prefix = context.getCallerPrincipal().getName();
         String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);

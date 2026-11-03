@@ -36,6 +36,7 @@ import org.thespheres.betula.entities.facade.UnitDocumentFacade;
 import org.thespheres.betula.server.beans.SigneeLocal;
 import org.thespheres.betula.services.LocalProperties;
 import org.thespheres.betula.services.ws.CommonDocuments;
+import org.thespheres.betula.server.beans.clients.ActingSubject;
 
 /**
  *
@@ -58,6 +59,8 @@ public class DecoratedUnitDocumentFacade extends UnitDocumentFacadeImpl implemen
     private CommonDocuments cd;
     @Inject
     private LocalProperties localProperties;
+    @Inject
+    private ActingSubject actingSubject;
 
     private SessionContext getDecoratedSessionContext() {
         InitialContext ic;
@@ -71,7 +74,7 @@ public class DecoratedUnitDocumentFacade extends UnitDocumentFacadeImpl implemen
 
     @Override
     public List<UnitDocumentEntity> findAll(LockModeType lmt) {
-        if (getDecoratedSessionContext().isCallerInRole("unitadmin") || getDecoratedSessionContext().isCallerInRole("remoteadmin")) {
+        if (actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")) {
             return super.findAll(lmt);
         }
 
@@ -104,7 +107,7 @@ public class DecoratedUnitDocumentFacade extends UnitDocumentFacadeImpl implemen
             throw new EJBAccessException("Signee cannot be null.");
         }
         Signee loggedIn;
-        if ((((loggedIn = login.getSigneePrincipal(false)) != null) && loggedIn.equals(signee)) || getDecoratedSessionContext().isCallerInRole("unitadmin")) {
+        if ((((loggedIn = login.getSigneePrincipal(false)) != null) && loggedIn.equals(signee)) || actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")) {
             return super.getPrimaryUnit(kldoc, signee);
         }
         return null;
@@ -113,7 +116,7 @@ public class DecoratedUnitDocumentFacade extends UnitDocumentFacadeImpl implemen
     @Override
     public UnitDocumentEntity find(DocumentId id, LockModeType lmt) {
         final UnitDocumentEntity ret = super.find(id, lmt);
-        if (ret != null && !getDecoratedSessionContext().isCallerInRole("unitadmin")) {
+        if (ret != null && !actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")) {
             final Signee current = login.getSigneePrincipal(true);
             if (current != null) {
                 final ArrayList<String> l = new ArrayList<>();
@@ -147,7 +150,7 @@ public class DecoratedUnitDocumentFacade extends UnitDocumentFacadeImpl implemen
 
     @Override
     public void setCommonName(DocumentId d, UnitId uid, String cn) {
-        if (!getDecoratedSessionContext().isCallerInRole("unitadmin")) {
+        if (!actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")) {
             final Signee current = login.getSigneePrincipal(true);
             throw new SigneeEJBAccessException(d, current);
         }

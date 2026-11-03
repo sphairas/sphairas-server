@@ -26,13 +26,13 @@ public class StudentVCardsImpl implements StudentsLocalBean {
     @EJB
     private StudentFacade facade;
 
-    @RolesAllowed({"signee", "unitadmin", "remoteadmin"})
+    @RolesAllowed({"signee", "unitadmin"})
     @Override
     public VCard get(StudentId student) {
         return facade.findVCard(student);
     }
 
-    @RolesAllowed({"signee", "unitadmin", "remoteadmin"})
+    @RolesAllowed({"signee", "unitadmin"})
     @Override
     public Collection<VCard> getAll() {
         return facade.findAllVCards();

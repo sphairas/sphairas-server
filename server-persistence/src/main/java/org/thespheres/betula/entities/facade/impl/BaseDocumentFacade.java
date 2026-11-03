@@ -19,6 +19,7 @@ import org.thespheres.betula.document.model.DocumentsModel;
 import org.thespheres.betula.entities.BaseDocumentEntity;
 import org.thespheres.betula.entities.jmsimpl.DocumentsNotificator;
 import org.thespheres.betula.server.beans.SigneeLocal;
+import org.thespheres.betula.server.beans.clients.ActingSubject;
 
 /**
  *
@@ -37,6 +38,8 @@ public abstract class BaseDocumentFacade<T extends BaseDocumentEntity> {
     protected DocumentsNotificator documentsNotificator;
     @Inject
     protected DocumentsModel documentsModel;
+    @Inject
+    protected ActingSubject actingSubject;
     protected final Class<T> entityClass;
 
     protected BaseDocumentFacade(Class<T> entityClass) {
@@ -60,7 +63,7 @@ public abstract class BaseDocumentFacade<T extends BaseDocumentEntity> {
     }
 
     protected List<T> findAllEntities(LockModeType lmt, Class type) {
-        if (!(session.isCallerInRole("unitadmin") || session.isCallerInRole("remoteadmin"))) {
+        if (!actingSubject.isCallerInRole(session, "unitadmin")) {
             throw new EJBAccessException();
         }
         if (!entityClass.isAssignableFrom(type)) {

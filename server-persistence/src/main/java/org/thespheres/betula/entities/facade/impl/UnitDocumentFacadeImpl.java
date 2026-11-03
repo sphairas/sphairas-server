@@ -85,7 +85,7 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
                 .getResultList();
     }
 
-    @RolesAllowed({"remoteadmin", "unitadmin"})
+    @RolesAllowed("unitadmin")
     @Override
     public List<UnitDocumentEntity> findAll(final Marker selector, final LockModeType lmt) {
         return findAllUnits(selector, null, lmt);
@@ -219,7 +219,7 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
         }
     }
 
-    @RolesAllowed({"remoteadmin", "unitadmin"})
+    @RolesAllowed("unitadmin")
     @Override
     public void remove(final UnitDocumentEntity ude) {
         final Set<BaseTargetAssessmentEntity> ta = ude.getTargetAssessments();
@@ -262,7 +262,7 @@ public class UnitDocumentFacadeImpl extends BaseDocumentFacade<UnitDocumentEntit
         return usm;
     }
 
-    @RolesAllowed({"remoteadmin", "unitadmin"})
+    @RolesAllowed("unitadmin")
     @Override
     public List<UnitDocumentEntity> getAllPrimaryUnits(final java.sql.Timestamp expringBefore) {
         Marker selector = ServiceConstants.BETULA_PRIMARY_UNIT_MARKER;

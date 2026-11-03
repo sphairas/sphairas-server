@@ -28,7 +28,6 @@
 // *
 // * @author martin
 // */
-////@RolesAllowed("remoteadmin")
 ////@Remote(FileRealmUserBean.class)
 ////@EJB(name = "java:global/Betula_Persistence/FileRealmUserBeanImpl!org.thespheres.betula.beans.FileRealmUserBean", beanInterface = FileRealmUserBean.class)
 //@RolesAllowed({"superadmin"})

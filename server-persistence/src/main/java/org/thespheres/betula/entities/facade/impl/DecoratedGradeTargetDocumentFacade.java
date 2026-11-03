@@ -29,6 +29,7 @@ import org.thespheres.betula.entities.GradeTargetAssessmentEntity;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.facade.GradeTargetDocumentFacade;
 import org.thespheres.betula.server.beans.config.CommonAppProperties;
+import org.thespheres.betula.server.beans.clients.ActingSubject;
 import org.thespheres.betula.services.LocalProperties;
 
 /**
@@ -47,6 +48,8 @@ public class DecoratedGradeTargetDocumentFacade extends GradeTargetDocumentFacad
     @EJB
     protected SigneeFacadeImpl signees;
     @Inject
+    private ActingSubject actingSubject;
+    @Inject
     @SessionScoped
     private Provider<LocalProperties> properties;
 
@@ -63,9 +66,9 @@ public class DecoratedGradeTargetDocumentFacade extends GradeTargetDocumentFacad
     @Override
     public <T extends GradeTargetAssessmentEntity> List<T> findAll(LockModeType lmt, Class<T> type) {
         final SessionContext ctx = getDecoratedSessionContext();
-        if (ctx.isCallerInRole("unitadmin")) {
+        if (actingSubject.isCallerInRole(ctx, "unitadmin")) {
             return super.findAll(lmt, type);
-        } else if (ctx.isCallerInRole("signee")) {
+        } else if (actingSubject.isCallerInRole(ctx, "signee")) {
             final SigneeEntity signee = signees.getCurrent();
             if (signee != null) {
                 return super.findAll(signee, type, lmt);
@@ -76,8 +79,7 @@ public class DecoratedGradeTargetDocumentFacade extends GradeTargetDocumentFacad
 
     @Override
     public <T extends GradeTargetAssessmentEntity> List<T> findAll(SigneeEntity signee, Class<T> type, LockModeType lmt) {
-        if (getDecoratedSessionContext().isCallerInRole("unitadmin")
-                || getDecoratedSessionContext().isCallerInRole("remoteadmin")
+        if (actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")
                 || (signee != null && signees.getCurrent().equals(signee))) {
             return super.findAll(signee, type, lmt);
         }
@@ -110,7 +112,7 @@ public class DecoratedGradeTargetDocumentFacade extends GradeTargetDocumentFacad
 
     @Override
     public <I extends Identity> boolean submit(DocumentId id, StudentId student, I gradeId, Grade grade, Timestamp ts) {
-        if (!getDecoratedSessionContext().isCallerInRole("unitadmin") && !getDecoratedSessionContext().isCallerInRole("remoteadmin")) {
+        if (!actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")) {
             final GradeTargetAssessmentEntity target = super.find(id, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             if (grade != null) {
                 if (grade.getConvention().equals(target.getPreferredConvention()) || isPermittedExtra(grade)) {

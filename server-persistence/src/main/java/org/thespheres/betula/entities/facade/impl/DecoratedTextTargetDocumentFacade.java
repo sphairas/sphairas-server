@@ -17,6 +17,7 @@ import jakarta.persistence.LockModeType;
 import org.thespheres.betula.entities.SigneeEntity;
 import org.thespheres.betula.entities.TermTextTargetAssessmentEntity;
 import org.thespheres.betula.entities.facade.TextTargetDocumentFacade;
+import org.thespheres.betula.server.beans.clients.ActingSubject;
 
 /**
  *
@@ -31,6 +32,8 @@ public class DecoratedTextTargetDocumentFacade extends TextTargetDocumentFacadeI
 //    private TextTargetDocumentFacade delegate;
     @EJB
     protected SigneeFacadeImpl signees;
+    @jakarta.inject.Inject
+    private ActingSubject actingSubject;
 
     private SessionContext getDecoratedSessionContext() {
         InitialContext ic;
@@ -45,9 +48,9 @@ public class DecoratedTextTargetDocumentFacade extends TextTargetDocumentFacadeI
     @Override
     public List<TermTextTargetAssessmentEntity> findAll(final LockModeType lmt) {
         final SessionContext ctx = getDecoratedSessionContext();
-        if (ctx.isCallerInRole("unitadmin")) {
+        if (actingSubject.isCallerInRole(ctx, "unitadmin")) {
             return super.findAll(lmt);
-        } else if (ctx.isCallerInRole("signee")) {
+        } else if (actingSubject.isCallerInRole(ctx, "signee")) {
             final SigneeEntity signee = signees.getCurrent();
             if (signee != null) {
                 return super.findAll(signee, lmt);
@@ -58,8 +61,7 @@ public class DecoratedTextTargetDocumentFacade extends TextTargetDocumentFacadeI
 
     @Override
     public List<TermTextTargetAssessmentEntity> findAll(final SigneeEntity signee, final LockModeType lmt) {
-        if (getDecoratedSessionContext().isCallerInRole("unitadmin")
-                || getDecoratedSessionContext().isCallerInRole("remoteadmin")
+        if (actingSubject.isCallerInRole(getDecoratedSessionContext(), "unitadmin")
                 || (signee != null && signees.getCurrent().equals(signee))) {
             return super.findAll(signee, lmt);
         }

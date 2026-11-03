@@ -11,7 +11,6 @@ import jakarta.ejb.Stateless;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.thespheres.betula.document.Signee;
-import org.thespheres.betula.entities.localbeans.SigneeLocalImpl;
 import org.thespheres.betula.server.beans.SigneeLocal;
 
 /**
@@ -47,7 +46,7 @@ public class DecoratedSigneeLocal extends SigneeLocalImpl implements SigneeLocal
 //            }
 //        }
 
-        if (!context.isCallerInRole("signee") && context.isCallerInRole("unitadmin")) {
+        if (!actingSubject.isCallerInRole(context, "signee") && actingSubject.isCallerInRole(context, "unitadmin")) {
             return null;
         }
         return super.getSigneePrincipal(requireSigneeEntity);
