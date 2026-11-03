@@ -14,7 +14,13 @@ import jakarta.ws.rs.ext.Provider;
 public class JsonbContextResolver implements ContextResolver<Jsonb> {
 
     private final Jsonb jsonb = JsonbBuilder.create(new JsonbConfig()
-            .withAdapters(new JsonbAdapter[]{new GradeAdapter(), new MarkerAdapter()}));
+            .withAdapters(new JsonbAdapter[]{
+                new GradeAdapter(),
+                new MarkerAdapter(),
+                new StudentIdAdapter(),
+                new TermIdAdapter(),
+                new DocumentIdAdapter()
+            }));
 
     @Override
     public Jsonb getContext(final Class<?> type) {

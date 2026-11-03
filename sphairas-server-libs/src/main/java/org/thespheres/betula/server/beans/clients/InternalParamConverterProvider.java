@@ -29,6 +29,8 @@ public class InternalParamConverterProvider implements ParamConverterProvider {
             return (ParamConverter<T>) getMarkerConverter();
         } else if (Grade.class.equals(rawType)) {
             return (ParamConverter<T>) getGradeConverter();
+        } else if (java.util.Date.class.equals(rawType)) {
+            return (ParamConverter<T>) new DateConverter();
         }
         return null;
     }

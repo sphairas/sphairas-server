@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.thespheres.betula.StudentId;
 import org.thespheres.betula.TermId;
@@ -19,16 +21,21 @@ import org.thespheres.betula.UnitId;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.MarkerFactory;
+import org.thespheres.betula.document.Signee;
 import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.assess.GradeFactory;
+import org.thespheres.betula.server.beans.FastTermTargetDocument;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.ReportsBean;
 import org.thespheres.betula.server.beans.TermReportDataException;
 import org.thespheres.betula.server.beans.clients.BadRequest;
 import org.thespheres.betula.server.beans.clients.ReportCustomNote;
+import org.thespheres.betula.server.beans.clients.TargetDocumentMarkers;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.ical.InvalidComponentException;
 import org.thespheres.ical.VCard;
 import org.thespheres.ical.builder.VCardBuilder;
+import org.thespheres.betula.web.ApplicationUser;
 
 /**
  *
@@ -39,6 +46,8 @@ public class InternalServices {
 
     @Inject
     private AppConfiguration config;
+    @Inject
+    private ApplicationUser user;
 
     public Ticket[] findApplicableTickets(DocumentId docId, TermId termId, StudentId studId) {
         final String t = config.getInternalClient().findApplicableTickets(docId, termId, studId);
@@ -51,11 +60,12 @@ public class InternalServices {
     public VCard getStudentVCard(StudentId student) {
         try {
             final String c = config.getInternalClient().getStudentVCard(student);
+            if (c == null) {
+                return null;
+            }
             return VCardBuilder.parseCards(new StringReader(c)).getFirst();
-        } catch (IOException ex) {
-            return null;
-        } catch (ParseException | InvalidComponentException e) {
-            return null;
+        } catch (IOException | ParseException | InvalidComponentException ex) {
+            throw new IllegalStateException("Could not parse student vCard returned by the service.", ex);
         }
     }
 
@@ -79,6 +89,97 @@ public class InternalServices {
 
     public String getSubjectAlternativeName(DocumentId d) {
         return config.getInternalClient().getSubjectAlternativeName(d);
+    }
+
+    public FastTermTargetDocument getFastTermTargetDocument(final DocumentId document) {
+        return config.getInternalClient().getFastTermTargetDocument(document, actingSignee(), actingRoles());
+    }
+
+    public FastTextTermTargetDocument getFastTextTermTargetDocument(final DocumentId document) {
+        return config.getInternalClient().getFastTextTermTargetDocument(document, actingSignee(), actingRoles());
+    }
+
+    public Collection<DocumentId> getTargetAssessmentDocuments(final UnitId unit) {
+        final String[] results = config.getInternalClient().getTargetAssessmentDocuments(unit, actingSignee(), actingRoles());
+        return results == null ? null : Arrays.stream(results)
+                .map(DocumentId::valueOf)
+                .toList();
+    }
+
+    public Collection<DocumentId> getTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term) {
+        final String[] results = config.getInternalClient().getTargetAssessmentDocumentsForTerm(unit, term, actingSignee(), actingRoles());
+        return results == null ? null : Arrays.stream(results)
+                .map(DocumentId::valueOf)
+                .toList();
+    }
+
+    public Collection<DocumentId> getTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTermTargetDocument> documents) {
+        final Map<String, FastTermTargetDocument> payload = new HashMap<>();
+        documents.forEach((id, document) -> payload.put(id.toString(), document));
+        final String[] results = config.getInternalClient().getTargetAssessmentDocumentsForTermWithMap(unit, term, payload, actingSignee(), actingRoles());
+        if (results == null) {
+            return null;
+        }
+        final List<DocumentId> ids = Arrays.stream(results).map(DocumentId::valueOf).toList();
+        ids.forEach(d -> documents.computeIfAbsent(d, this::getFastTermTargetDocument));
+        return ids;
+    }
+
+    public Collection<DocumentId> getTextTargetAssessmentDocumentsForTerm(final UnitId unit, final TermId term, final Map<DocumentId, FastTextTermTargetDocument> documents) {
+        final Map<String, FastTextTermTargetDocument> payload = new HashMap<>();
+        documents.forEach((id, document) -> payload.put(id.toString(), document));
+        final String[] results = config.getInternalClient().getTextTargetAssessmentDocumentsForTerm(unit, term, payload, actingSignee(), actingRoles());
+        if (results == null) {
+            return null;
+        }
+        final List<DocumentId> ids = Arrays.stream(results).map(DocumentId::valueOf).toList();
+        ids.forEach(d -> documents.computeIfAbsent(d, this::getFastTextTermTargetDocument));
+        return ids;
+    }
+
+    public Collection<Marker> getDocumentMarkers(final DocumentId document) {
+        final Marker[] results = config.getInternalClient().getTargetDocumentMarkers(document, actingSignee(), actingRoles());
+        return results == null ? null : Arrays.asList(results);
+    }
+
+    public Map<DocumentId, Collection<Marker>> getDocumentMarkers(final Collection<DocumentId> documents) {
+        if (documents.isEmpty()) {
+            return Map.of();
+        }
+        final String[] payload = documents.stream().map(DocumentId::toString).toArray(String[]::new);
+        final TargetDocumentMarkers[] results = config.getInternalClient().getTargetDocumentMarkers(payload, actingSignee(), actingRoles());
+        final Map<DocumentId, Collection<Marker>> markers = new HashMap<>();
+        for (final TargetDocumentMarkers result : results) {
+            markers.put(DocumentId.valueOf(result.document),
+                    result.markers.stream().map(MarkerFactory::resolve).toList());
+        }
+        return markers;
+    }
+
+    public Collection<StudentId> getStudents(final UnitId unit, final Date asOf) {
+        final String[] results = config.getInternalClient().getTargetDocumentStudents(unit, asOf, actingSignee(), actingRoles());
+        return results == null ? null : Arrays.stream(results)
+                .map(StudentId::valueOf)
+                .toList();
+    }
+
+    public Grade findSingle(final StudentId student, final TermId term, final Marker subject, final String suffix) {
+        final String value = config.getInternalClient().findSingle(student, term, subject, suffix, actingSignee(), actingRoles());
+        return StringUtils.isBlank(value) ? null : GradeFactory.resolve(value.trim());
+    }
+
+    public Grade[] findSingleChecked(final UnitId unit, final TermId term, final StudentId student, final Collection<DocumentId> documents) {
+        final String[] payload = documents.stream().map(DocumentId::toString).toArray(String[]::new);
+        return config.getInternalClient().findSingleChecked(unit, term, student, payload, actingSignee(), actingRoles());
+    }
+
+    private Signee actingSignee() {
+        final Signee signee = user.getSignee();
+        return signee;
+    }
+
+    private String actingRoles() {
+        return user.getServiceRoleHeader();
     }
 
     public DocumentId[] findTermReports(final StudentId student, final TermId term, final boolean create) {

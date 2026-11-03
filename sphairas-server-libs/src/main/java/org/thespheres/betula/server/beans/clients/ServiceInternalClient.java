@@ -12,6 +12,8 @@ import org.thespheres.betula.assess.Grade;
 import org.thespheres.betula.document.DocumentId;
 import org.thespheres.betula.document.Marker;
 import org.thespheres.betula.document.Signee;
+import org.thespheres.betula.server.beans.FastTermTargetDocument;
+import org.thespheres.betula.server.beans.FastTextTermTargetDocument;
 import org.thespheres.betula.server.beans.AmbiguousDateException;
 import org.thespheres.betula.server.beans.TermReportDataException;
 import org.thespheres.ical.VCard;
@@ -204,6 +206,110 @@ public interface ServiceInternalClient {
     @Path("subject-alternative-name")
     @Produces(MediaType.TEXT_PLAIN)
     public String getSubjectAlternativeName(@QueryParam("document") DocumentId document);
+
+    @GET
+    @Path("target-documents/fast-term")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FastTermTargetDocument getFastTermTargetDocument(
+            @QueryParam("document") DocumentId document,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @GET
+    @Path("target-documents/fast-text-term")
+    @Produces(MediaType.APPLICATION_JSON)
+    public FastTextTermTargetDocument getFastTextTermTargetDocument(
+            @QueryParam("document") DocumentId document,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @GET
+    @Path("target-documents/by-unit")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String[] getTargetAssessmentDocuments(
+            @QueryParam("unit") UnitId unit,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @GET
+    @Path("target-documents/by-unit-term")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String[] getTargetAssessmentDocumentsForTerm(
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("term") TermId term,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @POST
+    @Path("target-documents/by-unit-term/with-map")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String[] getTargetAssessmentDocumentsForTermWithMap(
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("term") TermId term,
+            Map<String, FastTermTargetDocument> documents,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @POST
+    @Path("target-documents/text/by-unit-term")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public String[] getTextTargetAssessmentDocumentsForTerm(
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("term") TermId term,
+            Map<String, FastTextTermTargetDocument> documents,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @GET
+    @Path("target-documents/markers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Marker[] getTargetDocumentMarkers(
+            @QueryParam("document") DocumentId document,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @POST
+    @Path("target-documents/markers/batch")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public TargetDocumentMarkers[] getTargetDocumentMarkers(
+            String[] documents,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @GET
+    @Path("target-documents/students")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String[] getTargetDocumentStudents(
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("asOf") Date asOf,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @GET
+    @Path("target-documents/find-single")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String findSingle(
+            @QueryParam("student") StudentId student,
+            @QueryParam("term") TermId term,
+            @QueryParam("subject") Marker subject,
+            @QueryParam("suffix") String suffix,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
+
+    @POST
+    @Path("target-documents/find-single-checked")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Grade[] findSingleChecked(
+            @QueryParam("unit") UnitId unit,
+            @QueryParam("term") TermId term,
+            @QueryParam("student") StudentId student,
+            String[] documents,
+            @HeaderParam("X-Betula-Signee") Signee signee,
+            @HeaderParam("X-Betula-Roles") String roles);
 
     /** Read-only access to the app resources directory; 404 if the file does not exist. */
     @GET
