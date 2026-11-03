@@ -83,16 +83,22 @@ public class ApplicationUser implements Serializable {
         if (principal == null) {
             throw new SecurityException("Principal is null.");
         }
-        final String prefix = principal.getName();
-        String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);
-        if (suffix == null) {//Legacy case
-            suffix = lp.getProperty(AppPropertyNames.LP_DEFAULT_SIGNEE_SUFFIX);
+        final boolean isSignee = securityContext.isCallerInRole("signee");
+        final boolean isUnitAdmin = securityContext.isCallerInRole("unitadmin");
+        if (isSignee) {
+            final String prefix = principal.getName();
+            String suffix = System.getenv(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+            if (suffix == null) {//Legacy case
+                suffix = lp.getProperty(AppPropertyNames.LP_DEFAULT_SIGNEE_SUFFIX);
+            }
+            if (suffix == null) {
+                throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
+            }
+            signee = new Signee(prefix, suffix, true);
+            commonName = config.getInternalClient().getSigneeCommonName(signee);
+        } else if (!isUnitAdmin) {
+            throw new SecurityException("The current user has no supported service role.");
         }
-        if (suffix == null) {
-            throw new ConfiguredModelException(AppPropertyNames.ENV_SIGNEE_SUFFIX);
-        }
-        signee = new Signee(prefix, suffix, true);
-        commonName = config.getInternalClient().getSigneeCommonName(signee);
     }
 
     @PreDestroy
@@ -142,11 +148,25 @@ public class ApplicationUser implements Serializable {
         return signee;
     }
 
+    public String getServiceRoleHeader() {
+        final List<String> roles = new ArrayList<>();
+        if (securityContext.isCallerInRole("signee")) {
+            roles.add("signee");
+        }
+        if (securityContext.isCallerInRole("unitadmin")) {
+            roles.add("unitadmin");
+        }
+        if (roles.isEmpty()) {
+            throw new SecurityException("The current user has no supported service role.");
+        }
+        return String.join(",", roles);
+    }
+
     public String getCommonName() {
         if (commonName != null) {
             return commonName;
         }
-        return getSignee().getId();
+        return signee != null ? signee.getId() : null;
     }
 
     //schedule, terms, primaryUnits
