@@ -86,10 +86,15 @@ public final class FastTermTargetDocument implements TargetDocument, GradeTermTa
         return true;
     }
 
-    @JsonbProperty("markers")
+    @JsonbTransient
     @Override
     public Marker[] markers() {
-        return markers.stream().toArray(Marker[]::new);
+        return markers == null ? new Marker[0] : markers.stream().toArray(Marker[]::new);
+    }
+
+    @JsonbProperty("markers")
+    public Set<Marker> getMarkerSet() {
+        return markers;
     }
 
     @JsonbTransient
