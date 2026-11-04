@@ -3,6 +3,30 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
+    <servlet>
+        <servlet-name>CalendarStudentsServlet</servlet-name>
+        <servlet-class>org.thespheres.betula.calendar.students.StudentsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CalendarTicketsServlet</servlet-name>
+        <servlet-class>org.thespheres.betula.calendar.tickets.TicketsServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CalendarReportDatesServlet</servlet-name>
+        <servlet-class>org.thespheres.betula.calendar.reports.ReportDatesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CalendarStudentsServlet</servlet-name>
+        <url-pattern>/calendar/students/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CalendarTicketsServlet</servlet-name>
+        <url-pattern>/calendar/tickets/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CalendarReportDatesServlet</servlet-name>
+        <url-pattern>/calendar/reports/*</url-pattern>
+    </servlet-mapping>
     <security-role>
         <description>Interne und externe Zugriffe auf die externe API im administrativen Kontext</description>
         <role-name>unitadmin</role-name>
@@ -37,8 +61,4 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>        
     </security-constraint>
-<!--    <login-config>
-        <auth-method>CLIENT-CERT</auth-method>
-        <realm-name>certificate</realm-name>
-    </login-config>-->
 </web-app>

@@ -16,7 +16,9 @@ import java.util.logging.Logger;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.naming.NameClassPair;
@@ -58,6 +60,25 @@ public class ConfigurationPropertiesImpl {
 
     static final Logger LOGGER = Logger.getLogger(ConfigurationPropertiesImpl.class.getName());
     private javax.xml.bind.JAXBContext vorlageJAXB;
+    
+    @Inject
+    private Instance<AppResourceProvider> resourceProvider;
+
+    private InputStream openResource(final String file) throws IOException {
+        if (resourceProvider.isResolvable()) {
+            return resourceProvider.get().open(file);
+        }
+        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
+        if (!hasResource(dc, file)) {
+            return null;
+        }
+        try {
+            return ((Resource) dc.lookup(file)).streamContent();
+        } catch (NamingException ex) {
+            LOGGER.log(Level.WARNING, ex.getMessage(), ex);
+            throw new MissingConfigurationResourceException(file);
+        }
+    }
 
     @PostConstruct
     public void initialize() {
@@ -177,26 +198,17 @@ public class ConfigurationPropertiesImpl {
 
     @Produces
     public CommonDocuments commonDocuments() {
-        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
-        final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;     
-        if (hasResource(dc, NdsReportBuilderFactory.SCHULVORLAGE_FILE)) {
-            final Resource res;
-            try {
-                res = (Resource) dc.lookup(file);
-            } catch (NamingException ex) {
-                Logger.getLogger(ConfigurationPropertiesImpl.class.getPackage().getName()).log(Level.WARNING, ex.getMessage(), ex);
-                throw new MissingConfigurationResourceException(file);
-            }
-            try (final InputStream is = res.streamContent()) {
+        final String file = NdsReportBuilderFactory.SCHULVORLAGE_FILE;
+        try (final InputStream is = openResource(file)) {
+            if (is != null) {
                 return (NdsZeugnisSchulvorlage) vorlageJAXB.createUnmarshaller().unmarshal(is);
-            } catch (IOException | javax.xml.bind.JAXBException ex) {
-                final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
-                th.initCause(ex);
-                throw th;
             }
-        } else {
-            return new NdsZeugnisSchulvorlage(CommonAppProperties.provider());
+        } catch (IOException | javax.xml.bind.JAXBException ex) {
+            final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
+            th.initCause(ex);
+            throw th;
         }
+        return new NdsZeugnisSchulvorlage(CommonAppProperties.provider());
     }
 
     @Produces
@@ -208,22 +220,15 @@ public class ConfigurationPropertiesImpl {
     @Produces
     public Properties properties() {
         final Properties p = new Properties();
-        final DirContext dc = CommonAppProperties.lookupAppResourcesContext();
-        if (hasResource(dc, CommonAppProperties.INSTANCE_PROPERTIES_FILE)) {
-            final Resource res;
-            try {
-                res = (Resource) dc.lookup(CommonAppProperties.INSTANCE_PROPERTIES_FILE);
-            } catch (NamingException ex) {
-                LOGGER.log(Level.WARNING, ex.getMessage(), ex);
-                throw new MissingConfigurationResourceException(CommonAppProperties.INSTANCE_PROPERTIES_FILE);
+        final String file = CommonAppProperties.INSTANCE_PROPERTIES_FILE;
+        try (final InputStream is = openResource(file)) {
+            if (is != null) {
+                p.load(is);
             }
-            try {
-                p.load(res.streamContent());
-            } catch (IOException ex) {
-                final MissingConfigurationResourceException th = new MissingConfigurationResourceException(CommonAppProperties.INSTANCE_PROPERTIES_FILE);
-                th.initCause(ex);
-                throw th;
-            }
+        } catch (IOException ex) {
+            final MissingConfigurationResourceException th = new MissingConfigurationResourceException(file);
+            th.initCause(ex);
+            throw th;
         }
         return p;
     }

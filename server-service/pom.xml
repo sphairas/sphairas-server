@@ -19,9 +19,19 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>de.noten</artifactId>
+            <version>0.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.swinglabs.swingx</groupId>
+                    <artifactId>swingx-all</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>sphairas-server-libs</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -44,8 +54,11 @@
             <groupId>org.thespheres</groupId>
             <artifactId>server-persistence</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
-            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.thespheres</groupId>
+            <artifactId>server-calendar</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>fish.payara.api</groupId>

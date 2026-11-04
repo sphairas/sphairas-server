@@ -22,4 +22,4 @@ set configs.config.server-config.network-config.protocols.protocol.http-listener
 
 #create-jvm-option -- -Djavax.net.debug=all #Muss ins Dockerfile als Environment-Variable
 #set-log-levels com.sun.enterprise.security.ssl=FINEST:org.glassfish.grizzly.ssl=FINEST:javax.net.ssl=FINEST
-set-log-levels javax.net.ssl=FINEST
+#set-log-levels javax.net.ssl=FINEST

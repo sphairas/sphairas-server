@@ -11,4 +11,5 @@
         <group-name>internals</group-name>
     </security-role-mapping>
     <class-loader delegate="true"/>
+    <disable-nonportable-jndi-names>true</disable-nonportable-jndi-names>
 </payara-web-app>

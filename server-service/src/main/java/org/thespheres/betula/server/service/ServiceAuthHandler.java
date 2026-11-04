@@ -1,12 +1,9 @@
 package org.thespheres.betula.server.service;
 
-import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Alternative;
-import jakarta.interceptor.Interceptor;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
-import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanismHandler;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,13 +16,14 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
 /**
+ * Client certificate authentication. This must be an
+ * HttpAuthenticationMechanism bean: Soteria registers its auth module for a WAR
+ * only if it finds one.
  *
  * @author boris.heithecker
  */
 @ApplicationScoped
-@Alternative
-@Priority(Interceptor.Priority.APPLICATION)
-public class ServiceAuthHandler implements HttpAuthenticationMechanismHandler {
+public class ServiceAuthHandler implements HttpAuthenticationMechanism {
 
     @Override
     public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext context) throws AuthenticationException {

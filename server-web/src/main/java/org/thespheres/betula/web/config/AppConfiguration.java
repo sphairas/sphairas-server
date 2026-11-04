@@ -275,7 +275,7 @@ public class AppConfiguration implements Serializable {
      *
      * @return the content, or null if the resource does not exist
      */
-    InputStream openAppResource(final String file) throws IOException {
+    public InputStream openAppResource(final String file) throws IOException {
         try (final jakarta.ws.rs.core.Response r = getInternalClient().getAppResource(file)) {
             if (r.getStatus() == 404) {
                 return null;

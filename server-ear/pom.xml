@@ -16,45 +16,34 @@
     
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>sphairas-server-libs</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>de.noten</artifactId>
-            <version>0.2.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.swinglabs.swingx</groupId>
-                    <artifactId>swingx-all</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>server-persistence</artifactId>
-            <version>${project.version}</version>
-            <type>ejb</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>server-calendar</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.45</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>server-web</artifactId>
             <version>${project.version}</version>
             <type>war</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>server-service</artifactId>
             <version>${project.version}</version>
             <type>war</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     
@@ -66,23 +55,13 @@
                 <version>3.3.0</version>
                 <configuration>
                     <applicationName>Betula_Server</applicationName>
-                    <defaultLibBundleDir>lib</defaultLibBundleDir>
+                    <skipClassPathModification>true</skipClassPathModification>
                     <initializeInOrder>true</initializeInOrder>
                     <modules>
-                        <ejbModule>
-                            <bundleFileName>Betula_Persistence.jar</bundleFileName>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>server-persistence</artifactId>
-                        </ejbModule>
                         <webModule>
                             <groupId>${project.groupId}</groupId>
                             <artifactId>server-service</artifactId>
                             <contextRoot>/service</contextRoot>
-                        </webModule>
-                        <webModule>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>server-calendar</artifactId>
-                            <contextRoot>/calendar</contextRoot>
                         </webModule>
                         <webModule>
                             <groupId>${project.groupId}</groupId>
