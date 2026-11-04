@@ -17,8 +17,7 @@ The split is performed on Payara Full. Preserve the existing modernized UI and i
 
 ## Current-state evidence and scope
 
-- The parent Maven reactor includes `server-ear`, `server-persistence` (EJB packaging), `server-calendar` (WAR packaging), `server-web` (WAR), `server-service` (WAR), and `sphairas-server-libs` (JAR).
-- The EAR currently assembles the web, service, and calendar WARs plus the persistence EJB module. The Dockerfile deploys that EAR and separately deploys `server-admin-authentication`.
+- Status: the EAR has been removed. The reactor builds `server-persistence` and `server-calendar` (JARs bundled into `server-service`), `server-web` and `server-service` (independent WARs), and `sphairas-server-libs` (JAR). The Dockerfile deploys the two WARs and, separately, `server-admin-authentication`.
 - `server-web` imports numerous `org.thespheres.betula.server.beans` types. The relevant issue is not use of the shared JAR itself, but use of server-owned services by in-process EJB/JNDI calls.
 - REST client/server code already exists, including `ServiceInternalClient`, `InternalAPI`, and fast target-document REST endpoints. Extend and reuse these contracts where appropriate.
 - The web module contains direct service invocations and global JNDI lookups, including report, calendar, student, target-document and resource access. These callers must be inventoried and routed through REST or web-owned behavior.

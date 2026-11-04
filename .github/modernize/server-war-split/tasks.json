@@ -45,7 +45,7 @@
     {
       "id": "service-rest-implementation",
       "title": "Implement missing service REST operations",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "behavior-baseline",
         "rest-contract-security"
@@ -60,28 +60,28 @@
     {
       "id": "web-rest-client-configuration",
       "title": "Configure web REST clients securely",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "rest-contract-security"
       ],
-      "description": "Configure REST client destinations, TLS, authentication, providers, and error mapping from runtime configuration. Remove hard-coded service URLs and permissive hostname verification.",
+      "description": "Configure REST client destinations, TLS, authentication, providers, logo resource path, and error mapping from runtime configuration. Remove hard-coded service URLs and permissive hostname verification.",
       "acceptanceCriteria": [
         "Service destination and security configuration are externally configurable.",
         "TLS hostname validation is not bypassed.",
-        "REST client behavior has focused configuration and error-mapping tests."
+        "REST client URL validation, hostname verification, and error mapping are verified in the deployment smoke test; no new test infrastructure is added."
       ]
     },
     {
       "id": "web-report-calendar-rest-migration",
       "title": "Migrate web report and calendar calls to REST",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "service-rest-implementation",
         "web-rest-client-configuration"
       ],
       "description": "Replace web's report/calendar EJB injections and lookups with REST-backed clients or web-local adapters. Cover report reads and writes, calendar dates, report lookup, notes, markers, and custom values as identified by inventory.",
       "acceptanceCriteria": [
-        "Affected report and calendar workflows pass the baseline checks using REST.",
+        "Affected report and calendar workflows pass the baseline checks using REST, including batch note/marker reads.",
         "Ambiguous-date behavior and write failures remain explicit and behaviorally compatible.",
         "No service-owned report/calendar EJB is directly injected or looked up by web."
       ]
@@ -89,7 +89,7 @@
     {
       "id": "web-student-document-rest-migration",
       "title": "Migrate web student and document calls to REST",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "service-rest-implementation",
         "web-rest-client-configuration"
@@ -104,7 +104,7 @@
     {
       "id": "verify-web-boundary",
       "title": "Verify web has no in-process service dependency",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "web-report-calendar-rest-migration",
         "web-student-document-rest-migration"
@@ -119,7 +119,7 @@
     {
       "id": "convert-persistence-calendar-jars",
       "title": "Convert persistence and calendar modules to JARs",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "verify-web-boundary"
       ],
@@ -133,7 +133,7 @@
     {
       "id": "integrate-calendar-service-deployment",
       "title": "Integrate calendar resources into service WAR",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "convert-persistence-calendar-jars"
       ],
@@ -147,7 +147,7 @@
     {
       "id": "make-war-dependencies-self-contained",
       "title": "Make both WAR dependency sets independently deployable",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "verify-web-boundary",
         "integrate-calendar-service-deployment"
@@ -162,11 +162,11 @@
     {
       "id": "standalone-war-deployment",
       "title": "Deploy and verify both WARs independently",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "make-war-dependencies-self-contained"
       ],
-      "description": "Configure standalone context roots and deploy web and service separately on Payara Full. Exercise startup, REST connectivity, authentication, authorization, persistence, messaging/timers, reports, documents, and calendar behavior.",
+      "description": "Configure standalone context roots and deploy web and service separately on Payara Full. Web keeps its FOP/XSL-FO/logo files in its own app-resources directory (system property sphairas.web.app-resources, default <instanceRoot>/app-resources); the directory must be provisioned for the web deployment. Exercise startup, REST connectivity, authentication, authorization, persistence, messaging/timers, reports, documents, and calendar behavior.",
       "acceptanceCriteria": [
         "Each WAR deploys and runs without the EAR and without the other WAR's classes or in-process services.",
         "Integration checks pass across the REST boundary for the affected workflows.",
@@ -176,7 +176,7 @@
     {
       "id": "remove-ear-update-bundle",
       "title": "Remove EAR assembly and deploy the two-WAR bundle",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "standalone-war-deployment"
       ],

@@ -1,7 +1,14 @@
 # Deployment configuration
 
 This guide covers the configuration needed for the web application to call the
-service API and to load its report-generation resources.
+service API, the calendar route changes, and the web report-generation resources.
+The web and service WARs each package their own `sphairas-server-libs` dependency;
+do not add that library to the EAR's shared `lib/` directory.
+The EAR also carries the `javax.xml.bind:jaxb-api` 2.3.1 API in its shared
+`lib/` directory because Payara scans legacy EJB method signatures before the
+WAR classloader is available. Keep this `javax` API: the external Container
+types and existing JAXB annotations use the legacy namespace. The WARs retain
+their own JAXB dependencies for standalone deployment.
 
 ## Service API URL
 
@@ -29,6 +36,64 @@ those settings and the service's `internal` role mapping in place.
 
 An invalid or missing URL causes client initialization to fail rather than
 silently using a default endpoint.
+
+## Calendar routes
+
+The calendar module is now packaged inside the service WAR. Update external
+clients and reverse-proxy routes before deploying this version; the separate
+`/calendar` context is no longer deployed.
+
+Desktop clients must configure `calendarBaseURL` **with a trailing slash**
+(e.g. `https://host:8181/service/api/calendar/`), because the client appends
+`reports/` directly.
+
+Each WAR (`/web`, `/service`) is self-contained and needs its own
+`HttpAuthenticationMechanism` bean (`AuthHandler`, `ServiceAuthHandler`); a
+mechanism handler alone does not register the authentication module.
+
+The calendar REST resources now use the service API base URL with a
+`calendar/` prefix:
+
+| Old URL path | New URL path |
+| --- | --- |
+| `/calendar/resource/students` | `/service/api/calendar/students` |
+| `/calendar/resource/tickets` | `/service/api/calendar/tickets` |
+| `/calendar/resource/reports` | `/service/api/calendar/reports` |
+
+The corresponding servlet endpoints keep their suffixes under the service
+context:
+
+| Old URL path | New URL path |
+| --- | --- |
+| `/calendar/students/...` | `/service/calendar/students/...` |
+| `/calendar/tickets/...` | `/service/calendar/tickets/...` |
+| `/calendar/reports/...` | `/service/calendar/reports/...` |
+
+For example, the new REST URL for report dates is
+`https://server.example.org:8181/service/api/calendar/reports`. If a reverse
+proxy publishes the application below an additional prefix such as `/admins`,
+include that prefix in the externally configured URL.
+
+In desktop client configuration, `calendarBaseURL` must point to the new
+calendar REST base, ending in `/service/api/calendar/`. `studentsUrl` must
+point to the new student servlet URL, `/service/calendar/students`. Explicit
+values for these keys take precedence over the generated defaults. Existing
+values containing `/calendar/` must be updated; otherwise those clients will
+continue to call the removed context.
+
+The internal web-to-service calendar calls continue to use
+`BETULA_SERVICE_API_URL`; no separate calendar service URL is needed.
+
+## Database schema
+
+The persistence descriptors retain their existing automatic schema-generation
+settings. `betula0` creates tables and writes the generated DDL to
+`<domain-dir>/config/betuladb-script`; `studentsPU` uses the Jakarta `create`
+action, and `calendarsPU` uses `create` plus EclipseLink
+`create-or-extend-tables`. Packaging these persistence units in the service WAR
+does not intentionally change that behavior. Review Payara startup logs and
+the generated DDL script when deploying, especially when using an existing
+database.
 
 ## Web app-resources directory
 

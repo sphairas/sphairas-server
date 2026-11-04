@@ -25,12 +25,40 @@ if [ -n "${KEY:-}" ] && command -v openssl >/dev/null; then
 fi
 
 rc=0
+# Set METHOD=POST etc. in front of check for non-GET requests.
 # check NAME EXPECTED-STATUSES(|-separated) PATH [key=value ...]  (values are URL-encoded)
 check() {
   local name=$1 expect=$2 path=$3; shift 3
   local body="$OUT/$name.body" code args=()
   for kv in "$@"; do args+=(--data-urlencode "$kv"); done
-  code=$("${CURL[@]}" -G -o "$body" -w '%{http_code}' "${args[@]}" "$BASE/$path") || code=000
+  code=$("${CURL[@]}" -G -X "${METHOD:-GET}" -o "$body" -w '%{http_code}' "${args[@]}" "$BASE/$path") || code=000
+  echo "$code" > "$OUT/$name.status"
+  if [[ "|$expect|" == *"|$code|"* ]]; then echo "ok    $name ($code)"; else echo "FAIL  $name: got $code, expected $expect"; rc=1; fi
+}
+check_as_signee() {
+  local name=$1 expect=$2 path=$3; shift 3
+  local body="$OUT/$name.body" code args=()
+  for kv in "$@"; do args+=(--data-urlencode "$kv"); done
+  code=$("${CURL[@]}" -H "X-Betula-Signee: $SIGNEE" -H "X-Betula-Roles: ${ACTING_ROLES:-signee}" \
+    -G -o "$body" -w '%{http_code}' "${args[@]}" "$BASE/$path") || code=000
+  echo "$code" > "$OUT/$name.status"
+  if [[ "|$expect|" == *"|$code|"* ]]; then echo "ok    $name ($code)"; else echo "FAIL  $name: got $code, expected $expect"; rc=1; fi
+}
+check_as_unitadmin() {
+  local name=$1 expect=$2 path=$3; shift 3
+  local body="$OUT/$name.body" code args=()
+  for kv in "$@"; do args+=(--data-urlencode "$kv"); done
+  code=$("${CURL[@]}" -H 'X-Betula-Roles: unitadmin' \
+    -G -o "$body" -w '%{http_code}' "${args[@]}" "$BASE/$path") || code=000
+  echo "$code" > "$OUT/$name.status"
+  if [[ "|$expect|" == *"|$code|"* ]]; then echo "ok    $name ($code)"; else echo "FAIL  $name: got $code, expected $expect"; rc=1; fi
+}
+check_as_signee_post_json() {
+  local name=$1 expect=$2 path=$3 payload=$4
+  local body="$OUT/$name.body" code
+  code=$("${CURL[@]}" -H "X-Betula-Signee: $SIGNEE" -H "X-Betula-Roles: ${ACTING_ROLES:-signee}" \
+    -H 'Content-Type: application/json' -X POST --data "$payload" \
+    -o "$body" -w '%{http_code}' "$BASE/$path") || code=000
   echo "$code" > "$OUT/$name.status"
   if [[ "|$expect|" == *"|$code|"* ]]; then echo "ok    $name ($code)"; else echo "FAIL  $name: got $code, expected $expect"; rc=1; fi
 }
@@ -62,12 +90,46 @@ need TARGET TERM STUDENT && {
   check select 200\|204 internal/select "target=$TARGET" "student=$STUDENT" "term=$TERM"
 }
 need UNIT TERM && check report-date 200\|204 internal/report-date "category=${CATEGORY:-zeugnis}" "unit=$UNIT" "term=$TERM"
-# Error case: mandatory parameters missing on a write endpoint (well-formed target)
-need TARGET && check submit-grade-missing-params 400\|500 internal/submit-grade-value "target=$TARGET"
+# Error case (400 after the REST fix; the old EAR baseline returned 500): mandatory parameters missing on a write endpoint (well-formed target)
+need TARGET && METHOD=POST check submit-grade-missing-params 400 internal/submit-grade-value "target=$TARGET"
 # fast-target-documents (outside /internal; also verifies the possible /api/api path)
 need TARGET && {
   check ftd-fast-term 200 api/fast-target-documents/fast-term-target-document "documentId=$TARGET"
   check ftd-fast-term-doubled-api 200\|404 api/api/fast-target-documents/fast-term-target-document "documentId=$TARGET"
+}
+# New endpoints (404 on the old EAR baseline)
+need STUDENT && check student-primary-unit 200\|204 internal/student-primary-unit "student=$STUDENT"
+need STUDENT && check student-primary-unit-malformed 404 internal/student-primary-unit "student=not-an-id"
+check student-marker-entry-missing-params 400 internal/student-marker-entry
+need TARGET && check subject-alternative-name 200\|204 internal/subject-alternative-name "document=$TARGET"
+check subject-alternative-name-missing-params 400 internal/subject-alternative-name
+need TARGET && check target-doc-fast-term-missing-acting-subject 400 internal/target-documents/fast-term "document=$TARGET"
+need TARGET SIGNEE && check_as_signee target-doc-fast-term 200 internal/target-documents/fast-term "document=$TARGET"
+need TARGET SIGNEE && check_as_signee target-doc-markers 200\|204 internal/target-documents/markers "document=$TARGET"
+need TARGET SIGNEE && check_as_signee_post_json target-doc-markers-batch 200 internal/target-documents/markers/batch "[\"$TARGET\"]"
+need UNIT SIGNEE && check_as_signee target-documents-by-unit 200 internal/target-documents/by-unit "unit=$UNIT"
+need UNIT && check_as_unitadmin target-documents-by-unit-unitadmin-no-signee 200 internal/target-documents/by-unit "unit=$UNIT"
+need UNIT TERM SIGNEE && check_as_signee target-documents-by-unit-term 200 internal/target-documents/by-unit-term "unit=$UNIT" "term=$TERM"
+need UNIT SIGNEE && check_as_signee target-documents-students 200 internal/target-documents/students "unit=$UNIT"
+check app-resource-missing 404 internal/app-resource "path=does-not-exist.xml"
+check app-resource-missing-param 400 internal/app-resource
+check app-resource-traversal 403\|404 internal/app-resource "path=../config/domain.xml"
+check app-resource-schulvorlage 200\|404 internal/app-resource "path=schulvorlage.xml"
+# internal/reports (new resource; read-only checks, expected to 404 on the old EAR baseline)
+need STUDENT TERM && {
+  check reports-find 200 internal/reports "student=$STUDENT" "term=$TERM"
+  check reports-ags 200 internal/reports/ags "student=$STUDENT" "term=$TERM"
+}
+check reports-missing-params 400 internal/reports
+# REPORT: a term report document id (e.g. from reports-find output)
+need REPORT && {
+  check reports-student 200 internal/reports/student "document=$REPORT"
+  check reports-term 200 internal/reports/term "document=$REPORT"
+  check reports-markers 200 internal/reports/markers "document=$REPORT"
+  check reports-markers-batch 200 internal/reports/markers/batch "document=$REPORT" "document=$REPORT"
+  check reports-custom-notes 200 internal/reports/custom-notes "document=$REPORT"
+  check reports-note 200\|204 internal/reports/notes "document=$REPORT" "key=x"
+  check reports-notes-batch 200 internal/reports/notes/batch "document=$REPORT" "key=x" "key=y"
 }
 echo "results in $OUT (rc=$rc)"
 exit $rc

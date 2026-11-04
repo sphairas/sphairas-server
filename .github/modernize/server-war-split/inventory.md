@@ -1,6 +1,6 @@
 # Inventory: web → service/persistence/calendar boundary
 
-Result of task `inventory-boundary`. Static analysis of `server-web` (no runtime verification yet; see `behavior-baseline`).
+Result of task `inventory-boundary`. This is the original static boundary snapshot of `server-web`; see the implementation notes in [rest-contract-security.md](./rest-contract-security.md) for subsequent migrations. It had no runtime verification at the time (see `behavior-baseline`).
 
 ## 1. Active web → backend invocations
 
@@ -26,8 +26,8 @@ Result of task `inventory-boundary`. Static analysis of `server-web` (no runtime
 
 ### 1.3 Already REST (target pattern)
 
-- `ServiceInternalClient` (`/service/api/internal/*`), built in `AppConfiguration`, plus `DocumentsService`. Base URL is the hard-coded `ServiceInternalClient.URI_SERVICE_API` (`https://localhost:8181/service/api`), with an accept-all hostname verifier.
-- `FastTargetDocumentsRestClient` (MP config key `fast-target-documents`) ↔ `FastTargetDocumentsRestService` (`/api/fast-target-documents/*`, 20 operations). This covers most of `FastTargetDocuments2`/`TargetDocumentsLocalBean`; the replacement is still to be checked.
+- `ServiceInternalClient` (`/service/api/internal/*`), built in `AppConfiguration`, plus `DocumentsService` and `NamingResolverImpl`. All use `ServiceClientConfiguration`; configure `betula.service.api-url` (system property) or `BETULA_SERVICE_API_URL` (environment variable). Client hostname verification is not overridden.
+- `FastTargetDocumentsRestService` (`/api/fast-target-documents/*`, 20 operations) remains available. The web-side `FastTargetDocumentsRestClient` was removed during `web-student-document-rest-migration`; web target-document calls now use `/api/internal/target-documents/*` through `ServiceInternalClient`.
 - `UnitsServiceClient` ↔ `UnitsServiceResource` (`/units/solicit`).
 - `InternalAPI` (`/internal`): unit-common-name, signee-common-name (now also used by `NdsFormatDetailsBean`), signee-groups, signee-primary-unit, applicable-tickets, select, submit-grade/text-value, student-vcard, report-date, ping.
 - **Gaps** with no REST equivalent yet: the `ReportsBean` read/write operations, `StudentsListsLocalBean.findPrimaryUnit/getMarkerEntry`, and `AppResourcesContext` (the service has `dav/*`, which may cover it).
@@ -47,16 +47,18 @@ Only the EJB interfaces `ReportsBean`, `StudentsLocalBean`, `StudentsListsLocalB
 | Module | Context root (EAR) | Routes | Security |
 |---|---|---|---|
 | web | `/web` | Faces `/ui/*`, `*.xhtml`, `/zgnsrv/*`, `/dav/*` servlet mapping, `/resource/*`, MP `/provider/{name,version}` | roles `signee`, `unitadmin` on `/*`; public: login/index/resources |
-| service | `/service` | `@ApplicationPath("api")`: `internal/*`, `db/submit-task`, `units/solicit`, `dav/*`, `api/fast-target-documents/*` | `unitadmin` on `/*`; `internal` on `/api/internal/*`; CONFIDENTIAL |
-| calendar | `/calendar` | `@ApplicationPath("resource")`: `students`, `tickets`, `reports` (plus servlets `/students/*`, `/tickets/*`, `/reports/*`) | `unitadmin`; non-portable JNDI names disabled |
+| service | `/service` | `@ApplicationPath("api")`: existing service endpoints plus calendar REST `/calendar/{students,tickets,reports}`; servlet paths `/calendar/{students,tickets,reports}/*` | `unitadmin` on `/*`; `internal` on `/api/internal/*`; CONFIDENTIAL |
+| calendar (merged into service) | removed | Previous REST `/calendar/resource/{students,tickets,reports}` now `/service/api/calendar/{students,tickets,reports}`; servlet suffixes remain at `/service/calendar/{students,tickets,reports}/*` | Service `unitadmin` policy and `unitadmins` role mapping |
 | server-admin-authentication | `/admins` | `/*` | `unitadmin` role mapping |
 
-The context-root assumptions (`/service/api`, `/calendar`, `/web`) are in the EAR pom (`maven-ear-plugin`), the Dockerfile and the hard-coded `URI_SERVICE_API`. Calendar's external clients move to new URLs (user-confirmed).
+The context-root assumptions (`/service`, `/web`) are in the EAR pom (`maven-ear-plugin`), the Dockerfile and service-client configuration. The calendar module is now a JAR within the service WAR; its old `/calendar` context is removed. Both WARs package `sphairas-server-libs` locally; it is no longer an EAR shared-library dependency. Deployers must update external calendar URLs as described in [deployment-configuration.md](../../../docs/deployment-configuration.md).
+The service's `ServiceAuthHandler` remains the single certificate authentication mechanism; the former calendar-specific handler was removed to avoid competing Jakarta Security handlers after consolidation.
 
 ## 3. Persistence units
 - `betula0` (`jdbc/betuladb`, persistence module) and `studentsPU` (`jdbc/studdb`) / `calendarsPU` (`jdbc/calendar`) (calendar module).
-- `betula0` has schema-generation `create` / `eclipselink.ddl-generation=create-tables`; this needs a safety review before repackaging.
-- `server-service/src/main/resources/META-INF/persistence.xml` declares an empty `my_persistence_unit`; clean it up when persistence moves in.
+- The persistence and calendar modules now package as ordinary JARs and are runtime dependencies of `server-service`; their `persistence.xml` descriptors remain in their JAR roots.
+- Existing schema generation is retained: `betula0` has `create` / `create-tables` and writes DDL to `domain-dir/config/betuladb-script`; `studentsPU` has `create`; `calendarsPU` has `create` / `create-or-extend-tables`. Packaging is not intended to change these behaviors.
+- The unused empty `server-service/src/main/resources/META-INF/persistence.xml` (`my_persistence_unit`) has been removed.
 - Web has no persistence units and no `@PersistenceContext`.
 
 ## 4. server-admin-authentication
