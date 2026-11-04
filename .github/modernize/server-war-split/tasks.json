@@ -190,7 +190,7 @@
     {
       "id": "final-split-validation",
       "title": "Validate split acceptance criteria and document deferred migration",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         "remove-ear-update-bundle"
       ],

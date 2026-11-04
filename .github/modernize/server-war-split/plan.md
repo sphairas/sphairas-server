@@ -85,3 +85,13 @@ The split is performed on Payara Full. Preserve the existing modernized UI and i
 ## Execution tracking
 
 See [`tasks.json`](./tasks.json) for the dependency-ordered work items and their acceptance criteria.
+
+## Final validation (split complete)
+
+- Payara Full, two independent WARs: `/web` (`server-web`) and `/service` (`server-service`, bundling `server-persistence` and `server-calendar` as JARs). No EAR and no shared library directory; each WAR carries its own copy of `sphairas-server-libs` and `de.noten`.
+- REST-only boundary: `server-web` has no dependency on service, persistence or calendar modules, and no `@EJB`, `InitialContext` or `java:global` usage. All service calls go through `ServiceInternalClient`. Remaining `@EJB` injections are inside `server-service` only.
+- Verified manually on Docker/Payara 7: startup of both WARs, client-certificate authentication on `/service`, web login, report creation, documents, and the calendar routes.
+- Database schema generation settings were left unchanged; no schema recreation was introduced.
+- The JSF-based UI is unchanged.
+- Deferred, separate major effort: moving to a MicroProfile-only runtime. EAR removal does not complete this; it still requires replacing the Payara Full features in use (EJB, JPA/JTA, security, JMS).
+- `server-admin-authentication` remains a separate legacy deployment outside the bundle.
