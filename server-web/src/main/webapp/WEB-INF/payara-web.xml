@@ -3,7 +3,7 @@
 <payara-web-app error-url="">
     <!--httpservlet-security-provider="iserv-imap-auth">-->
     <!--<context-root>/web</context-root>-->
-    <context-root>${web.module.context.root}</context-root>
+    <context-root>/web</context-root>
     <!--${com.sun.aas.instanceRoot}-->
     <!--    <property name="alternatedocroot_1" value="from=/dav/* dir=/opt/glassfish-4.1/glassfish/domains/domain1/app-resources/"/>-->
     <security-role-mapping>

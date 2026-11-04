@@ -12,7 +12,6 @@
       
     <modules>
         <module>server-admin-authentication</module>
-        <module>server-ear</module>
         <module>server-persistence</module>
         <module>server-calendar</module>
         <module>server-web</module>
