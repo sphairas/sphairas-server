@@ -29,7 +29,7 @@ import org.thespheres.ical.builder.ICalendarBuilder;
 import org.thespheres.ical.util.IComponentUtilities;
 
 @Stateless
-@Path("reports")
+@Path("calendar/reports")
 public class ReportDatesResource {
 
     @EJB

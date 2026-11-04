@@ -32,7 +32,7 @@ import org.thespheres.betula.services.vcard.VCardStudentsCollection;
 import org.thespheres.ical.VCard;
 
 @Stateless
-@Path("students")
+@Path("calendar/students")
 public class StudentsResource {
 
     private static JAXBContext collectionJAXB;

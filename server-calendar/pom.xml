@@ -7,7 +7,7 @@
         <version>2.0-SNAPSHOT</version>
     </parent>
     <artifactId>server-calendar</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>Calendar</name>
     
     <properties>
@@ -77,11 +77,6 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.4.0</version>
             </plugin>
             <!--            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

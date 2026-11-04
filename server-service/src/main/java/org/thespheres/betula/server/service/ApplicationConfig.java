@@ -28,6 +28,9 @@ public class ApplicationConfig extends Application {
      * out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(org.thespheres.betula.calendar.rest.ReportDatesResource.class);
+        resources.add(org.thespheres.betula.calendar.rest.StudentsResource.class);
+        resources.add(org.thespheres.betula.calendar.rest.TicketsResource.class);
         resources.add(org.thespheres.betula.server.beans.clients.AmbiguousDateExceptionMapper.class);
         resources.add(org.thespheres.betula.server.beans.clients.InternalParamConverterProvider.class);
         resources.add(org.thespheres.betula.server.beans.clients.json.JsonbContextResolver.class);

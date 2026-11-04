@@ -27,7 +27,7 @@ import org.thespheres.ical.UID;
 import org.thespheres.ical.builder.ICalendarBuilder;
 
 @Stateless
-@Path("tickets")
+@Path("calendar/tickets")
 public class TicketsResource {
 
     @EJB

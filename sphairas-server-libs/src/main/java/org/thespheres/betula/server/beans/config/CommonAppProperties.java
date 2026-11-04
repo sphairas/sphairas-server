@@ -55,7 +55,7 @@ public class CommonAppProperties {
     public static DirContext lookupAppResourcesContext() {
         try {
             final Context c = new InitialContext();
-            return (DirContext) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesContext");
+            return (DirContext) c.lookup("java:module/AppResourcesContext");
         } catch (NamingException ne) {
             Logger.getLogger(CommonAppProperties.class.getName()).log(Level.SEVERE, "exception caught", ne);
             throw new RuntimeException("Resource AppResourcesContext not found.", ne);

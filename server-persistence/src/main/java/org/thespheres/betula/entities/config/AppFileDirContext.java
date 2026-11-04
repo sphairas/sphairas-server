@@ -37,7 +37,7 @@ public class AppFileDirContext extends FileDirContext {
     private AppResourcesNotificator lookupAppResourcesNotificatorBean() {
         try {
             final Context c = new InitialContext();
-            return (AppResourcesNotificator) c.lookup("java:global/Betula_Server/Betula_Persistence/AppResourcesNotificator!org.thespheres.betula.entities.config.AppResourcesNotificator");
+            return (AppResourcesNotificator) c.lookup("java:module/AppResourcesNotificator");
         } catch (NamingException ne) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
             throw new RuntimeException(ne);
