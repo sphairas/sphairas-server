@@ -2,13 +2,23 @@
 
 This guide covers the configuration needed for the web application to call the
 service API, the calendar route changes, and the web report-generation resources.
-The web and service WARs each package their own `sphairas-server-libs` dependency;
-do not add that library to the EAR's shared `lib/` directory.
-The EAR also carries the `javax.xml.bind:jaxb-api` 2.3.1 API in its shared
-`lib/` directory because Payara scans legacy EJB method signatures before the
-WAR classloader is available. Keep this `javax` API: the external Container
-types and existing JAXB annotations use the legacy namespace. The WARs retain
-their own JAXB dependencies for standalone deployment.
+Deploy `server-web` and `server-service` as separate WARs on Payara Full, at
+`/web` and `/service` respectively. The Docker image also deploys the legacy
+`server-admin-authentication` WAR separately. There is no EAR deployment.
+
+Each application WAR packages its own `sphairas-server-libs` and legacy
+`javax.xml.bind` dependencies. Keep the `javax` JAXB API: external Container
+types and existing JAXB annotations use the legacy namespace. The Docker
+image also provisions server-wide libraries, including the MySQL driver, as
+configured in the Dockerfile.
+
+## Authentication
+
+Each WAR has its own authentication configuration. The web WAR's
+`AuthHandler` declares a custom form authentication mechanism and handles web
+authentication; the service WAR's `ServiceAuthHandler` implements a
+certificate-based `HttpAuthenticationMechanism`. A mechanism handler alone
+does not register an authentication mechanism.
 
 ## Service API URL
 
@@ -47,10 +57,6 @@ Desktop clients must configure `calendarBaseURL` **with a trailing slash**
 (e.g. `https://host:8181/service/api/calendar/`), because the client appends
 `reports/` directly.
 
-Each WAR (`/web`, `/service`) is self-contained and needs its own
-`HttpAuthenticationMechanism` bean (`AuthHandler`, `ServiceAuthHandler`); a
-mechanism handler alone does not register the authentication module.
-
 The calendar REST resources now use the service API base URL with a
 `calendar/` prefix:
 
@@ -78,8 +84,8 @@ In desktop client configuration, `calendarBaseURL` must point to the new
 calendar REST base, ending in `/service/api/calendar/`. `studentsUrl` must
 point to the new student servlet URL, `/service/calendar/students`. Explicit
 values for these keys take precedence over the generated defaults. Existing
-values containing `/calendar/` must be updated; otherwise those clients will
-continue to call the removed context.
+values pointing to the old `/calendar` context must be updated; otherwise
+those clients will continue to call the removed context.
 
 The internal web-to-service calendar calls continue to use
 `BETULA_SERVICE_API_URL`; no separate calendar service URL is needed.
