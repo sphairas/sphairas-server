@@ -41,9 +41,8 @@ ENV DOMAIN_DIR=${PAYARA_DIR}/glassfish/domains/${DOMAIN_NAME}\
 COPY --chown=payara:payara target/lib/mysql-connector-java-*.jar ${PAYARA_DIR}/glassfish/lib
 
 #COPY --chown=payara:payara server-application-clients-module/target/server-application-clients-module-2.0-SNAPSHOT.war $DEPLOY_DIR/ApplicationClients.war
-COPY --chown=payara:payara server-admin-authentication/target/server-admin-authentication-2.0-SNAPSHOT.war $DEPLOY_DIR/AdminAuthentication.war
-COPY --chown=payara:payara server-service/target/server-service-2.0-SNAPSHOT.war $DEPLOY_DIR/service.war
-COPY --chown=payara:payara server-web/target/server-web-2.0-SNAPSHOT.war $DEPLOY_DIR/web.war
+COPY --chown=payara:payara server-service/target/server-service-2.1-SNAPSHOT.war $DEPLOY_DIR/service.war
+COPY --chown=payara:payara server-web/target/server-web-2.1-SNAPSHOT.war $DEPLOY_DIR/web.war
 
 COPY --chown=payara:payara target/lib/* ${DOMAIN_DIR}/lib/
 

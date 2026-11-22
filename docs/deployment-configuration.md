@@ -3,8 +3,9 @@
 This guide covers the configuration needed for the web application to call the
 service API, the calendar route changes, and the web report-generation resources.
 Deploy `server-web` and `server-service` as separate WARs on Payara Full, at
-`/web` and `/service` respectively. The Docker image also deploys the legacy
-`server-admin-authentication` WAR separately. There is no EAR deployment.
+`/web` and `/service` respectively. The Docker image no longer deploys the
+legacy `server-admin-authentication` WAR or an EAR; the legacy module's source
+is retained.
 
 Each application WAR packages its own `sphairas-server-libs` and legacy
 `javax.xml.bind` dependencies. Keep the `javax` JAXB API: external Container
@@ -55,7 +56,8 @@ clients and reverse-proxy routes before deploying this version; the separate
 
 Updated desktop clients detect server version 2.1 and use the new URLs by
 default. Existing explicit URL settings take precedence and must be updated
-or removed if they still refer to the old routes. Configured `calendarBaseURL`
+or removed if they still refer to the old `/admins` or calendar routes.
+Configured `calendarBaseURL`
 values must have a trailing slash (e.g.
 `https://host:8181/service/api/calendar/`), because the client appends
 `reports/` directly.
