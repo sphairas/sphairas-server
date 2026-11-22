@@ -53,8 +53,11 @@ The calendar module is now packaged inside the service WAR. Update external
 clients and reverse-proxy routes before deploying this version; the separate
 `/calendar` context is no longer deployed.
 
-Desktop clients must configure `calendarBaseURL` **with a trailing slash**
-(e.g. `https://host:8181/service/api/calendar/`), because the client appends
+Updated desktop clients detect server version 2.1 and use the new URLs by
+default. Existing explicit URL settings take precedence and must be updated
+or removed if they still refer to the old routes. Configured `calendarBaseURL`
+values must have a trailing slash (e.g.
+`https://host:8181/service/api/calendar/`), because the client appends
 `reports/` directly.
 
 The calendar REST resources now use the service API base URL with a
@@ -80,12 +83,11 @@ For example, the new REST URL for report dates is
 proxy publishes the application below an additional prefix such as `/admins`,
 include that prefix in the externally configured URL.
 
-In desktop client configuration, `calendarBaseURL` must point to the new
-calendar REST base, ending in `/service/api/calendar/`. `studentsUrl` must
-point to the new student servlet URL, `/service/calendar/students`. Explicit
-values for these keys take precedence over the generated defaults. Existing
-values pointing to the old `/calendar` context must be updated; otherwise
-those clients will continue to call the removed context.
+For desktop client overrides, `calendarBaseURL` points to the new calendar
+REST base, ending in `/service/api/calendar/`, and `studentsUrl` points to
+`/service/api/calendar/students`. Existing values pointing to the old
+`/calendar` context must be updated; otherwise those clients will continue to
+call the removed context.
 
 The internal web-to-service calendar calls continue to use
 `BETULA_SERVICE_API_URL`; no separate calendar service URL is needed.

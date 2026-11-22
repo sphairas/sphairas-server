@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 @Stateless
 public class InstanceInfo {
 
-    public static final String SERVER_VERSION = "2";
+    public static final String SERVER_VERSION = "2.1";
 
 //    @Context
 //    private UriInfo context;
